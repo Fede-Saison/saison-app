@@ -451,10 +451,10 @@ function TarjetaOferta({ oferta, onClick, perfil }) {
   const tituloBase = oferta.titulo.endsWith("/a") ? oferta.titulo.slice(0,-2) : oferta.titulo;
   const tituloSuffix = oferta.titulo.endsWith("/a") ? "/a" : "";
   const rows = [
-    { label:"CONTRATO", value: oferta.horario },
+    { label:"CONTRATO", value: oferta.contrato },
     { label:"ALOJAMIENTO", value: esCiudad ? "No incluido" : "Hab. incluida", accent: !esCiudad },
     { label:"SALARIO", value: oferta.salario },
-    { label:"REGIÓN", value: oferta.ciudad },
+    { label:"REGIÓN", value: oferta.localidad },
   ];
   return (
     <div
@@ -618,7 +618,16 @@ if (!error && data) setOfertasDB(data);
 
   const filtradas = ofertas.filter(o=>{
   const mq = !q||[o.titulo,o.localidad,o.descripcion,o.puesto].some(s=>s?.toLowerCase().includes(q.toLowerCase()));
-  const mr = regionActiva==="todas"||o.region===regionActiva;
+ const REGION_MAP = {
+  'costa-azul': 'Costa Azul',
+  'alpes': 'Alpes / Saboya',
+  'corcega': 'Córcega',
+  'atlantica': 'Costa Atlántica',
+  'pais-vasco': 'País Vasco',
+  'provenza': 'Provenza',
+  'borgona': 'Borgoña / Ródano'
+};
+const mr = regionActiva==="todas"||o.region===(REGION_MAP[regionActiva]||regionActiva);
   const ma = ofertasDB.length > 0 ? (esAloj ? o.alojamiento===true : o.alojamiento===false) : true;
   return mq&&mr&&ma;
 });
