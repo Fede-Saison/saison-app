@@ -350,7 +350,7 @@ function ModalOferta({ oferta, onCerrar, onToast, esPremium, nombreUsuario, perf
   const match = calcularMatch(oferta, perfil);
   const copiar = () => navigator.clipboard.writeText(generarCarta(oferta, nombreUsuario)).then(()=>onToast("Carta copiada"));
   const intentarAplicar = () => { if (!esPremium) { setMuroPago(true); return; } if (oferta.emailEmpleador) window.location.href = `mailto:${oferta.emailEmpleador}`; };
-  const esCiudad = oferta.tipo==="ciudad";
+  const esCiudad = oferta.tipo==="ciudad" || false;
   return (
     <>
       <div onClick={onCerrar} style={{ position:"fixed", inset:0, background:"rgba(11,20,38,0.7)", backdropFilter:"blur(8px)", zIndex:500, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
@@ -403,7 +403,7 @@ function ModalOferta({ oferta, onCerrar, onToast, esPremium, nombreUsuario, perf
           </div>
           <p style={{ fontSize:"0.88rem", color:"#2D3A50", lineHeight:1.75, margin:"0 0 1.25rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{oferta.descripcion}</p>
           <div style={{ marginBottom:"1.75rem" }}>
-            {oferta.requisitos.map((r,i)=>(
+            {(oferta.requisitos||[]).map((r,i)=>(
               <div key={i} style={{ display:"flex", gap:"0.55rem", marginBottom:"0.4rem", alignItems:"flex-start" }}>
                 <span style={{ flexShrink:0, marginTop:"3px" }}><Icon name="check" size={12} color={BRAND.cobalt} strokeWidth={2.5} /></span>
                 <span style={{ fontSize:"0.86rem", color:"#2D3A50", lineHeight:1.55, fontFamily:"'Hanken Grotesk',sans-serif" }}>{r}</span>
