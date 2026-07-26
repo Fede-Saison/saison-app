@@ -89,21 +89,34 @@ function cumpleDocumentacion(docUsuario) {
 
 function calcularMatch(oferta, perfil) {
   if (!perfil || (!perfil.frances && !perfil.documentacion && !perfil.puesto)) return null;
-
   const problemas = [];
+  const PUESTO_MAP = {
+    "Servicio de sala / Restaurante": ["Sala"],
+    "Housekeeping / Limpieza": ["Housekeeping"],
+    "Cocina / Ayudante / Lavaplatos": ["Cocina"],
+    "Recepción / Atención al cliente": ["Recepción"],
+    "Voiturier": ["Recepción"],
+    "Barman": ["Bar"],
+    "Animación": ["Otro"],
+    "Mantenimiento": ["Otro"],
+  };
+  if (perfil.puesto && oferta.puesto) {
+    const puestosCompatibles = PUESTO_MAP[perfil.puesto] || [];
+    if (!puestosCompatibles.includes(oferta.puesto)) {
+      problemas.push({ tipo: "puesto", msg: `Tu perfil es de ${perfil.puesto} — este puesto es diferente` });
+    }
+  }
   const puestoKey = Object.keys(FRANCES_POR_PUESTO).find(k =>
-    oferta.titulo.toLowerCase().includes(k.toLowerCase())
+    oferta.titulo?.toLowerCase().includes(k.toLowerCase())
   );
   const nivelRequerido = puestoKey ? FRANCES_POR_PUESTO[puestoKey] : "a2";
-
-  if (!cumpleDocumentacion(perfil.documentacion)) {
-    problemas.push({ tipo: "docs", msg: "Necesitás documentación válida para trabajar en Francia" });
-  }
   if (!cumpleNivelFrances(perfil.frances, nivelRequerido) && nivelRequerido !== "ninguno") {
     const labels = { a2:"A2", b1:"B1", b2:"B2" };
     problemas.push({ tipo: "frances", msg: `Este puesto requiere francés ${labels[nivelRequerido] || nivelRequerido}` });
   }
-
+  if (!cumpleDocumentacion(perfil.documentacion)) {
+    problemas.push({ tipo: "docs", msg: "Necesitás documentación válida para trabajar en Francia" });
+  }
   if (problemas.length === 0) return { estado: "match", problemas: [] };
   return { estado: "parcial", problemas };
 }
