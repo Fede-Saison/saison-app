@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { supabase } from "./supabase";
 
 // ================================================================
 // SAISON — DESIGN SYSTEM
@@ -589,23 +590,38 @@ function ModalPerfil({ perfil, onGuardar, onCerrar }) {
 // TAB OFERTAS
 // ================================================================
 function TabOfertas({ usuario, onToast, esPremium, onCompletarPerfil }) {
-  const [modo, setModo] = useState("alojamiento");
+ const [modo, setModo] = useState("alojamiento");
+  const [ofertasDB, setOfertasDB] = useState([]);
+
+  useEffect(() => {
+    const fetchOfertas = async () => {
+      const { data, error } = await supabase
+        .from('ofertas')
+  
+        .select('*')
+        .eq('activa', true);
+      console.log('Supabase response:', data, error);
+if (!error && data) setOfertasDB(data);
+    };
+    fetchOfertas();
+  }, []);
   const [q, setQ] = useState("");
   const [regionAloj, setRegionAloj] = useState("todas");
   const [regionCiudad, setRegionCiudad] = useState("todas");
   const [sel, setSel] = useState(null);
   const perfil = usuario?.perfil || {};
   const esAloj = modo==="alojamiento";
-  const ofertas = esAloj ? OFERTAS_ALOJAMIENTO : OFERTAS_CIUDAD;
+  const ofertas = ofertasDB.length > 0 ? ofertasDB : (esAloj ? OFERTAS_ALOJAMIENTO : OFERTAS_CIUDAD);
   const regionActiva = esAloj ? regionAloj : regionCiudad;
   const setRegion = esAloj ? setRegionAloj : setRegionCiudad;
   const regiones = esAloj ? REGIONES_ALOJAMIENTO : REGIONES_CIUDAD;
 
   const filtradas = ofertas.filter(o=>{
-    const mq = !q||[o.titulo,o.ciudad,o.establecimiento].some(s=>s.toLowerCase().includes(q.toLowerCase()));
-    const mr = regionActiva==="todas"||o.region===regionActiva;
-    return mq&&mr;
-  });
+  const mq = !q||[o.titulo,o.localidad,o.descripcion,o.puesto].some(s=>s?.toLowerCase().includes(q.toLowerCase()));
+  const mr = regionActiva==="todas"||o.region===regionActiva;
+  const ma = ofertasDB.length > 0 ? (esAloj ? o.alojamiento===true : o.alojamiento===false) : true;
+  return mq&&mr&&ma;
+});
 
   // Ordenar: matches primero
   const ordenadas = [...filtradas].sort((a,b)=>{
@@ -1481,16 +1497,30 @@ function PantallaAuth({ onLogin }) {
   const [form, setForm] = useState({ nombre:"", email:"", password:"" });
   const [error, setError] = useState("");
   const set = (k,v) => setForm(f=>({...f,[k]:v}));
-  const handleSubmit = () => {
-    if (modo==="registro"&&!form.nombre.trim()) { setError("Ingresá tu nombre"); return; }
-    if (!form.email.includes("@")) { setError("Email inválido"); return; }
-    if (form.password.length<6) { setError("Mínimo 6 caracteres"); return; }
-    setError("");
-    onLogin(
-      { nombre:form.nombre||form.email.split("@")[0], email:form.email, esPremium:false, perfil:{ nombre:form.nombre } },
-      modo === "registro"
-    );
-  };
+const handleSubmit = async () => {
+  if (modo==="registro"&&!form.nombre.trim()) { setError("Ingresá tu nombre"); return; }
+  if (!form.email.includes("@")) { setError("Email inválido"); return; }
+  if (form.password.length<6) { setError("Mínimo 6 caracteres"); return; }
+  setError("");
+
+  if (modo === "registro") {
+    const { data, error } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password,
+      options: { data: { nombre: form.nombre } }
+    });
+    if (error) { setError(error.message); return; }
+    onLogin({ nombre: form.nombre, email: form.email, esPremium: false, id: data.user.id });
+  } else {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: form.email,
+      password: form.password
+    });
+    if (error) { setError("Email o contraseña incorrectos"); return; }
+    const u = data.user;
+    onLogin({ nombre: u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: false, id: u.id });
+  }
+};
   return (
     <div style={{ minHeight:"100vh", background:BRAND.bone, display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", padding:"2rem 1.75rem" }}>
       <div style={{ marginBottom:"2rem", textAlign:"center" }}>
