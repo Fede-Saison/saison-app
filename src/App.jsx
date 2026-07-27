@@ -269,12 +269,60 @@ const AFILIADOS = {
 };
 
 const PUESTOS_FR = {
-  "Mesero de Desayunos":"serveur(se) de petit-déjeuner","Jefe de Partida — Caliente":"chef de partie chaud","Jefe de Partida — Frío":"chef de partie froid","Mesero de Sala":"serveur(se) de salle","Runner":"runner","Lavaplatos":"plongeur(se)","Chef de Cocina":"chef de cuisine","Crepero/a":"crêpier(ère)","Camarero/a de Sala":"serveur(se) de salle","Ayudante de Cocina":"commis de cuisine","Recepcionista":"réceptionniste","Mesero/a de Terraza":"serveur(se) en terrasse","Barman / Barmaid":"barman / barmaid","Trabajador Agrícola":"ouvrier(ère) agricole",
+  "Mesero de Desayunos":"Serveur(se) de petit-déjeuner",
+  "Jefe de Partida — Caliente":"Chef de partie chaud",
+  "Jefe de Partida — Frío":"Chef de partie froid",
+  "Mesero de Sala":"Serveur(se) de salle",
+  "Runner":"Runner",
+  "Lavaplatos":"Plongeur(se)",
+  "Chef de Cocina":"Chef de cuisine",
+  "Crepero/a":"Crêpier(ère)",
+  "Camarero/a de Sala":"Serveur(se) de salle",
+  "Ayudante de Cocina":"Commis de cuisine",
+  "Recepcionista":"Réceptionniste",
+  "Mesero/a de Terraza":"Serveur(se) en terrasse",
+  "Barman / Barmaid":"Barman / Barmaid",
+  "Trabajador Agrícola":"Ouvrier(ère) agricole",
+  "Camarero/a de habitaciones":"Valet / Femme de chambre",
+  "Asistente de gobierno de pisos":"Assistant(e) gouvernant(e)",
+  "Equipier de habitaciones":"Équipier(ère) d'étage",
+  "Terapeuta de spa":"Thérapeute spa",
+  "Asistente de spa":"Assistant(e) spa",
+  "Bartender":"Barman / Barmaid",
+  "Ayudante de bartender":"Stagiaire bar",
+  "Sommelier":"Sommelier(ière)",
+  "Jefe/a de rango":"Chef de rang",
+  "Mozo/a de salón":"Serveur(se) de restaurant",
+  "Ayudante de cocina":"Commis de cuisine",
+  "Cocinero/a de partida":"Chef de partie",
+  "Cocinero/a de partida - Sushi":"Chef de partie sushi",
+  "Pastelero/a de partida":"Chef de partie pâtisserie",
+  "Ayudante de pastelería":"Commis pâtissier(ière)",
+  "Pastelero/a":"Commis pâtissier(ière)",
+  "Gobierno de pisos":"Gouvernant(e)",
+  "Recepcionista nocturno":"Réceptionniste de nuit",
+  "Mayordomo/a":"Majordome",
+  "Mayordomo/a de chalet":"Majordome de chalet",
+  "Valet / Portero":"Voiturier / Chasseur",
+  "Conserje":"Concierge",
+  "Agente de reservas":"Agent de réservation",
+  "Asistente administrativo/a":"Assistant(e) administratif(ve)",
+  "Técnico/a de mantenimiento":"Agent de maintenance",
+  "Animador/a Kids Club":"Animateur(trice) Kids Club",
+  "Sous-chef":"Sous-chef",
+  "Cocinero/a jefe":"Chef de cuisine",
+  "Responsable de desayunos":"Responsable petit-déjeuner",
+  "Primer/a camarero/a de habitaciones":"Valet / Femme de chambre",
+  "Equipier / Lencero/a":"Équipier(ère) / Personnel de lingerie",
+  "Cocinero/a de partida / Lavaplatos":"Chef de partie / Plongeur(se)",
+  "Recepcionista / Guest relation":"Réceptionniste / Guest relation",
 };
 
-function generarCarta(oferta, nombre) {
+function generarCarta(oferta, nombre, esPremium) {
   const fr = PUESTOS_FR[oferta.titulo] || oferta.titulo;
-  return `Madame, Monsieur,\n\nJe me permets de vous adresser ma candidature au poste de ${fr} au sein de votre établissement, ${oferta.establecimiento}, situé à ${oferta.ciudad}.\n\nPassionné(e) par le secteur du tourisme et de l'hôtellerie, je recherche une expérience saisonnière enrichissante en France. Je suis convaincu(e) que mes qualités — rigueur, sens du service et esprit d'équipe — correspondent pleinement aux valeurs de votre établissement.\n\nJe suis disponible immédiatement et dispose d'une grande flexibilité horaire. Je serais ravi(e) de vous rencontrer lors d'un entretien.\n\nDans l'attente de votre retour,\n\n${nombre||"[Ton prénom et nom]"}`;
+  const localidad = esPremium ? (oferta.localidad || "LOCALIDAD/CIUDAD") : "LOCALIDAD/CIUDAD";
+const establecimiento = "[NOMBRE DEL ESTABLECIMIENTO]";
+  return `Madame, Monsieur,\n\nJe me permets de vous adresser ma candidature au poste de ${fr} au sein de votre établissement ${establecimiento}, situé à ${localidad}.\n\nPassionné(e) par le secteur du tourisme et de l'hôtellerie, je recherche une expérience saisonnière enrichissante en France. Je suis convaincu(e) que mes qualités — rigueur, sens du service et esprit d'équipe — correspondent pleinement aux valeurs de votre établissement.\n\nJe suis disponible immédiatement et dispose d'une grande flexibilité horaire. Je serais ravi(e) de vous rencontrer lors d'un entretien.\n\nDans l'attente de votre retour,\n\n${nombre||"[Tu nombre y apellido]"}`;
 }
 
 // ================================================================
@@ -361,7 +409,7 @@ function ModalOferta({ oferta, onCerrar, onToast, esPremium, nombreUsuario, perf
   const [muroPago, setMuroPago] = useState(false);
   if (!oferta) return null;
   const match = calcularMatch(oferta, perfil);
-  const copiar = () => navigator.clipboard.writeText(generarCarta(oferta, nombreUsuario)).then(()=>onToast("Carta copiada"));
+   const copiar = () => navigator.clipboard.writeText(generarCarta(oferta, nombreUsuario, esPremium)).then(()=>onToast("Carta copiada"));
   const intentarAplicar = () => { if (!esPremium) { setMuroPago(true); return; } if (oferta.emailEmpleador) window.location.href = `mailto:${oferta.emailEmpleador}`; };
   const esCiudad = oferta.tipo==="ciudad" || false;
   return (
