@@ -36,8 +36,8 @@ const S = {
 };
 
 const STRIPE = {
-  mensual:    "https://buy.stripe.com/tu_link_mensual",
-  trimestral: "https://buy.stripe.com/tu_link_trimestral",
+  mensual:    "https://buy.stripe.com/8x2fZiaO9ezr3Y86iyfnO00",
+  trimestral: "https://buy.stripe.com/fZudRag8t8b33Y822ifnO01",
 };
 
 // ================================================================
