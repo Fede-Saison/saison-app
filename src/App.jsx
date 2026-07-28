@@ -321,7 +321,7 @@ const PUESTOS_FR = {
 function generarCarta(oferta, nombre, esPremium) {
   const fr = PUESTOS_FR[oferta.titulo] || oferta.titulo;
   const localidad = esPremium ? (oferta.localidad || "LOCALIDAD/CIUDAD") : "LOCALIDAD/CIUDAD";
-const establecimiento = "[NOMBRE DEL ESTABLECIMIENTO]";
+const establecimiento = esPremium ? (oferta.nombre_establecimiento || "[NOMBRE DEL ESTABLECIMIENTO]") : "[NOMBRE DEL ESTABLECIMIENTO]";
   return `Madame, Monsieur,\n\nJe me permets de vous adresser ma candidature au poste de ${fr} au sein de votre établissement ${establecimiento}, situé à ${localidad}.\n\nPassionné(e) par le secteur du tourisme et de l'hôtellerie, je recherche une expérience saisonnière enrichissante en France. Je suis convaincu(e) que mes qualités — rigueur, sens du service et esprit d'équipe — correspondent pleinement aux valeurs de votre établissement.\n\nJe suis disponible immédiatement et dispose d'une grande flexibilité horaire. Je serais ravi(e) de vous rencontrer lors d'un entretien.\n\nDans l'attente de votre retour,\n\n${nombre||"[Tu nombre y apellido]"}`;
 }
 
@@ -410,7 +410,7 @@ function ModalOferta({ oferta, onCerrar, onToast, esPremium, nombreUsuario, perf
   if (!oferta) return null;
   const match = calcularMatch(oferta, perfil);
    const copiar = () => navigator.clipboard.writeText(generarCarta(oferta, nombreUsuario, esPremium)).then(()=>onToast("Carta copiada"));
-  const intentarAplicar = () => { if (!esPremium) { setMuroPago(true); return; } if (oferta.emailEmpleador) window.location.href = `mailto:${oferta.emailEmpleador}`; };
+const intentarAplicar = () => { if (!esPremium) { setMuroPago(true); return; } if (oferta.email_empleador) { const carta = generarCarta(oferta, nombreUsuario, esPremium); if (oferta.email_empleador.includes('@')) { window.location.href = `mailto:${oferta.email_empleador}?subject=Candidature - ${PUESTOS_FR[oferta.titulo] || oferta.titulo}&body=${encodeURIComponent(carta)}`; } else { window.open(oferta.email_empleador.startsWith('http') ? oferta.email_empleador : `https://${oferta.email_empleador}`, '_blank'); } } };
   const esCiudad = oferta.tipo==="ciudad" || false;
   return (
     <>
@@ -759,7 +759,7 @@ const mr = regionActiva==="todas"||o.region===(REGION_MAP[regionActiva]||regionA
           </div>
         )}
       </div>
-      <ModalOferta oferta={sel} onCerrar={()=>setSel(null)} onToast={onToast} esPremium={esPremium} nombreUsuario={usuario?.perfil?.nombre} perfil={perfil} />
+      <ModalOferta oferta={sel} onCerrar={()=>setSel(null)} onToast={onToast} esPremium={esPremium} nombreUsuario={usuario?.perfil?.nombre || usuario?.nombre} perfil={perfil} />
     </div>
   );
 }
@@ -1574,14 +1574,24 @@ const handleSubmit = async () => {
   setError("");
 
   if (modo === "registro") {
-    const { data, error } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.password,
-      options: { data: { nombre: form.nombre } }
+  const { data, error } = await supabase.auth.signUp({
+    email: form.email,
+    password: form.password,
+    options: { data: { nombre: form.nombre } }
+  });
+  if (error) { setError(error.message); return; }
+  
+  const { data: perfilExistente } = await supabase.from('Perfiles').select('es_premium').eq('email', form.email).single();
+  
+  if (!perfilExistente) {
+    await supabase.from('Perfiles').insert({ 
+      email: form.email, 
+      nombre: form.nombre, 
+      es_premium: false 
     });
-    if (error) { setError(error.message); return; }
-    const { data: perfil } = await supabase.from('perfiles').select('es_premium').eq('email', form.email).single();
-onLogin({ nombre: form.nombre, email: form.email, esPremium: perfil?.es_premium || false, id: data.user.id });
+  }
+  
+  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, id: data.user.id });
   } else {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: form.email,
@@ -1589,7 +1599,8 @@ onLogin({ nombre: form.nombre, email: form.email, esPremium: perfil?.es_premium 
     });
     if (error) { setError("Email o contraseña incorrectos"); return; }
       const u = data.user;
-  const { data: perfilLogin } = await supabase.from('perfiles').select('es_premium').eq('email', u.email).single();
+  const { data: perfilLogin } = await supabase.from('Perfiles').select('es_premium').eq('email', u.email).single();
+console.log('perfil login:', perfilLogin);
 onLogin({ nombre: u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, id: u.id });
   }
 };
