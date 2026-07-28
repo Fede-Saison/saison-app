@@ -23,3 +23,24 @@ module.exports = async (req, res) => {
   }
 
   if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const email = session.customer_email;
+
+    await supabase
+      .from('perfiles')
+      .update({ es_premium: true })
+      .eq('email', email);
+  }
+
+  if (event.type === 'customer.subscription.deleted') {
+    const subscription = event.data.object;
+    const customer = await stripe.customers.retrieve(subscription.customer);
+
+    await supabase
+      .from('perfiles')
+      .update({ es_premium: false })
+      .eq('email', customer.email);
+  }
+
+  res.status(200).json({ received: true });
+};
