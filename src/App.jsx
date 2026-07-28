@@ -1580,15 +1580,17 @@ const handleSubmit = async () => {
       options: { data: { nombre: form.nombre } }
     });
     if (error) { setError(error.message); return; }
-    onLogin({ nombre: form.nombre, email: form.email, esPremium: false, id: data.user.id });
+    const { data: perfil } = await supabase.from('perfiles').select('es_premium').eq('email', form.email).single();
+onLogin({ nombre: form.nombre, email: form.email, esPremium: perfil?.es_premium || false, id: data.user.id });
   } else {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: form.email,
       password: form.password
     });
     if (error) { setError("Email o contraseña incorrectos"); return; }
-    const u = data.user;
-    onLogin({ nombre: u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: false, id: u.id });
+      const u = data.user;
+  const { data: perfilLogin } = await supabase.from('perfiles').select('es_premium').eq('email', u.email).single();
+onLogin({ nombre: u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, id: u.id });
   }
 };
   return (
