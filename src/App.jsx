@@ -1721,33 +1721,32 @@ export default function App() {
     // Documentación 25%
     if (perfil.documentacion) {
       const doc = perfil.documentacion.toLowerCase();
-      if (doc.includes("europeo")) score += 25;
+      if (doc.includes("europeo") || doc.includes("titre") || doc.includes("permiso")) score += 25;
       else if (doc.includes("vvt aprobada")) score += 20;
-      else if (doc.includes("vvt en tramite")) score += 10;
+      else if (doc.includes("tramite")) score += 10;
     }
-    
+
     // Puesto 20%
     if (perfil.puesto) score += 20;
-    
-    // Experiencia — usamos disponibilidad como proxy 20%
+
+    // Disponibilidad 20%
     if (perfil.disponibilidad) {
       const d = perfil.disponibilidad.toLowerCase();
-      if (d.includes("inmediata") || d.includes("flexible")) score += 20;
-      else if (d.includes("2026")) score += 15;
-      else score += 10;
+      if (d.includes("ambas")) score += 20;
+      else if (d.includes("verano") || d.includes("invierno")) score += 14;
     }
-    
+
     // Francés 20%
     if (perfil.frances) {
       const f = perfil.frances.toLowerCase();
-      if (f.includes("c1") || f.includes("c2") || f.includes("nativo")) score += 20;
+      if (f.includes("c1") || f.includes("c2")) score += 20;
       else if (f.includes("b2")) score += 18;
       else if (f.includes("b1")) score += 14;
-      else if (f.includes("a2")) score += 10;
-      else if (f.includes("a1")) score += 5;
+      else if (f.includes("a2")) score += 8;
+      else if (f.includes("a1")) score += 4;
     }
-    
-    // Flexibilidad de zona 15%
+
+    // País 15%
     if (perfil.pais) score += 15;
 
     const semaforo = score >= 85 ? "verde" : score >= 65 ? "amarillo" : "rojo";
