@@ -1769,19 +1769,7 @@ export default function App() {
   }
 
   const esPremium = usuario?.esPremium || false;
-async function guardarPerfil(perfil) {
-    await supabase.from('Perfiles').update({
-      nombre: perfil.nombre,
-      pais: perfil.pais,
-      puesto: perfil.puesto,
-      frances: perfil.frances,
-      disponibilidad: perfil.disponibilidad,
-      documentacion: perfil.documentacion,
-    }).eq('email', usuario.email);
-    setUsuario(u=>({...u, perfil}));
-    setMostrarPerfil(false);
-    toast("Perfil actualizado · matching activado");
-  }
+
   return (
     <>
       <style>{`
