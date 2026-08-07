@@ -567,12 +567,15 @@ function TarjetaOferta({ oferta, onClick, perfil }) {
 function BannerPerfil({ perfil, onCompletar }) {
   const campos = ["nombre","pais","puesto","frances","disponibilidad","documentacion"];
   const pct = Math.round((campos.filter(c=>perfil[c]).length/campos.length)*100);
-  if (pct===100) {
+ if (pct===100) {
     return (
-      <div onClick={onCompletar} style={{ margin:"0.875rem 1.25rem 0", background:BRAND.nightMid, border:`1px solid ${BRAND.nightSoft}`, borderRadius:"0.875rem", padding:"0.875rem 1.1rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.875rem" }}>
+      <div onClick={onCompletar} style={{ margin:"0.875rem 1.25rem 0", background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"12px", padding:"0.875rem 1.1rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.875rem" }}>
+        <div style={{ width:"36px", height:"36px", borderRadius:"8px", background:BRAND.cobalt, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+          <Icon name="check" size={16} color="#fff" strokeWidth={2.5} />
+        </div>
         <div style={{ flex:1 }}>
-          <p style={{ fontSize:"0.72rem", fontWeight:600, color:BRAND.cobalt, margin:"0 0 0.1rem", fontFamily:"'DM Mono',monospace" }}>Perfil completo · Matching activo</p>
-          <p style={{ fontSize:"0.65rem", color:BRAND.mutedLight, margin:0, fontFamily:"'DM Mono',monospace" }}>Tocá para editar tu perfil →</p>
+          <p style={{ fontSize:"0.78rem", fontWeight:600, color:BRAND.night, margin:"0 0 0.1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Matching activo</p>
+          <p style={{ fontSize:"0.65rem", color:BRAND.muted, margin:0, fontFamily:"'DM Mono',monospace", letterSpacing:"0.04em" }}>Tocá para editar tu perfil</p>
         </div>
         <Icon name="arrowRight" size={16} color={BRAND.mutedLight} />
       </div>
