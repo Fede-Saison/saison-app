@@ -1587,7 +1587,7 @@ const handleSubmit = async () => {
   });
   if (error) { setError(error.message); return; }
   
-  const { data: perfilExistente } = await supabase.from('Perfiles').select('es_premium').eq('email', form.email).single();
+  const { data: perfilExistente } = await supabase.from('Perfiles').select('*').eq('email', form.email).single();
   
   if (!perfilExistente) {
     await supabase.from('Perfiles').insert({ 
@@ -1597,7 +1597,7 @@ const handleSubmit = async () => {
     });
   }
   
-  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, id: data.user.id });
+  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion } });
   } else {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: form.email,
@@ -1605,9 +1605,9 @@ const handleSubmit = async () => {
     });
     if (error) { setError("Email o contraseña incorrectos"); return; }
       const u = data.user;
-  const { data: perfilLogin } = await supabase.from('Perfiles').select('es_premium').eq('email', u.email).single();
+  const { data: perfilLogin } = await supabase.from('Perfiles').select('*').eq('email', u.email).single();
 console.log('perfil login:', perfilLogin);
-onLogin({ nombre: u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, id: u.id });
+onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion } });
   }
 };
   return (
@@ -1708,7 +1708,19 @@ export default function App() {
   }
 
   const esPremium = usuario?.esPremium || false;
-
+async function guardarPerfil(perfil) {
+    await supabase.from('Perfiles').update({
+      nombre: perfil.nombre,
+      pais: perfil.pais,
+      puesto: perfil.puesto,
+      frances: perfil.frances,
+      disponibilidad: perfil.disponibilidad,
+      documentacion: perfil.documentacion,
+    }).eq('email', usuario.email);
+    setUsuario(u=>({...u, perfil}));
+    setMostrarPerfil(false);
+    toast("Perfil actualizado · matching activado");
+  }
   return (
     <>
       <style>{`
