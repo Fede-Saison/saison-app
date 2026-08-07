@@ -1701,8 +1701,56 @@ export default function App() {
     if (pct<30) setTimeout(()=>setMostrarPerfil(true), 1500);
   }
 
-  function guardarPerfil(perfil) {
-    setUsuario(u=>({...u,perfil}));
+  async function guardarPerfil(perfil) {
+    // Calcular score automático
+    let score = 0;
+    
+    // Documentación 25%
+    if (perfil.documentacion) {
+      const doc = perfil.documentacion.toLowerCase();
+      if (doc.includes("europeo")) score += 25;
+      else if (doc.includes("vvt aprobada")) score += 20;
+      else if (doc.includes("vvt en tramite")) score += 10;
+    }
+    
+    // Puesto 20%
+    if (perfil.puesto) score += 20;
+    
+    // Experiencia — usamos disponibilidad como proxy 20%
+    if (perfil.disponibilidad) {
+      const d = perfil.disponibilidad.toLowerCase();
+      if (d.includes("inmediata") || d.includes("flexible")) score += 20;
+      else if (d.includes("2026")) score += 15;
+      else score += 10;
+    }
+    
+    // Francés 20%
+    if (perfil.frances) {
+      const f = perfil.frances.toLowerCase();
+      if (f.includes("c1") || f.includes("c2") || f.includes("nativo")) score += 20;
+      else if (f.includes("b2")) score += 18;
+      else if (f.includes("b1")) score += 14;
+      else if (f.includes("a2")) score += 10;
+      else if (f.includes("a1")) score += 5;
+    }
+    
+    // Flexibilidad de zona 15%
+    if (perfil.pais) score += 15;
+
+    const semaforo = score >= 85 ? "verde" : score >= 65 ? "amarillo" : "rojo";
+
+    await supabase.from('Perfiles').update({
+      nombre: perfil.nombre,
+      pais: perfil.pais,
+      puesto: perfil.puesto,
+      frances: perfil.frances,
+      disponibilidad: perfil.disponibilidad,
+      documentacion: perfil.documentacion,
+      score,
+      semaforo,
+    }).eq('email', usuario.email);
+
+    setUsuario(u=>({...u, perfil}));
     setMostrarPerfil(false);
     toast("Perfil actualizado · matching activado");
   }
