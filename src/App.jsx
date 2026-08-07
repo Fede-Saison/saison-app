@@ -30,7 +30,7 @@ const S = {
   inputDark:{ width:"100%", padding:"0.85rem 1rem", borderRadius:"0.75rem", border:`1.5px solid ${BRAND.nightSoft}`, background:BRAND.nightMid, fontSize:"0.88rem", color:BRAND.bone, outline:"none", boxSizing:"border-box", fontFamily:"'Hanken Grotesk',sans-serif", transition:"border-color 0.18s" },
   label:{ display:"block", fontSize:"0.65rem", fontWeight:500, color:BRAND.muted, textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:"0.4rem", fontFamily:"'DM Mono',monospace" },
   card:{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"0.125rem", padding:"1.25rem 1.3rem", boxShadow:"none" },
-  btnCobalt:{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.75rem", padding:"0.9rem 1.25rem", fontSize:"0.88rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", transition:"opacity 0.15s, transform 0.1s", width:"100%", letterSpacing:"0.01em" },
+  btnCobalt:{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"10px", padding:"0.9rem 1.25rem", fontSize:"0.88rem", fontWeight:600, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", transition:"opacity 0.15s, transform 0.12s cubic-bezier(0.34,1.56,0.64,1)", width:"100%", letterSpacing:"0.01em" },
   btnOutline:{ background:"transparent", color:BRAND.cobalt, border:`1.5px solid ${BRAND.cobalt}`, borderRadius:"0.75rem", padding:"0.9rem 1.25rem", fontSize:"0.88rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", width:"100%" },
   btnGhost:{ background:BRAND.cobaltDim, color:BRAND.cobalt, border:`1px solid ${BRAND.cobaltSoft}`, borderRadius:"0.75rem", padding:"0.9rem 1.25rem", fontSize:"0.88rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", width:"100%" },
 };
@@ -472,7 +472,7 @@ const intentarAplicar = () => { if (!esPremium) { setMuroPago(true); return; } i
             ))}
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.65rem" }}>
-            <button onClick={copiar} style={S.btnCobalt} onMouseEnter={e=>{e.currentTarget.style.opacity="0.9"}} onMouseLeave={e=>{e.currentTarget.style.opacity="1"}}>
+            <button onClick={copiar} style={S.btnCobalt} onMouseDown={e=>e.currentTarget.style.transform="scale(0.97)"} onMouseUp={e=>e.currentTarget.style.transform="scale(1)"} onTouchStart={e=>e.currentTarget.style.transform="scale(0.97)"} onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"} onMouseEnter={e=>{e.currentTarget.style.opacity="0.9"}} onMouseLeave={e=>{e.currentTarget.style.opacity="1"}}>
               <span style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.5rem" }}><Icon name="copy" size={15} color="#fff" /> Copiar carta en francés</span>
             </button>
             <p style={{ fontSize:"0.67rem", color:BRAND.muted, margin:"-0.1rem 0 0", textAlign:"center", fontFamily:"'Hanken Grotesk',sans-serif" }}>Revisá y personalizá antes de enviar</p>
@@ -507,50 +507,56 @@ function ChipsRegion({ regiones, activa, onChange, dark=true }) {
 }
 
 function TarjetaOferta({ oferta, onClick, perfil }) {
-  const esCiudad = oferta.tipo==="ciudad";
+  const esCiudad = oferta.tipo === "ciudad";
   const match = calcularMatch(oferta, perfil);
   const tituloBase = oferta.titulo.endsWith("/a") ? oferta.titulo.slice(0,-2) : oferta.titulo;
   const tituloSuffix = oferta.titulo.endsWith("/a") ? "/a" : "";
-  const rows = [
-    { label:"CONTRATO", value: oferta.contrato },
-    { label:"ALOJAMIENTO", value: esCiudad ? "No incluido" : "Hab. incluida", accent: !esCiudad },
-    { label:"SALARIO", value: oferta.salario },
-    { label:"REGIÓN", value: oferta.localidad },
-  ];
+
   return (
     <div
       onClick={()=>onClick(oferta)}
-      style={{ background:"#fff", border:`1px solid ${match?.estado==="match"?"#A8D5B5":BRAND.boneDeep}`, borderRadius:"0.125rem", padding:"0", cursor:"pointer", userSelect:"none", transition:"border-color 0.18s, box-shadow 0.18s", boxShadow:"none" }}
-      onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 4px 20px rgba(11,20,38,0.08)";e.currentTarget.style.borderColor=BRAND.cobalt+"44"}}
+      style={{ background:"#fff", border:`1px solid ${match?.estado==="match"?"#A8D5B5":BRAND.boneDeep}`, borderRadius:"12px", overflow:"hidden", cursor:"pointer", userSelect:"none", transition:"box-shadow 0.18s, border-color 0.18s" }}
+      onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 4px 24px rgba(11,20,38,0.08)";e.currentTarget.style.borderColor=BRAND.cobalt+"44"}}
       onMouseLeave={e=>{e.currentTarget.style.boxShadow="none";e.currentTarget.style.borderColor=match?.estado==="match"?"#A8D5B5":BRAND.boneDeep}}>
-      <div style={{ padding:"1rem 1.25rem 0.6rem", display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
-        <div style={{ flex:1 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:"0.4rem", marginBottom:"0.45rem" }}>
+
+      <div style={{ padding:"1.25rem 1.5rem 1rem" }}>
+        <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:"0.75rem" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:"6px" }}>
             <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:BRAND.cobalt }} />
-            <span style={{ fontSize:"0.58rem", fontWeight:500, letterSpacing:"0.12em", textTransform:"uppercase", color:BRAND.cobalt, fontFamily:"'DM Mono',monospace" }}>BÚSQUEDA ACTIVA</span>
-            {match && <MatchBadge match={match} />}
+            <span style={{ fontSize:"11px", fontWeight:500, letterSpacing:"0.08em", textTransform:"uppercase", color:BRAND.cobalt, fontFamily:"'DM Mono',monospace" }}>Búsqueda activa</span>
           </div>
-          <h3 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.1rem", lineHeight:1.05, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>
-            {tituloBase}<span style={{ color:BRAND.cobalt }}>{tituloSuffix}</span>
-          </h3>
-          <p style={{ fontSize:"0.84rem", fontWeight:600, color:"rgba(11,20,38,0.42)", margin:0, fontFamily:"'Bricolage Grotesque',sans-serif" }}>{oferta.establecimiento} · {oferta.ciudad}</p>
+          <span style={{ fontSize:"11px", letterSpacing:"0.08em", textTransform:"uppercase", color:"rgba(11,20,38,0.28)", fontFamily:"'DM Mono',monospace" }}>RÉF. SAISON-26</span>
         </div>
-        <span style={{ fontSize:"0.56rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"rgba(11,20,38,0.28)", fontFamily:"'DM Mono',monospace", flexShrink:0, marginLeft:"0.5rem", marginTop:"2px" }}>
-          RÉF. SAISON-26
-        </span>
+
+        {match && (
+          <div style={{ display:"inline-flex", alignItems:"center", gap:"6px", fontSize:"12px", padding:"4px 10px", borderRadius:"6px", marginBottom:"0.75rem", background: match.estado==="match" ? "#EAF3DE" : "#FFF8E0", color: match.estado==="match" ? "#3B6D11" : "#7A5500" }}>
+            {match.estado==="match" ? "✓ Coincide con tu perfil" : `⚠ ${match.problemas[0]?.msg}`}
+          </div>
+        )}
+
+        <h3 style={{ fontSize:"28px", fontWeight:700, color:BRAND.night, margin:"0 0 4px", lineHeight:1.1, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em" }}>
+          {tituloBase}<span style={{ color:BRAND.cobalt }}>{tituloSuffix}</span>
+        </h3>
+        <p style={{ fontSize:"14px", color:"rgba(11,20,38,0.5)", margin:0 }}>
+          {oferta.localidad && `${oferta.localidad} · `}{oferta.region || "Francia"}
+        </p>
       </div>
-      <div style={{ height:"1px", background:BRAND.boneDeep, margin:"0 1.25rem" }} />
-      <div style={{ padding:"0 1.25rem" }}>
-        {rows.map((row,i)=>(
-          <div key={i} style={{ display:"flex", gap:"1rem", padding:"0.5rem 0", borderBottom:i<rows.length-1?`1px solid ${BRAND.boneDeep}`:"none", alignItems:"flex-start" }}>
-            <span style={{ fontSize:"0.58rem", fontWeight:500, letterSpacing:"0.1em", textTransform:"uppercase", color:"rgba(11,20,38,0.36)", fontFamily:"'DM Mono',monospace", minWidth:"88px", paddingTop:"1px", flexShrink:0 }}>{row.label}</span>
-            <span style={{ fontSize:"0.82rem", fontWeight:700, color: row.accent ? BRAND.cobalt : BRAND.night, fontFamily:"'DM Mono',monospace", lineHeight:1.4 }}>{row.value}</span>
+
+      <div style={{ borderTop:`1px solid ${BRAND.boneDeep}` }}>
+        {[
+          { label:"Contrato", value: oferta.contrato },
+          { label:"Alojamiento", value: esCiudad ? "No incluido" : "Hab. incluida", accent: !esCiudad },
+          { label:"Salario", value: oferta.salario },
+        ].map((row,i,arr)=>(
+          <div key={i} style={{ display:"flex", alignItems:"center", padding:"10px 1.5rem", borderBottom: i<arr.length-1 ? `1px solid ${BRAND.boneDeep}` : "none", gap:"12px" }}>
+            <span style={{ fontSize:"11px", letterSpacing:"0.08em", textTransform:"uppercase", color:"rgba(11,20,38,0.36)", fontFamily:"'DM Mono',monospace", minWidth:"100px", flexShrink:0 }}>{row.label}</span>
+            <span style={{ fontSize:"14px", fontWeight:500, color: row.accent ? BRAND.cobalt : BRAND.night }}>{row.value}</span>
           </div>
         ))}
       </div>
-      <div style={{ height:"1px", background:BRAND.boneDeep, marginTop:"0.25rem" }} />
-      <div style={{ padding:"0.75rem 1.25rem" }}>
-        <div style={{ width:"100%", background:BRAND.night, color:BRAND.bone, border:"none", borderRadius:"0.375rem", padding:"0.65rem", fontSize:"0.72rem", fontWeight:700, textAlign:"center", fontFamily:"'DM Mono',monospace", letterSpacing:"0.08em", textTransform:"uppercase" }}>
+
+      <div style={{ padding:"1rem 1.5rem", borderTop:`1px solid ${BRAND.boneDeep}` }}>
+        <div style={{ width:"100%", background:BRAND.night, color:BRAND.bone, borderRadius:"6px", padding:"11px", fontSize:"13px", fontWeight:500, textAlign:"center", fontFamily:"'DM Mono',monospace", letterSpacing:"0.02em" }}>
           Postular →
         </div>
       </div>
@@ -1169,7 +1175,7 @@ function AlertasOfertas({ perfil, esPremium, onUpgrade }) {
           </div>
         </div>
         <p style={{ fontSize:"0.77rem", color:BRAND.muted, lineHeight:1.6, margin:"0 0 0.875rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Recibí una notificación cuando aparezca una oferta que coincida exactamente con tu perfil.</p>
-        <button onClick={onUpgrade} style={S.btnCobalt}>Activar membresía — €5.99/mes</button>
+        <button onClick={onUpgrade} style={S.btnCobalt} onMouseDown={e=>e.currentTarget.style.transform="scale(0.97)"} onMouseUp={e=>e.currentTarget.style.transform="scale(1)"} onTouchStart={e=>e.currentTarget.style.transform="scale(0.97)"} onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"}>Activar membresía — €5.99/mes</button>
       </div>
     );
   }
@@ -1653,7 +1659,7 @@ onLogin({ nombre: u.user_metadata?.nombre || u.email.split("@")[0], email: u.ema
           <input type="password" value={form.password} onChange={e=>set("password",e.target.value)} placeholder={modo==="registro"?"Mínimo 6 caracteres":"Tu contraseña"} onKeyDown={e=>e.key==="Enter"&&handleSubmit()} style={S.input} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
         </div>
         {error && <p style={{ fontSize:"0.75rem", color:BRAND.red, margin:"0 0 0.65rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{error}</p>}
-        <button onClick={handleSubmit} style={S.btnCobalt} onMouseEnter={e=>{e.currentTarget.style.opacity="0.9"}} onMouseLeave={e=>{e.currentTarget.style.opacity="1"}}>
+        <button onClick={handleSubmit} style={S.btnCobalt} onMouseDown={e=>e.currentTarget.style.transform="scale(0.97)"} onMouseUp={e=>e.currentTarget.style.transform="scale(1)"} onTouchStart={e=>e.currentTarget.style.transform="scale(0.97)"} onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"} onMouseEnter={e=>{e.currentTarget.style.opacity="0.9"}} onMouseLeave={e=>{e.currentTarget.style.opacity="1"}}>
           {modo==="registro"?"Crear cuenta gratis →":"Entrar →"}
         </button>
         {modo==="registro" && <p style={{ textAlign:"center", fontSize:"0.69rem", color:BRAND.muted, marginTop:"0.875rem", lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif" }}>Explorá las ofertas gratis. Para aplicar directamente, activá la membresía desde €5.99/mes.</p>}
@@ -1710,32 +1716,33 @@ export default function App() {
         *, *::before, *::after { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
         body { margin:0; font-family:'Hanken Grotesk',sans-serif; background:${BRAND.bone}; -webkit-font-smoothing:antialiased; }
         @keyframes slideUp { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
-        ::-webkit-scrollbar { display:none; }
+@keyframes slideDown { from{transform:translateY(0);opacity:1} to{transform:translateY(100%);opacity:0} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes scaleIn { from{opacity:0;transform:scale(0.96)} to{opacity:1;transform:scale(1)} }
         input::placeholder { color:${BRAND.mutedLight}; }
       `}</style>
       {!usuario ? (
         <PantallaAuth onLogin={handleLogin} />
       ) : (
         <div style={{ minHeight:"100vh", background:BRAND.bone }}>
-          <div style={{ display:tab==="ofertas"?"block":"none" }}>
-            <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} />
+          <div key={tab} style={{ animation:"fadeIn 0.22s ease forwards" }}>
+            {tab==="ofertas" && <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} />}
+            {tab==="herramientas" && <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} />}
+            {tab==="viajeros" && <TabViajeros esPremium={esPremium} onUpgrade={()=>setMostrarMuroPago(true)} usuario={usuario} />}
+            {tab==="premium" && <TabServicios />}
           </div>
-          <div style={{ display:tab==="herramientas"?"block":"none" }}>
-            <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} />
-          </div>
-          <div style={{ display:tab==="viajeros"?"block":"none" }}>
-            <TabViajeros esPremium={esPremium} onUpgrade={()=>setMostrarMuroPago(true)} usuario={usuario} />
-          </div>
-          <div style={{ display:tab==="premium"?"block":"none" }}>
-            <TabServicios />
-          </div>
-          <nav style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:200, background:BRAND.night, borderTop:`1px solid ${BRAND.nightSoft}`, display:"flex", justifyContent:"center", padding:"0.5rem 1rem 0.75rem", gap:"0.35rem" }}>
+          <nav style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:200, background:BRAND.night, borderTop:`1px solid ${BRAND.nightSoft}`, display:"flex", justifyContent:"center", padding:"0.6rem 1rem 1rem", gap:"0.35rem" }}>
             {TABS.map(t=>{
               const active = tab===t.id;
               return (
-                <button key={t.id} onClick={()=>setTab(t.id)} style={{ flex:1, maxWidth:"110px", display:"flex", flexDirection:"column", alignItems:"center", gap:"0.2rem", background:active?BRAND.cobalt:"transparent", border:"none", borderRadius:"0.75rem", padding:"0.52rem 0.4rem 0.45rem", cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", transition:"all 0.2s cubic-bezier(0.34,1.56,0.64,1)" }}>
-                  <Icon name={t.icon} size={17} color={active?"#fff":BRAND.mutedLight} />
-                  <span style={{ fontSize:"0.63rem", fontWeight:600, color:active?"#fff":BRAND.mutedLight, letterSpacing:"0.01em" }}>{t.label}</span>
+                <button key={t.id} onClick={()=>setTab(t.id)}
+                  style={{ flex:1, maxWidth:"110px", display:"flex", flexDirection:"column", alignItems:"center", gap:"0.25rem", background:active?BRAND.cobalt:"transparent", border:"none", borderRadius:"10px", padding:"0.6rem 0.4rem 0.5rem", cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", transition:"all 0.18s ease" }}
+                  onMouseDown={e=>e.currentTarget.style.transform="scale(0.94)"}
+                  onMouseUp={e=>e.currentTarget.style.transform="scale(1)"}
+                  onTouchStart={e=>e.currentTarget.style.transform="scale(0.94)"}
+                  onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"}>
+                  <Icon name={t.icon} size={19} color={active?"#fff":BRAND.mutedLight} />
+                  <span style={{ fontSize:"0.65rem", fontWeight:600, color:active?"#fff":BRAND.mutedLight, letterSpacing:"0.01em" }}>{t.label}</span>
                 </button>
               );
             })}
