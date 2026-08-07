@@ -415,7 +415,7 @@ const intentarAplicar = () => { if (!esPremium) { setMuroPago(true); return; } i
   return (
     <>
       <div onClick={onCerrar} style={{ position:"fixed", inset:0, background:"rgba(11,20,38,0.7)", backdropFilter:"blur(8px)", zIndex:500, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
-        <div onClick={e=>e.stopPropagation()} style={{ background:BRAND.bone, borderRadius:"1.5rem 1.5rem 0 0", width:"100%", maxWidth:"480px", maxHeight:"90vh", overflowY:"auto", padding:"1.75rem 1.75rem 3rem", animation:"slideUp 0.38s cubic-bezier(0.34,1.56,0.64,1)" }}>
+        <div onClick={e=>e.stopPropagation()} style={{ background:"#ffffff", borderRadius:"1.5rem 1.5rem 0 0", width:"100%", maxWidth:"480px", maxHeight:"90vh", overflowY:"auto", padding:"1.75rem 1.75rem 3rem", animation:"slideUp 0.38s cubic-bezier(0.34,1.56,0.64,1)" }}>
           <div style={{ width:"2.5rem", height:"3px", background:BRAND.boneDeep, borderRadius:"2px", margin:"0 auto 1.5rem" }} />
           <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"1rem", marginBottom:"1.25rem" }}>
             <div style={{ flex:1 }}>
@@ -1725,12 +1725,18 @@ export default function App() {
         <PantallaAuth onLogin={handleLogin} />
       ) : (
         <div style={{ minHeight:"100vh", background:BRAND.bone }}>
-          <div key={tab} style={{ animation:"fadeIn 0.22s ease forwards" }}>
-            {tab==="ofertas" && <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} />}
-            {tab==="herramientas" && <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} />}
-            {tab==="viajeros" && <TabViajeros esPremium={esPremium} onUpgrade={()=>setMostrarMuroPago(true)} usuario={usuario} />}
-            {tab==="premium" && <TabServicios />}
-          </div>
+         <div style={{ display:tab==="ofertas"?"block":"none" }}>
+  <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} />
+</div>
+<div style={{ display:tab==="herramientas"?"block":"none" }}>
+  <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} />
+</div>
+<div style={{ display:tab==="viajeros"?"block":"none" }}>
+  <TabViajeros esPremium={esPremium} onUpgrade={()=>setMostrarMuroPago(true)} usuario={usuario} />
+</div>
+<div style={{ display:tab==="premium"?"block":"none" }}>
+  <TabServicios />
+</div>
           <nav style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:200, background:BRAND.night, borderTop:`1px solid ${BRAND.nightSoft}`, display:"flex", justifyContent:"center", padding:"0.6rem 1rem 1rem", gap:"0.35rem" }}>
             {TABS.map(t=>{
               const active = tab===t.id;
