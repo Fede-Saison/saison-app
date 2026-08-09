@@ -261,10 +261,10 @@ const GRUPOS_WSP = [
 // AFILIADOS
 // ================================================================
 const AFILIADOS = {
-  banco: { nombre:"Revolut / Wise", desc:"Abrí tu cuenta bancaria digital antes de llegar. El IBAN que te dan es suficiente para cobrar tu sueldo en Francia.", cta:"Abrir cuenta gratis", link:"https://revolut.com/referral/tu_link", icon:"bank" },
-  esim: { nombre:"Airalo eSIM", desc:"Datos móviles desde el primer día. Activala desde tu país antes de subirte al avión.", cta:"Ver planes desde €5", link:"https://airalo.com/tu_link", icon:"sim" },
-  seguro: { nombre:"Chapka / iati Seguros", desc:"Seguro de viaje y salud obligatorio para visa VVT. Cubrí tu temporada completa.", cta:"Cotizar seguro", link:"https://chapka.com/tu_link", icon:"shield" },
-  workaway: { nombre:"Workaway", desc:"Entre temporadas o mientras esperás tu inicio, Workaway te da alojamiento y comida a cambio de algunas horas de trabajo.", cta:"Ver Workaway", link:"https://workaway.info/tu_link", icon:"leaf" },
+  banco: { nombre:"Wise", desc:"Abrí tu cuenta bancaria digital antes de llegar. El IBAN que te dan es suficiente para cobrar tu sueldo en Francia. (¿Preferís Revolut? Escribinos y te pasamos el link.)", cta:"Abrir cuenta gratis", link:"https://wise.com/invite/ilpc/federiconicolasalbertia", icon:"bank" },
+  esim: { nombre:"Airalo eSIM", desc:"Datos móviles desde el primer día. Activala desde tu país antes de subirte al avión.", cta:"Usar código FEDERI4313", link:null, codigo:"FEDERI4313", icon:"sim" },
+  seguro: { nombre:"iati Seguros", desc:"Seguro de viaje y salud obligatorio para visa VVT. Cubrí tu temporada completa.", cta:"Cotizar seguro", link:"https://www.iatiseguros.com?r=89715432565643&utm_source=colaboradores&utm_medium=referral", icon:"shield" },
+  workaway: { nombre:"Workaway", desc:"Entre temporadas o mientras esperás tu inicio, Workaway te da alojamiento y comida a cambio de algunas horas de trabajo.", cta:"Ver Workaway", link:"https://www.workaway.info/", icon:"leaf" },
   alojamiento: { nombre:"Hostelworld", desc:"Para los primeros días antes de que el empleador provea alojamiento.", cta:"Buscar alojamiento", link:"https://hostelworld.com/tu_link", icon:"building" },
 };
 
@@ -1395,7 +1395,11 @@ function AntesDepartir() {
               <p style={{ fontSize:"0.86rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.2rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>{af.nombre}</p>
               <p style={{ fontSize:"0.7rem", color:BRAND.muted, margin:0, lineHeight:1.4, fontFamily:"'Hanken Grotesk',sans-serif" }}>{af.desc}</p>
             </div>
-            <button onClick={()=>window.open(af.link,"_blank","noopener")} style={{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.6rem", padding:"0.4rem 0.75rem", fontSize:"0.72rem", fontWeight:600, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", flexShrink:0, whiteSpace:"nowrap" }}>{af.cta.split(" ").slice(0,2).join(" ")}</button>
+           {af.link ? (
+  <button onClick={()=>window.open(af.link,"_blank","noopener")} style={{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.6rem", padding:"0.4rem 0.75rem", fontSize:"0.72rem", fontWeight:600, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", flexShrink:0, whiteSpace:"nowrap" }}>{af.cta.split(" ").slice(0,2).join(" ")}</button>
+) : (
+  <button onClick={()=>{navigator.clipboard.writeText(af.codigo); alert("Código copiado: "+af.codigo);}} style={{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.6rem", padding:"0.4rem 0.75rem", fontSize:"0.72rem", fontWeight:600, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", flexShrink:0, whiteSpace:"nowrap" }}>Copiar código</button>
+)}
           </div>
         ))}
       </div>
