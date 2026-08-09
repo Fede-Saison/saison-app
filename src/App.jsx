@@ -26,8 +26,8 @@ const BRAND = {
 };
 
 const S = {
-  input:{ width:"100%", padding:"0.85rem 1rem", borderRadius:"0.75rem", border:`1.5px solid ${BRAND.boneDeep}`, background:BRAND.bone, fontSize:"0.88rem", color:BRAND.night, outline:"none", boxSizing:"border-box", fontFamily:"'Hanken Grotesk',sans-serif", transition:"border-color 0.18s" },
-  inputDark:{ width:"100%", padding:"0.85rem 1rem", borderRadius:"0.75rem", border:`1.5px solid ${BRAND.nightSoft}`, background:BRAND.nightMid, fontSize:"0.88rem", color:BRAND.bone, outline:"none", boxSizing:"border-box", fontFamily:"'Hanken Grotesk',sans-serif", transition:"border-color 0.18s" },
+  input:{ width:"100%", padding:"0.85rem 1rem", borderRadius:"0.75rem", border:`1.5px solid ${BRAND.boneDeep}`, background:BRAND.bone, fontSize:"16px", color:BRAND.night, outline:"none", boxSizing:"border-box", fontFamily:"'Hanken Grotesk',sans-serif", transition:"border-color 0.18s" },
+  inputDark:{ width:"100%", padding:"0.85rem 1rem", borderRadius:"0.75rem", border:`1.5px solid ${BRAND.nightSoft}`, background:BRAND.nightMid, fontSize:"16px", color:BRAND.bone, outline:"none", boxSizing:"border-box", fontFamily:"'Hanken Grotesk',sans-serif", transition:"border-color 0.18s" },
   label:{ display:"block", fontSize:"0.65rem", fontWeight:500, color:BRAND.muted, textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:"0.4rem", fontFamily:"'DM Mono',monospace" },
   card:{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"0.125rem", padding:"1.25rem 1.3rem", boxShadow:"none" },
   btnCobalt:{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"10px", padding:"0.9rem 1.25rem", fontSize:"0.88rem", fontWeight:600, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", transition:"opacity 0.15s, transform 0.12s cubic-bezier(0.34,1.56,0.64,1)", width:"100%", letterSpacing:"0.01em" },
@@ -567,20 +567,7 @@ function TarjetaOferta({ oferta, onClick, perfil }) {
 function BannerPerfil({ perfil, onCompletar }) {
   const campos = ["nombre","pais","puesto","frances","disponibilidad","documentacion"];
   const pct = Math.round((campos.filter(c=>perfil[c]).length/campos.length)*100);
- if (pct===100) {
-    return (
-      <div onClick={onCompletar} style={{ margin:"0.875rem 1.25rem 0", background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"12px", padding:"0.875rem 1.1rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.875rem" }}>
-        <div style={{ width:"36px", height:"36px", borderRadius:"8px", background:BRAND.cobalt, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-          <Icon name="check" size={16} color="#fff" strokeWidth={2.5} />
-        </div>
-        <div style={{ flex:1 }}>
-          <p style={{ fontSize:"0.78rem", fontWeight:600, color:BRAND.night, margin:"0 0 0.1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Matching activo</p>
-          <p style={{ fontSize:"0.65rem", color:BRAND.muted, margin:0, fontFamily:"'DM Mono',monospace", letterSpacing:"0.04em" }}>Tocá para editar tu perfil</p>
-        </div>
-        <Icon name="arrowRight" size={16} color={BRAND.mutedLight} />
-      </div>
-    );
-  }
+  if (pct===100) return null;
   return (
     <div onClick={onCompletar} style={{ margin:"0.875rem 1.25rem 0", background:BRAND.nightMid, border:`1px solid ${BRAND.nightSoft}`, borderRadius:"0.875rem", padding:"0.875rem 1.1rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.875rem" }}>
       <div style={{ flex:1 }}>
@@ -725,8 +712,8 @@ const mr = regionActiva==="todas"||o.region===(REGION_MAP[regionActiva]||regionA
   const perfilCompleto = ["nombre","pais","puesto","frances","disponibilidad","documentacion"].filter(c=>perfil[c]).length;
 
   return (
-    <div style={{ background:BRAND.bone, minHeight:"100vh" }}>
-      <header style={{ background:BRAND.night, padding:"1rem 1.4rem 0", position:"sticky", top:0, zIndex:100, borderBottom:`2px solid ${BRAND.cobalt}` }}>
+    <div style={{ background:BRAND.bone, minHeight:"100dvh", paddingBottom:"7rem" }}>
+      <header style={{ background:BRAND.night, padding:"1rem 1rem 0", position:"sticky", top:0, zIndex:100, borderBottom:`2px solid ${BRAND.cobalt}` }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem" }}>
           <div>
             <SaisonLogo dark={false} size="md" />
@@ -1065,10 +1052,10 @@ function TabViajeros({ esPremium, onUpgrade, usuario }) {
   };
 
   return (
-    <div style={{ background:BRAND.bone, minHeight:"100vh" }}>
-      {/* Header */}
-      <div style={{ background:BRAND.night, padding:"1rem 1.4rem 0" }}>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"0.75rem" }}>
+  <div style={{ background:BRAND.bone, minHeight:"100dvh", paddingBottom:"7rem" }}>
+    {/* Header */}
+    <div style={{ background:BRAND.bone }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"0.75rem" }}>
           <h2 style={{ fontSize:"1.1rem", fontWeight:700, color:BRAND.bone, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em" }}>Saisonniers</h2>
           <div style={{ display:"flex", alignItems:"center", gap:"6px", background:"rgba(10,58,242,0.2)", border:"1px solid rgba(10,58,242,0.35)", borderRadius:"2rem", padding:"0.25rem 0.7rem" }}>
             <div style={{ width:"5px", height:"5px", borderRadius:"50%", background:BRAND.cobalt }} />
@@ -1508,8 +1495,7 @@ function TabHerramientas({ onToast, esPremium, usuario, onUpgrade }) {
 // ================================================================
 function TabServicios() {
   return (
-    <div style={{ background:BRAND.bone, minHeight:"100vh", paddingBottom:"7rem" }}>
-
+    <div style={{ background:BRAND.bone, minHeight:"100dvh", paddingBottom:"7rem" }}>
       {/* Header */}
       <div style={{ background:BRAND.night, padding:"1.75rem 1.5rem", borderBottom:`2px solid ${BRAND.cobalt}` }}>
         <SaisonLogo dark={false} size="md" />
@@ -1721,32 +1707,33 @@ export default function App() {
     // Documentación 25%
     if (perfil.documentacion) {
       const doc = perfil.documentacion.toLowerCase();
-      if (doc.includes("europeo") || doc.includes("titre") || doc.includes("permiso")) score += 25;
+      if (doc.includes("europeo")) score += 25;
       else if (doc.includes("vvt aprobada")) score += 20;
-      else if (doc.includes("tramite")) score += 10;
+      else if (doc.includes("vvt en tramite")) score += 10;
     }
-
+    
     // Puesto 20%
     if (perfil.puesto) score += 20;
-
-    // Disponibilidad 20%
+    
+    // Experiencia — usamos disponibilidad como proxy 20%
     if (perfil.disponibilidad) {
       const d = perfil.disponibilidad.toLowerCase();
-      if (d.includes("ambas")) score += 20;
-      else if (d.includes("verano") || d.includes("invierno")) score += 14;
+      if (d.includes("inmediata") || d.includes("flexible")) score += 20;
+      else if (d.includes("2026")) score += 15;
+      else score += 10;
     }
-
+    
     // Francés 20%
     if (perfil.frances) {
       const f = perfil.frances.toLowerCase();
-      if (f.includes("c1") || f.includes("c2")) score += 20;
+      if (f.includes("c1") || f.includes("c2") || f.includes("nativo")) score += 20;
       else if (f.includes("b2")) score += 18;
       else if (f.includes("b1")) score += 14;
-      else if (f.includes("a2")) score += 8;
-      else if (f.includes("a1")) score += 4;
+      else if (f.includes("a2")) score += 10;
+      else if (f.includes("a1")) score += 5;
     }
-
-    // País 15%
+    
+    // Flexibilidad de zona 15%
     if (perfil.pais) score += 15;
 
     const semaforo = score >= 85 ? "verde" : score >= 65 ? "amarillo" : "rojo";
@@ -1763,18 +1750,28 @@ export default function App() {
     }).eq('email', usuario.email);
 
     setUsuario(u=>({...u, perfil}));
+    setMostrarPerfil(false);  }
+
+  const esPremium = usuario?.esPremium || false;
+async function guardarPerfil(perfil) {
+    await supabase.from('Perfiles').update({
+      nombre: perfil.nombre,
+      pais: perfil.pais,
+      puesto: perfil.puesto,
+      frances: perfil.frances,
+      disponibilidad: perfil.disponibilidad,
+      documentacion: perfil.documentacion,
+    }).eq('email', usuario.email);
+    setUsuario(u=>({...u, perfil}));
     setMostrarPerfil(false);
     toast("Perfil actualizado · matching activado");
   }
-
-  const esPremium = usuario?.esPremium || false;
-
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Mono:wght@400;500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap');
         *, *::before, *::after { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-        body { margin:0; font-family:'Hanken Grotesk',sans-serif; background:${BRAND.bone}; -webkit-font-smoothing:antialiased; }
+       body { margin:0; font-family:'Hanken Grotesk',sans-serif; background:${BRAND.bone}; -webkit-font-smoothing:antialiased; overflow-x:hidden; max-width:100vw; }
         @keyframes slideUp { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
 @keyframes slideDown { from{transform:translateY(0);opacity:1} to{transform:translateY(100%);opacity:0} }
 @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
@@ -1797,7 +1794,7 @@ export default function App() {
 <div style={{ display:tab==="premium"?"block":"none" }}>
   <TabServicios />
 </div>
-          <nav style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:200, background:BRAND.night, borderTop:`1px solid ${BRAND.nightSoft}`, display:"flex", justifyContent:"center", padding:"0.6rem 1rem 1rem", gap:"0.35rem" }}>
+          <nav style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:200, background:BRAND.night, borderTop:`1px solid ${BRAND.nightSoft}`, display:"flex", justifyContent:"center", padding:"0.6rem 1rem calc(1rem + env(safe-area-inset-bottom))", gap:"0.35rem" }}>
             {TABS.map(t=>{
               const active = tab===t.id;
               return (
