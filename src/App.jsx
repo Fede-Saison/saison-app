@@ -567,11 +567,10 @@ function TarjetaOferta({ oferta, onClick, perfil }) {
 function BannerPerfil({ perfil, onCompletar }) {
   const campos = ["nombre","pais","puesto","frances","disponibilidad","documentacion"];
   const pct = Math.round((campos.filter(c=>perfil[c]).length/campos.length)*100);
-  if (pct===100) return null;
   return (
     <div onClick={onCompletar} style={{ margin:"0.875rem 1.25rem 0", background:BRAND.nightMid, border:`1px solid ${BRAND.nightSoft}`, borderRadius:"0.875rem", padding:"0.875rem 1.1rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.875rem" }}>
       <div style={{ flex:1 }}>
-        <p style={{ fontSize:"0.72rem", fontWeight:600, color:BRAND.bone, margin:"0 0 0.3rem", fontFamily:"'DM Mono',monospace" }}>Completá tu perfil — <span style={{ color:BRAND.cobalt }}>{pct}%</span></p>
+        <p style={{ fontSize:"0.72rem", fontWeight:600, color:BRAND.bone, margin:"0 0 0.3rem", fontFamily:"'Inter',sans-serif" }}>{pct===100 ? "Matching activado · editar perfil" : "Completá tu perfil"} — <span style={{ color:BRAND.cobalt }}>{pct}%</span></p>
         <div style={{ background:BRAND.nightSoft, borderRadius:"2rem", height:"3px", overflow:"hidden" }}>
           <div style={{ height:"100%", background:BRAND.cobalt, borderRadius:"2rem", width:`${pct}%`, transition:"width 0.5s" }} />
         </div>
@@ -587,6 +586,13 @@ function ModalPerfil({ perfil, onGuardar, onCerrar }) {
   const set = (k,v) => setForm(f=>({...f,[k]:v}));
   const campos = ["nombre","pais","puesto","frances","disponibilidad","documentacion"];
   const pct = Math.round((campos.filter(c=>form[c]).length/campos.length)*100);
+  const CODIGOS_PAIS = [
+    {pais:"Argentina", dial:"+54"},{pais:"Chile", dial:"+56"},{pais:"Uruguay", dial:"+598"},
+    {pais:"Perú", dial:"+51"},{pais:"Colombia", dial:"+57"},{pais:"Ecuador", dial:"+593"},
+    {pais:"México", dial:"+52"},{pais:"Venezuela", dial:"+58"},{pais:"España", dial:"+34"},
+    {pais:"Italia", dial:"+39"},{pais:"Alemania", dial:"+49"},{pais:"Francia", dial:"+33"},
+    {pais:"Portugal", dial:"+351"},{pais:"Suiza", dial:"+41"},{pais:"Reino Unido", dial:"+44"},
+  ];
   return (
     <div onClick={onCerrar} style={{ position:"fixed", inset:0, background:"rgba(11,20,38,0.7)", backdropFilter:"blur(8px)", zIndex:800, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
       <div onClick={e=>e.stopPropagation()} style={{ background:BRAND.bone, borderRadius:"1.5rem 1.5rem 0 0", width:"100%", maxWidth:"480px", maxHeight:"92vh", overflowY:"auto", padding:"1.75rem 1.75rem 3rem", animation:"slideUp 0.38s cubic-bezier(0.34,1.56,0.64,1)" }}>
@@ -626,28 +632,26 @@ function ModalPerfil({ perfil, onGuardar, onCerrar }) {
             </div>
           ))}
 
-          {/* WhatsApp — opcional */}
+          {/* WhatsApp — obligatorio */}
           <div>
             <label style={S.label}>
               WhatsApp
-              <span style={{ marginLeft:"0.4rem", fontSize:"0.65rem", fontWeight:400, color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif", textTransform:"none", letterSpacing:0 }}>— opcional</span>
+              <span style={{ marginLeft:"0.4rem", fontSize:"0.65rem", fontWeight:400, color:BRAND.cobalt, fontFamily:"'Hanken Grotesk',sans-serif", textTransform:"none", letterSpacing:0 }}>— obligatorio</span>
             </label>
-            <input
-              type="tel"
-              value={form.whatsapp||""}
-              onChange={e=>set("whatsapp",e.target.value)}
-              placeholder="+54 9 11 1234 5678"
-              style={S.input}
-              onFocus={e=>e.target.style.borderColor=BRAND.cobalt}
-              onBlur={e=>e.target.style.borderColor=BRAND.boneDeep}
-            />
+            <div style={{ display:"flex", gap:"0.5rem" }}>
+              <select value={form.whatsappCodigo||""} onChange={e=>set("whatsappCodigo",e.target.value)} style={{ ...S.input, appearance:"none", cursor:"pointer", flex:"0 0 115px" }} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep}>
+                <option value="">Código</option>
+                {CODIGOS_PAIS.map(c=><option key={c.dial} value={c.dial}>{c.dial} {c.pais}</option>)}
+              </select>
+              <input type="tel" value={form.whatsappNumero||""} onChange={e=>set("whatsappNumero",e.target.value)} placeholder="9 11 1234 5678" style={{ ...S.input, flex:1 }} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
+            </div>
             <p style={{ fontSize:"0.7rem", color:BRAND.muted, margin:"0.3rem 0 0", lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif" }}>
               Para conectar con otros saisonniers que viajan en las mismas fechas y destino.
             </p>
           </div>
 
         </div>
-        <button onClick={()=>onGuardar(form)} style={{ ...S.btnCobalt, marginTop:"1.5rem" }}>Guardar y activar matching</button>
+        <button onClick={()=>{ if(!form.whatsappCodigo||!form.whatsappNumero){ alert("Ingresá tu WhatsApp para poder guardar el perfil."); return; } onGuardar({...form, whatsapp:`${form.whatsappCodigo} ${form.whatsappNumero}`}); }} style={{ ...S.btnCobalt, marginTop:"1.5rem" }}>Guardar y activar matching</button>
       </div>
     </div>
   );
