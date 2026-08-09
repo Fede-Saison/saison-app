@@ -778,13 +778,41 @@ const mr = regionActiva==="todas"||o.region===(REGION_MAP[regionActiva]||regionA
 // HERRAMIENTAS
 // ================================================================
 const CALENDARIO = [
-  { region:"Costa Azul / Var / Córcega", temporada:"Verano (abril–octubre)", meses:"Enero → Marzo", urgencia:"alta", icon:"waves", detalle:"Las mejores posiciones en hoteles de lujo se cierran en febrero. En marzo quedan puestos pero con menos selección." },
-  { region:"País Vasco / Costa Atlántica", temporada:"Verano (abril–octubre)", meses:"Febrero → Abril", urgencia:"alta", icon:"wind", detalle:"Biarritz, Arcachon e Île de Ré tienen pico en marzo. Más flexible que la Costa Azul pero no conviene esperar." },
-  { region:"Alpes / Saboya / Pirineos", temporada:"Invierno (diciembre–abril)", meses:"Agosto → Octubre", urgencia:"alta", icon:"mountain", detalle:"Los grandes hoteles de esquí cierran sus equipos en septiembre. Anticipación crítica." },
-  { region:"Provenza / Interior Sur", temporada:"Verano (abril–octubre)", meses:"Febrero → Mayo", urgencia:"media", icon:"sun", detalle:"Más margen. Muchos restaurantes contratan hasta mayo. Agricultura tiene calendario propio." },
-  { region:"Grandes Ciudades", temporada:"Todo el año", meses:"Según necesidad", urgencia:"baja", icon:"city", detalle:"Rotación constante. Verano concentra más CDD pero se puede aplicar en cualquier momento." },
+  { region:"Costa Azul / Var / Córcega", temporada:"Verano (abril–octubre)", meses:"Enero → Marzo", urgencia:"alta", icon:"waves", detalle:"Las mejores posiciones en hoteles de lujo se cierran en febrero. En marzo quedan puestos pero con menos selección.", ventanaInicio:1, ventanaFin:3, temporadaInicio:4, temporadaFin:10 },
+  { region:"País Vasco / Costa Atlántica", temporada:"Verano (abril–octubre)", meses:"Febrero → Abril", urgencia:"alta", icon:"wind", detalle:"Biarritz, Arcachon e Île de Ré tienen pico en marzo. Más flexible que la Costa Azul pero no conviene esperar.", ventanaInicio:2, ventanaFin:4, temporadaInicio:4, temporadaFin:10 },
+  { region:"Alpes / Saboya / Pirineos", temporada:"Invierno (diciembre–abril)", meses:"Agosto → Octubre", urgencia:"alta", icon:"mountain", detalle:"Los grandes hoteles de esquí cierran sus equipos en septiembre. Anticipación crítica.", ventanaInicio:8, ventanaFin:10, temporadaInicio:12, temporadaFin:4 },
+  { region:"Provenza / Interior Sur", temporada:"Verano (abril–octubre)", meses:"Febrero → Mayo", urgencia:"media", icon:"sun", detalle:"Más margen. Muchos restaurantes contratan hasta mayo. Agricultura tiene calendario propio.", ventanaInicio:2, ventanaFin:5, temporadaInicio:4, temporadaFin:10 },
+  { region:"Grandes Ciudades", temporada:"Todo el año", meses:"Según necesidad", urgencia:"baja", icon:"city", detalle:"Rotación constante. Verano concentra más CDD pero se puede aplicar en cualquier momento.", ventanaInicio:null, ventanaFin:null, temporadaInicio:null, temporadaFin:null },
 ];
+function calcularEstadoVentana(item) {
+  if (!item.ventanaInicio) {
+    return { urgencia:"baja", label:"Flexible", mensaje:"Podés aplicar en cualquier momento del año." };
+  }
+  const mesActual = new Date().getMonth() + 1;
+  const { ventanaInicio, ventanaFin, temporadaInicio, temporadaFin } = item;
+  const enVentana = mesActual >= ventanaInicio && mesActual <= ventanaFin;
+  const enTemporada = temporadaInicio <= temporadaFin
+    ? (mesActual >= temporadaInicio && mesActual <= temporadaFin)
+    : (mesActual >= temporadaInicio || mesActual <= temporadaFin);
 
+  if (enVentana) {
+    return { urgencia:"alta", label:"¡Es el momento! Aplicá ahora", mensaje:"La ventana ideal de postulación está abierta ahora mismo. Los mejores puestos se cierran en las próximas semanas." };
+  }
+  if (mesActual < ventanaInicio) {
+    const faltan = ventanaInicio - mesActual;
+    return { urgencia:"baja", label:`Ventana abre en ${faltan} mes${faltan!==1?"es":""}`, mensaje:"Todavía no arrancó la temporada de postulaciones para esta región. Guardá la fecha." };
+  }
+  if (enTemporada) {
+    const restantes = temporadaInicio <= temporadaFin
+      ? temporadaFin - mesActual
+      : (mesActual <= temporadaFin ? temporadaFin - mesActual : (12 - mesActual) + temporadaFin);
+    if (restantes <= 2) {
+      return { urgencia:"alta", label:"Temporada terminando — quedan pocas ofertas", mensaje:"La ventana ideal ya pasó y la temporada está por cerrar. Quedan las últimas vacantes de reemplazo, pero la selección es limitada." };
+    }
+    return { urgencia:"media", label:"Ventana cerrada, temporada en curso", mensaje:"Los mejores puestos ya se cerraron, pero todavía surgen vacantes de reemplazo durante la temporada." };
+  }
+  return { urgencia:"baja", label:"Fuera de temporada", mensaje:"Esta región no tiene contrataciones activas ahora. La próxima ventana se acerca." };
+}
 const GUIA_PUESTOS = [
   { puesto:"Plongeur (Lavaplatos)", nivel:"Ninguno", exp:"Sin experiencia", dificultad:1, tip:"Puerta de entrada táctica. Sin barreras de idioma. Alta demanda en toda Francia." },
   { puesto:"Polyvalent (Polivalente)", nivel:"A2 básico", exp:"Mínima", dificultad:1, tip:"El más fácil de contratar. Versátil entre sala, cocina y limpieza. Muy buscado." },
@@ -932,12 +960,13 @@ function Calculadora() {
 function CuandoAplicar() {
   const [abierto, setAbierto] = useState(null);
   const urgColor = { alta:BRAND.red, media:"#C07000", baja:BRAND.cobalt };
-  const urgLabel = { alta:"Aplicar cuanto antes", media:"Hay margen", baja:"Flexible" };
   return (
     <Section icon="calendar" title="¿Cuándo aplicar?">
       <p style={{ fontSize:"0.73rem", color:BRAND.muted, margin:"0 0 0.875rem", lineHeight:1.55, fontFamily:"'Hanken Grotesk',sans-serif" }}>La anticipación es el diferenciador real. Los mejores puestos se cierran meses antes del inicio de temporada.</p>
       <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem" }}>
-        {CALENDARIO.map((item,i)=>(
+        {CALENDARIO.map((item,i)=>{
+          const estado = calcularEstadoVentana(item);
+          return (
           <div key={i} style={{ borderRadius:"0.75rem", border:`1px solid ${BRAND.boneDeep}`, overflow:"hidden" }}>
             <div onClick={()=>setAbierto(abierto===i?null:i)} style={{ display:"flex", alignItems:"center", gap:"0.7rem", padding:"0.8rem 0.9rem", cursor:"pointer" }}>
               <div style={{ width:"30px", height:"30px", borderRadius:"0.5rem", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
@@ -947,18 +976,19 @@ function CuandoAplicar() {
                 <p style={{ fontSize:"0.83rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.12rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>{item.region}</p>
                 <div style={{ display:"flex", alignItems:"center", gap:"0.4rem" }}>
                   <span style={{ fontSize:"0.7rem", color:BRAND.cobalt, fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif" }}>{item.meses}</span>
-                  <span style={{ background:urgColor[item.urgencia]+"18", color:urgColor[item.urgencia], fontSize:"0.58rem", fontWeight:700, padding:"0.1rem 0.45rem", borderRadius:"2rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{urgLabel[item.urgencia]}</span>
+                  <span style={{ background:urgColor[estado.urgencia]+"18", color:urgColor[estado.urgencia], fontSize:"0.58rem", fontWeight:700, padding:"0.1rem 0.45rem", borderRadius:"2rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{estado.label}</span>
                 </div>
               </div>
             </div>
             {abierto===i && (
               <div style={{ padding:"0 0.9rem 0.8rem", borderTop:`1px solid ${BRAND.boneDeep}` }}>
-                <p style={{ fontSize:"0.78rem", color:BRAND.muted, margin:"0.55rem 0 0.25rem", lineHeight:1.6, fontFamily:"'Hanken Grotesk',sans-serif" }}>{item.detalle}</p>
+                <p style={{ fontSize:"0.78rem", color:urgColor[estado.urgencia], fontWeight:600, margin:"0.55rem 0 0.35rem", lineHeight:1.6, fontFamily:"'Hanken Grotesk',sans-serif" }}>{estado.mensaje}</p>
+                <p style={{ fontSize:"0.78rem", color:BRAND.muted, margin:"0 0 0.25rem", lineHeight:1.6, fontFamily:"'Hanken Grotesk',sans-serif" }}>{item.detalle}</p>
                 <p style={{ fontSize:"0.7rem", color:BRAND.mutedLight, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>{item.temporada}</p>
               </div>
             )}
           </div>
-        ))}
+        )})}
       </div>
     </Section>
   );
