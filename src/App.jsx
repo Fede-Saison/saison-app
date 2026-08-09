@@ -818,10 +818,13 @@ const GUIA_PUESTOS = [
   { puesto:"Polyvalent (Polivalente)", nivel:"A2 básico", exp:"Mínima", dificultad:1, tip:"El más fácil de contratar. Versátil entre sala, cocina y limpieza. Muy buscado." },
   { puesto:"Femme/Valet de Chambre", nivel:"A2 básico", exp:"Mínima", dificultad:2, tip:"Estable, mínima interacción con clientes. Ideal primer trabajo en Francia." },
   { puesto:"Commis de Cuisine", nivel:"A2 básico", exp:"Media", dificultad:2, tip:"Escalón ideal para aprender el oficio francés con alta demanda estacional." },
+  { puesto:"Voiturier", nivel:"A2 básico", exp:"Requiere carné de conducir (manual)", dificultad:2, tip:"El carné con caja manual es más valorado que el idioma. Trato breve con el cliente, ideal si el francés todavía es limitado." },
+  { puesto:"Mantenimiento / Técnico", nivel:"A1–A2", exp:"Valorada (electricidad, plomería, oficios)", dificultad:2, tip:"Baja barrera de idioma. Si tenés experiencia previa en un oficio, es una vía de entrada subestimada con buena demanda." },
   { puesto:"Commis de Salle", nivel:"B1 intermedio", exp:"Media", dificultad:3, tip:"Contacto directo con el cliente. Francés funcional imprescindible." },
   { puesto:"Chef de Rang / Mesero", nivel:"B1–B2", exp:"Sólida", dificultad:3, tip:"Salario sobre el SMIC en el convenio HCR. Alta competencia en temporada alta." },
-  { puesto:"Réceptionniste", nivel:"B2 + inglés", exp:"Sólida", dificultad:4, tip:"Perfil muy competitivo. Excelente remuneración en hoteles 4–5 estrellas." },
   { puesto:"Bartender / Barman", nivel:"B1–B2", exp:"Técnica", dificultad:3, tip:"Conocimiento técnico de coctelería requerido. Propinas altas en zonas turísticas." },
+  { puesto:"Réceptionniste", nivel:"B2 + inglés", exp:"Sólida", dificultad:4, tip:"Perfil muy competitivo. Excelente remuneración en hoteles 4–5 estrellas." },
+  { puesto:"Animación", nivel:"B1–B2", exp:"Deseable, no excluyente", dificultad:4, tip:"El puesto con más exigencia de francés e interacción social. Buena paga en clubes y resorts, pero la selección es más dura." },
 ];
 
 const CONTRATO_ITEMS = [
