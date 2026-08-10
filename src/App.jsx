@@ -506,7 +506,7 @@ function ChipsRegion({ regiones, activa, onChange, dark=true }) {
   );
 }
 
-function TarjetaOferta({ oferta, onClick, perfil }) {
+function TarjetaOferta({ oferta, onClick, perfil, guardada, onToggleGuardar }){
   const esCiudad = oferta.tipo === "ciudad";
   const match = calcularMatch(oferta, perfil);
   const tituloBase = oferta.titulo.endsWith("/a") ? oferta.titulo.slice(0,-2) : oferta.titulo;
@@ -515,7 +515,7 @@ function TarjetaOferta({ oferta, onClick, perfil }) {
   return (
     <div
       onClick={()=>onClick(oferta)}
-      style={{ background:"#fff", border:`1px solid ${match?.estado==="match"?"#A8D5B5":BRAND.boneDeep}`, borderRadius:"12px", overflow:"hidden", cursor:"pointer", userSelect:"none", transition:"box-shadow 0.18s, border-color 0.18s" }}
+      style={{ position:"relative", background:"#fff", border:`1px solid ${match?.estado==="match"?"#A8D5B5":BRAND.boneDeep}`, borderRadius:"12px", overflow:"hidden", cursor:"pointer", userSelect:"none", transition:"box-shadow 0.18s, border-color 0.18s" }}
       onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 4px 24px rgba(11,20,38,0.08)";e.currentTarget.style.borderColor=BRAND.cobalt+"44"}}
       onMouseLeave={e=>{e.currentTarget.style.boxShadow="none";e.currentTarget.style.borderColor=match?.estado==="match"?"#A8D5B5":BRAND.boneDeep}}>
 
@@ -525,8 +525,20 @@ function TarjetaOferta({ oferta, onClick, perfil }) {
             <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:BRAND.cobalt }} />
             <span style={{ fontSize:"11px", fontWeight:500, letterSpacing:"0.08em", textTransform:"uppercase", color:BRAND.cobalt, fontFamily:"'DM Mono',monospace" }}>Búsqueda activa</span>
           </div>
-          <span style={{ fontSize:"11px", letterSpacing:"0.08em", textTransform:"uppercase", color:"rgba(11,20,38,0.28)", fontFamily:"'DM Mono',monospace" }}>RÉF. SAISON-26</span>
+          <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
+            <span style={{ fontSize:"11px", letterSpacing:"0.08em", textTransform:"uppercase", color:"rgba(11,20,38,0.28)", fontFamily:"'DM Mono',monospace" }}>RÉF. SAISON-26</span>
+            <button onClick={(e)=>{ e.stopPropagation(); onToggleGuardar && onToggleGuardar(oferta.id); }} style={{ background:"none", border:"none", cursor:"pointer", padding:0, display:"flex" }}>
+              <Icon name="star" size={16} color={guardada ? "#F5C842" : "rgba(11,20,38,0.28)"} strokeWidth={2} />
+            </button>
+          </div>
         </div>
+
+        <button
+          onClick={(e)=>{ e.stopPropagation(); onToggleGuardar && onToggleGuardar(oferta.id); }}
+          style={{  background:"none", border:"none", cursor:"pointer", padding:"4px", zIndex:5 }}
+        >
+          <Icon name="star" size={18} color={guardada ? "#F5C842" : "rgba(11,20,38,0.25)"} strokeWidth={2} />
+        </button>
 
         {match && (
           <div style={{ display:"inline-flex", alignItems:"center", gap:"6px", fontSize:"12px", padding:"4px 10px", borderRadius:"6px", marginBottom:"0.75rem", background: match.estado==="match" ? "#EAF3DE" : "#FFF8E0", color: match.estado==="match" ? "#3B6D11" : "#7A5500" }}>
@@ -540,6 +552,11 @@ function TarjetaOferta({ oferta, onClick, perfil }) {
         <p style={{ fontSize:"14px", color:"rgba(11,20,38,0.5)", margin:0 }}>
           {oferta.localidad && `${oferta.localidad} · `}{oferta.region || "Francia"}
         </p>
+        {oferta.descripcion && (
+          <p style={{ fontSize:"13px", color:"rgba(11,20,38,0.65)", margin:"0.5rem 0 0", lineHeight:1.5 }}>
+            {oferta.descripcion.length > 110 ? oferta.descripcion.slice(0,110)+"…" : oferta.descripcion}
+          </p>
+        )}
       </div>
 
       <div style={{ borderTop:`1px solid ${BRAND.boneDeep}` }}>
@@ -660,7 +677,7 @@ function ModalPerfil({ perfil, onGuardar, onCerrar }) {
 // ================================================================
 // TAB OFERTAS
 // ================================================================
-function TabOfertas({ usuario, onToast, esPremium, onCompletarPerfil }) {
+function TabOfertas({ usuario, onToast, esPremium, onCompletarPerfil, onToggleGuardar }) {
  const [modo, setModo] = useState("alojamiento");
   const [ofertasDB, setOfertasDB] = useState([]);
 
@@ -762,7 +779,7 @@ const mr = regionActiva==="todas"||o.region===(REGION_MAP[regionActiva]||regionA
         <p style={{ fontSize:"0.68rem", color:BRAND.muted, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>{filtradas.length} oferta{filtradas.length!==1?"s":""} {regionActiva!=="todas"?`· ${regiones.find(r=>r.id===regionActiva)?.label}`:"· Francia"}</p>
       </div>
       <div style={{ padding:"0.3rem 1.25rem 7rem", display:"flex", flexDirection:"column", gap:"0.5rem" }}>
-        {ordenadas.length>0 ? ordenadas.map(o=><TarjetaOferta key={o.id} oferta={o} onClick={setSel} perfil={perfil} />) : (
+        {ordenadas.length>0 ? ordenadas.map(o=><TarjetaOferta key={o.id} oferta={o} onClick={setSel} perfil={perfil} guardada={(usuario?.perfil?.ofertas_guardadas||[]).includes(o.id)} onToggleGuardar={onToggleGuardar} />) : (
           <div style={{ textAlign:"center", padding:"3rem 1rem" }}>
             <p style={{ fontSize:"0.9rem", color:BRAND.muted, fontWeight:600, margin:"0 0 0.25rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>Sin resultados</p>
             <p style={{ fontSize:"0.76rem", color:BRAND.mutedLight, fontFamily:"'Hanken Grotesk',sans-serif" }}>Probá con otra zona o borrá el texto</p>
@@ -1189,72 +1206,48 @@ function TabViajeros({ esPremium, onUpgrade, usuario }) {
   );
 }
 
-function AlertasOfertas({ perfil, esPremium, onUpgrade }) {
-  const [activa, setActiva] = useState(!!perfil?.puesto);
-  const [freq, setFreq] = useState("semanal");
-  const puestoPerfil = perfil?.puesto || null;
-  const matches = OFERTAS_ALOJAMIENTO.filter(o=>{
-    if (!puestoPerfil) return false;
-    const p = puestoPerfil.toLowerCase();
-    const t = o.titulo.toLowerCase();
-    if (p.includes("sala")||p.includes("servicio")) return t.includes("mesero")||t.includes("runner");
-    if (p.includes("cocina")) return t.includes("cocina")||t.includes("partida")||t.includes("crepe");
-    return true;
-  }).slice(0,3);
+function OfertasGuardadas({ perfil, esPremium, onUpgrade }) {
+  const idsGuardados = perfil?.ofertas_guardadas || [];
+  const [ofertasDB, setOfertasDB] = useState([]);
+  useEffect(() => {
+    const fetchGuardadas = async () => {
+      const { data } = await supabase.from('ofertas').select('*').in('id', idsGuardados);
+      if (data) setOfertasDB(data);
+    };
+    if (idsGuardados.length > 0) fetchGuardadas();
+  }, [JSON.stringify(idsGuardados)]);
+  const guardadas = ofertasDB;
+
   if (!esPremium) {
     return (
       <div style={{ background:BRAND.warnBg, border:`1px solid ${BRAND.warnBorder}`, borderRadius:"1rem", padding:"1.25rem 1.3rem" }}>
         <div style={{ display:"flex", alignItems:"center", gap:"0.6rem", marginBottom:"0.6rem" }}>
-          <div style={{ width:"34px", height:"34px", borderRadius:"0.6rem", background:BRAND.warnBorder+"44", display:"flex", alignItems:"center", justifyContent:"center" }}><Icon name="bell" size={17} color={BRAND.warn} /></div>
+          <div style={{ width:"34px", height:"34px", borderRadius:"0.6rem", background:BRAND.warnBorder+"44", display:"flex", alignItems:"center", justifyContent:"center" }}><Icon name="star" size={17} color={BRAND.warn} /></div>
           <div>
-            <h3 style={{ fontSize:"0.96rem", fontWeight:700, color:BRAND.night, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif" }}>Alertas de Ofertas</h3>
-            <p style={{ fontSize:"0.68rem", color:BRAND.warn, margin:0, fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif" }}>Requiere membresía Saison</p>
+            <h3 style={{ fontSize:"0.96rem", fontWeight:700, color:BRAND.night, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif" }}>Ofertas Guardadas</h3>
+            <p style={{ fontSize:"0.68rem", color:BRAND.warn, margin:0, fontWeight:600, fontFamily:"'Inter',sans-serif" }}>Requiere membresía Saison</p>
           </div>
         </div>
-        <p style={{ fontSize:"0.77rem", color:BRAND.muted, lineHeight:1.6, margin:"0 0 0.875rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Recibí una notificación cuando aparezca una oferta que coincida exactamente con tu perfil.</p>
-        <button onClick={onUpgrade} style={S.btnCobalt} onMouseDown={e=>e.currentTarget.style.transform="scale(0.97)"} onMouseUp={e=>e.currentTarget.style.transform="scale(1)"} onTouchStart={e=>e.currentTarget.style.transform="scale(0.97)"} onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"}>Activar membresía — €5.99/mes</button>
+        <p style={{ fontSize:"0.77rem", color:BRAND.muted, lineHeight:1.6, margin:"0 0 0.875rem", fontFamily:"'Inter',sans-serif" }}>Guardá las ofertas que te interesan y encontralas todas juntas acá.</p>
+        <button onClick={onUpgrade} style={S.btnCobalt}>Activar membresía — €5.99/mes</button>
       </div>
     );
   }
+
   return (
-    <Section icon="bell" title="Alertas de Ofertas" badge={activa?"Activas":"Off"}>
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"0.875rem" }}>
-        <p style={{ fontSize:"0.76rem", color:BRAND.muted, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Notificaciones cuando hay match con tu perfil</p>
-        <div onClick={()=>setActiva(!activa)} style={{ width:"42px", height:"22px", background:activa?BRAND.cobalt:BRAND.boneDeep, borderRadius:"11px", position:"relative", cursor:"pointer", transition:"background 0.25s", flexShrink:0 }}>
-          <div style={{ position:"absolute", width:"16px", height:"16px", background:"#fff", borderRadius:"50%", top:"3px", left:activa?"23px":"3px", transition:"left 0.25s cubic-bezier(0.34,1.56,0.64,1)", boxShadow:"0 1px 4px rgba(0,0,0,0.2)" }} />
+    <Section icon="star" title="Ofertas Guardadas" badge={`${guardadas.length}`}>
+      {guardadas.length === 0 ? (
+        <p style={{ fontSize:"0.77rem", color:BRAND.muted, lineHeight:1.6, margin:0, fontFamily:"'Inter',sans-serif" }}>Todavía no guardaste ninguna oferta. Tocá la estrella en cualquier oferta de la pestaña principal para guardarla acá.</p>
+      ) : (
+        <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem" }}>
+          {guardadas.map(o=>(
+            <div key={o.id} style={{ background:BRAND.boneDeep, borderRadius:"0.75rem", padding:"0.75rem 0.9rem" }}>
+              <p style={{ fontSize:"0.86rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.15rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>{o.titulo}</p>
+              <p style={{ fontSize:"0.71rem", color:BRAND.muted, margin:0, fontFamily:"'Inter',sans-serif" }}>{o.localidad && `${o.localidad} · `}{o.region || "Francia"} · {o.contrato}</p>
+              <p style={{ fontSize:"0.71rem", color:BRAND.cobalt, fontWeight:600, margin:"0.15rem 0 0", fontFamily:"'Inter',sans-serif" }}>{o.salario}</p>
+            </div>
+          ))}
         </div>
-      </div>
-      {activa && (
-        <>
-          {puestoPerfil && (
-            <div style={{ background:BRAND.boneDeep, borderRadius:"0.75rem", padding:"0.75rem 0.875rem", marginBottom:"0.75rem" }}>
-              <p style={{ fontSize:"0.65rem", color:BRAND.muted, textTransform:"uppercase", letterSpacing:"0.08em", fontWeight:600, margin:"0 0 0.4rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Búsqueda activa</p>
-              <span style={{ background:BRAND.cobalt, color:"#fff", fontSize:"0.7rem", fontWeight:600, padding:"0.2rem 0.6rem", borderRadius:"2rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{puestoPerfil}</span>
-            </div>
-          )}
-          <div style={{ marginBottom:"0.75rem" }}>
-            <p style={{ fontSize:"0.65rem", color:BRAND.muted, textTransform:"uppercase", letterSpacing:"0.08em", fontWeight:600, margin:"0 0 0.4rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Frecuencia</p>
-            <div style={{ display:"flex", gap:"0.4rem" }}>
-              {[["inmediata","Inmediata"],["diaria","Diaria"],["semanal","Semanal"]].map(([v,l])=>(
-                <button key={v} onClick={()=>setFreq(v)} style={{ flex:1, background:freq===v?BRAND.night:BRAND.boneDeep, color:freq===v?BRAND.bone:BRAND.muted, border:`1px solid ${freq===v?BRAND.night:BRAND.boneDeep}`, borderRadius:"0.5rem", padding:"0.42rem", fontSize:"0.71rem", fontWeight:600, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", transition:"all 0.15s" }}>{l}</button>
-              ))}
-            </div>
-          </div>
-          {matches.length>0 && (
-            <div>
-              <p style={{ fontSize:"0.65rem", color:BRAND.muted, textTransform:"uppercase", letterSpacing:"0.08em", fontWeight:600, margin:"0 0 0.4rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Coinciden ahora</p>
-              {matches.map(o=>(
-                <div key={o.id} style={{ background:BRAND.boneDeep, borderRadius:"0.6rem", padding:"0.6rem 0.8rem", marginBottom:"0.35rem", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                  <div>
-                    <p style={{ fontSize:"0.81rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.08rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>{o.titulo}</p>
-                    <p style={{ fontSize:"0.68rem", color:BRAND.muted, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>{o.ciudad} · {o.salario}</p>
-                  </div>
-                  <span style={{ background:BRAND.cobalt, color:"#fff", fontSize:"0.58rem", fontWeight:700, padding:"0.15rem 0.5rem", borderRadius:"2rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Match</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
       )}
     </Section>
   );
@@ -1413,7 +1406,7 @@ const SECCIONES = [
   { id:"puestos", label:"Puestos", icon:"briefcase", libre:true },
   { id:"frances", label:"Francés", icon:"volume", libre:true },
   { id:"partir", label:"Antes de partir", icon:"zap", libre:true },
-  { id:"alertas", label:"Alertas", icon:"bell", libre:false },
+  { id:"guardadas", label:"Guardadas", icon:"star", libre:false },
   { id:"contrato", label:"Contrato", icon:"filetext", libre:false },
   { id:"cierre", label:"Al terminar", icon:"folder", libre:false },
   { id:"arribo", label:"Checklist", icon:"checklist", libre:false },
@@ -1519,7 +1512,7 @@ function TabHerramientas({ onToast, esPremium, usuario, onUpgrade }) {
             {seccion==="puestos" && <GuiaPuestos />}
             {seccion==="frances" && <FrasesSup />}
             {seccion==="partir" && <AntesDepartir />}
-            {seccion==="alertas" && <AlertasOfertas perfil={usuario?.perfil} esPremium={esPremium} onUpgrade={onUpgrade} />}
+            {seccion==="guardadas" && <OfertasGuardadas perfil={usuario?.perfil} esPremium={esPremium} onUpgrade={onUpgrade} />}
             {seccion==="contrato" && <ChecklistContrato />}
             {seccion==="cierre" && <DocumentosCierre />}
             {seccion==="arribo" && <Checklist onToast={onToast} />}
@@ -1807,6 +1800,13 @@ async function guardarPerfil(perfil) {
     setMostrarPerfil(false);
     toast("Perfil actualizado · matching activado");
   }
+  async function toggleOfertaGuardada(ofertaId) {
+    const actuales = usuario?.perfil?.ofertas_guardadas || [];
+    const yaEsta = actuales.includes(ofertaId);
+    const nuevaLista = yaEsta ? actuales.filter(id=>id!==ofertaId) : [...actuales, ofertaId];
+    await supabase.from('Perfiles').update({ ofertas_guardadas: nuevaLista }).eq('email', usuario.email);
+    setUsuario(u=>({...u, perfil:{...u.perfil, ofertas_guardadas: nuevaLista}}));
+  }
   return (
     <>
       <style>{`
@@ -1824,7 +1824,7 @@ async function guardarPerfil(perfil) {
       ) : (
         <div style={{ minHeight:"100vh", background:BRAND.bone }}>
          <div style={{ display:tab==="ofertas"?"block":"none" }}>
-  <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} />
+  <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} onToggleGuardar={toggleOfertaGuardada} />
 </div>
 <div style={{ display:tab==="herramientas"?"block":"none" }}>
   <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} />
