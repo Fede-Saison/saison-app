@@ -528,7 +528,7 @@ function TarjetaOferta({ oferta, onClick, perfil, guardada, onToggleGuardar }){
           <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
             <span style={{ fontSize:"11px", letterSpacing:"0.08em", textTransform:"uppercase", color:"rgba(11,20,38,0.28)", fontFamily:"'DM Mono',monospace" }}>RÉF. SAISON-26</span>
             <button onClick={(e)=>{ e.stopPropagation(); onToggleGuardar && onToggleGuardar(oferta.id); }} style={{ background:"none", border:"none", cursor:"pointer", padding:0, display:"flex" }}>
-              <Icon name="star" size={16} color={guardada ? "#F5C842" : "rgba(11,20,38,0.28)"} strokeWidth={2} />
+              <Icon name="star" size={16} color={guardada ? BRAND.cobalt : "rgba(11,20,38,0.28)"} strokeWidth={2} />
             </button>
           </div>
         </div>
@@ -677,7 +677,7 @@ function ModalPerfil({ perfil, onGuardar, onCerrar }) {
 // ================================================================
 // TAB OFERTAS
 // ================================================================
-function TabOfertas({ usuario, onToast, esPremium, onCompletarPerfil, onToggleGuardar }) {
+function TabOfertas({ usuario, onToast, esPremium, onCompletarPerfil, onToggleGuardar, ofertaExterna, onCerrarExterna }) {
  const [modo, setModo] = useState("alojamiento");
   const [ofertasDB, setOfertasDB] = useState([]);
 
@@ -697,6 +697,9 @@ if (!error && data) setOfertasDB(data);
   const [regionAloj, setRegionAloj] = useState("todas");
   const [regionCiudad, setRegionCiudad] = useState("todas");
   const [sel, setSel] = useState(null);
+  useEffect(() => {
+    if (ofertaExterna) setSel(ofertaExterna);
+  }, [ofertaExterna]);
   const perfil = usuario?.perfil || {};
   const esAloj = modo==="alojamiento";
   const ofertas = ofertasDB.length > 0 ? ofertasDB : (esAloj ? OFERTAS_ALOJAMIENTO : OFERTAS_CIUDAD);
@@ -786,7 +789,7 @@ const mr = regionActiva==="todas"||o.region===(REGION_MAP[regionActiva]||regionA
           </div>
         )}
       </div>
-      <ModalOferta oferta={sel} onCerrar={()=>setSel(null)} onToast={onToast} esPremium={esPremium} nombreUsuario={usuario?.perfil?.nombre || usuario?.nombre} perfil={perfil} />
+      <ModalOferta oferta={sel} onCerrar={()=>{ setSel(null); onCerrarExterna && onCerrarExterna(); }} onToast={onToast} esPremium={esPremium} nombreUsuario={usuario?.perfil?.nombre || usuario?.nombre} perfil={perfil} />
     </div>
   );
 }
@@ -1206,8 +1209,9 @@ function TabViajeros({ esPremium, onUpgrade, usuario }) {
   );
 }
 
-function OfertasGuardadas({ perfil, esPremium, onUpgrade }) {
+function OfertasGuardadas({ perfil, esPremium, onUpgrade, onAbrirOferta, onToggleAplicada }) {
   const idsGuardados = perfil?.ofertas_guardadas || [];
+  const idsAplicados = perfil?.ofertas_aplicadas || [];
   const [ofertasDB, setOfertasDB] = useState([]);
   useEffect(() => {
     const fetchGuardadas = async () => {
@@ -1215,6 +1219,7 @@ function OfertasGuardadas({ perfil, esPremium, onUpgrade }) {
       if (data) setOfertasDB(data);
     };
     if (idsGuardados.length > 0) fetchGuardadas();
+    else setOfertasDB([]);
   }, [JSON.stringify(idsGuardados)]);
   const guardadas = ofertasDB;
 
@@ -1240,13 +1245,24 @@ function OfertasGuardadas({ perfil, esPremium, onUpgrade }) {
         <p style={{ fontSize:"0.77rem", color:BRAND.muted, lineHeight:1.6, margin:0, fontFamily:"'Inter',sans-serif" }}>Todavía no guardaste ninguna oferta. Tocá la estrella en cualquier oferta de la pestaña principal para guardarla acá.</p>
       ) : (
         <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem" }}>
-          {guardadas.map(o=>(
+          {guardadas.map(o=>{
+            const aplicada = idsAplicados.includes(o.id);
+            return (
             <div key={o.id} style={{ background:BRAND.boneDeep, borderRadius:"0.75rem", padding:"0.75rem 0.9rem" }}>
-              <p style={{ fontSize:"0.86rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.15rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>{o.titulo}</p>
-              <p style={{ fontSize:"0.71rem", color:BRAND.muted, margin:0, fontFamily:"'Inter',sans-serif" }}>{o.localidad && `${o.localidad} · `}{o.region || "Francia"} · {o.contrato}</p>
-              <p style={{ fontSize:"0.71rem", color:BRAND.cobalt, fontWeight:600, margin:"0.15rem 0 0", fontFamily:"'Inter',sans-serif" }}>{o.salario}</p>
+              <div onClick={()=>onAbrirOferta && onAbrirOferta(o)} style={{ cursor:"pointer" }}>
+                <p style={{ fontSize:"0.86rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.15rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>{o.titulo}</p>
+                <p style={{ fontSize:"0.71rem", color:BRAND.muted, margin:0, fontFamily:"'Inter',sans-serif" }}>{o.localidad && `${o.localidad} · `}{o.region || "Francia"} · {o.contrato}</p>
+                <p style={{ fontSize:"0.71rem", color:BRAND.cobalt, fontWeight:600, margin:"0.15rem 0 0", fontFamily:"'Inter',sans-serif" }}>{o.salario}</p>
+              </div>
+              <button
+                onClick={(e)=>{ e.stopPropagation(); onToggleAplicada && onToggleAplicada(o.id); }}
+                style={{ marginTop:"0.6rem", display:"flex", alignItems:"center", gap:"6px", background:aplicada?BRAND.cobalt:"#fff", color:aplicada?"#fff":BRAND.muted, border:`1px solid ${aplicada?BRAND.cobalt:BRAND.boneDeep}`, borderRadius:"2rem", padding:"0.3rem 0.7rem", fontSize:"0.68rem", fontWeight:600, cursor:"pointer", fontFamily:"'Inter',sans-serif" }}
+              >
+                <Icon name="check" size={11} color={aplicada?"#fff":BRAND.muted} strokeWidth={2.5} />
+                {aplicada ? "Aplicaste" : "Marcar como aplicada"}
+              </button>
             </div>
-          ))}
+          )})}
         </div>
       )}
     </Section>
@@ -1473,7 +1489,7 @@ function RecursosDescargables() {
 }
 
 
-function TabHerramientas({ onToast, esPremium, usuario, onUpgrade }) {
+function TabHerramientas({ onToast, esPremium, usuario, onUpgrade, onAbrirOferta, onToggleAplicada }) {
   const [seccion, setSeccion] = useState("calculadora");
   const sec = SECCIONES.find(s=>s.id===seccion);
   const bloqueada = !sec?.libre && !esPremium;
@@ -1512,7 +1528,7 @@ function TabHerramientas({ onToast, esPremium, usuario, onUpgrade }) {
             {seccion==="puestos" && <GuiaPuestos />}
             {seccion==="frances" && <FrasesSup />}
             {seccion==="partir" && <AntesDepartir />}
-            {seccion==="guardadas" && <OfertasGuardadas perfil={usuario?.perfil} esPremium={esPremium} onUpgrade={onUpgrade} />}
+            {seccion==="guardadas" && <OfertasGuardadas perfil={usuario?.perfil} esPremium={esPremium} onUpgrade={onUpgrade} onAbrirOferta={onAbrirOferta} onToggleAplicada={onToggleAplicada} />}
             {seccion==="contrato" && <ChecklistContrato />}
             {seccion==="cierre" && <DocumentosCierre />}
             {seccion==="arribo" && <Checklist onToast={onToast} />}
@@ -1630,7 +1646,7 @@ const handleSubmit = async () => {
     });
   }
   
-  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion } });
+  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion, ofertas_guardadas: perfilExistente?.ofertas_guardadas || [] } });
   } else {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: form.email,
@@ -1640,7 +1656,7 @@ const handleSubmit = async () => {
       const u = data.user;
   const { data: perfilLogin } = await supabase.from('Perfiles').select('*').eq('email', u.email).single();
 console.log('perfil login:', perfilLogin);
-onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion } });
+onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion, ofertas_guardadas: perfilLogin?.ofertas_guardadas || [] } });
   }
 };
   return (
@@ -1784,22 +1800,13 @@ export default function App() {
     }).eq('email', usuario.email);
 
     setUsuario(u=>({...u, perfil}));
-    setMostrarPerfil(false);  }
-
-  const esPremium = usuario?.esPremium || false;
-async function guardarPerfil(perfil) {
-    await supabase.from('Perfiles').update({
-      nombre: perfil.nombre,
-      pais: perfil.pais,
-      puesto: perfil.puesto,
-      frances: perfil.frances,
-      disponibilidad: perfil.disponibilidad,
-      documentacion: perfil.documentacion,
-    }).eq('email', usuario.email);
-    setUsuario(u=>({...u, perfil}));
     setMostrarPerfil(false);
     toast("Perfil actualizado · matching activado");
   }
+
+  const esPremium = usuario?.esPremium || false;
+  const [ofertaAbierta, setOfertaAbierta] = useState(null);
+
   async function toggleOfertaGuardada(ofertaId) {
     const actuales = usuario?.perfil?.ofertas_guardadas || [];
     const yaEsta = actuales.includes(ofertaId);
@@ -1807,6 +1814,15 @@ async function guardarPerfil(perfil) {
     await supabase.from('Perfiles').update({ ofertas_guardadas: nuevaLista }).eq('email', usuario.email);
     setUsuario(u=>({...u, perfil:{...u.perfil, ofertas_guardadas: nuevaLista}}));
   }
+
+  async function toggleOfertaAplicada(ofertaId) {
+    const actuales = usuario?.perfil?.ofertas_aplicadas || [];
+    const yaEsta = actuales.includes(ofertaId);
+    const nuevaLista = yaEsta ? actuales.filter(id=>id!==ofertaId) : [...actuales, ofertaId];
+    await supabase.from('Perfiles').update({ ofertas_aplicadas: nuevaLista }).eq('email', usuario.email);
+    setUsuario(u=>({...u, perfil:{...u.perfil, ofertas_aplicadas: nuevaLista}}));
+  }
+
   return (
     <>
       <style>{`
@@ -1824,10 +1840,10 @@ async function guardarPerfil(perfil) {
       ) : (
         <div style={{ minHeight:"100vh", background:BRAND.bone }}>
          <div style={{ display:tab==="ofertas"?"block":"none" }}>
-  <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} onToggleGuardar={toggleOfertaGuardada} />
+  <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} onToggleGuardar={toggleOfertaGuardada} ofertaExterna={ofertaAbierta} onCerrarExterna={()=>setOfertaAbierta(null)} />
 </div>
 <div style={{ display:tab==="herramientas"?"block":"none" }}>
-  <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} />
+  <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} onAbrirOferta={(o)=>{setOfertaAbierta(o); setTab("ofertas");}} onToggleAplicada={toggleOfertaAplicada} />
 </div>
 <div style={{ display:tab==="viajeros"?"block":"none" }}>
   <TabViajeros esPremium={esPremium} onUpgrade={()=>setMostrarMuroPago(true)} usuario={usuario} />
