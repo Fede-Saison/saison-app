@@ -1332,7 +1332,7 @@ function Checklist({ onToast }) {
   const toggle = id => setChecks(c=>({...c,[id]:!c[id]}));
   const hechos = Object.values(checks).filter(Boolean).length;
   return (
-    <Section icon="checklist" title="Checklist de Arribo" badge={`${hechos}/${CL_ITEMS.length}`}>
+    <Section icon="checklist" title="Checklist de Llegada" badge={`${hechos}/${CL_ITEMS.length}`}>
       <div style={{ background:BRAND.boneDeep, borderRadius:"2rem", height:"4px", marginBottom:"1rem", overflow:"hidden" }}>
         <div style={{ height:"100%", background:hechos===CL_ITEMS.length?BRAND.success:BRAND.cobalt, borderRadius:"2rem", width:`${(hechos/CL_ITEMS.length)*100}%`, transition:"width 0.3s" }} />
       </div>
@@ -1489,7 +1489,7 @@ function RecursosDescargables() {
 }
 
 
-function TabHerramientas({ onToast, esPremium, usuario, onUpgrade, onAbrirOferta, onToggleAplicada }) {
+function TabHerramientas({ onToast, esPremium, usuario, onUpgrade, onAbrirOferta, onToggleAplicada, onToggleChecklist }) {
   const [seccion, setSeccion] = useState("calculadora");
   const sec = SECCIONES.find(s=>s.id===seccion);
   const bloqueada = !sec?.libre && !esPremium;
@@ -1531,7 +1531,7 @@ function TabHerramientas({ onToast, esPremium, usuario, onUpgrade, onAbrirOferta
             {seccion==="guardadas" && <OfertasGuardadas perfil={usuario?.perfil} esPremium={esPremium} onUpgrade={onUpgrade} onAbrirOferta={onAbrirOferta} onToggleAplicada={onToggleAplicada} />}
             {seccion==="contrato" && <ChecklistContrato />}
             {seccion==="cierre" && <DocumentosCierre />}
-            {seccion==="arribo" && <Checklist onToast={onToast} />}
+            {seccion==="arribo" && <Checklist onToast={onToast} perfil={usuario?.perfil} onToggleChecklist={onToggleChecklist} />}
             {seccion==="descargas" && <RecursosDescargables />}
           </>
         )}
@@ -1822,6 +1822,13 @@ export default function App() {
     await supabase.from('Perfiles').update({ ofertas_aplicadas: nuevaLista }).eq('email', usuario.email);
     setUsuario(u=>({...u, perfil:{...u.perfil, ofertas_aplicadas: nuevaLista}}));
   }
+  async function toggleChecklistItem(itemId) {
+    const actuales = usuario?.perfil?.checklist_llegada || [];
+    const yaEsta = actuales.includes(itemId);
+    const nuevaLista = yaEsta ? actuales.filter(id=>id!==itemId) : [...actuales, itemId];
+    await supabase.from('Perfiles').update({ checklist_llegada: nuevaLista }).eq('email', usuario.email);
+    setUsuario(u=>({...u, perfil:{...u.perfil, checklist_llegada: nuevaLista}}));
+  }
 
   return (
     <>
@@ -1843,7 +1850,7 @@ export default function App() {
   <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} onToggleGuardar={toggleOfertaGuardada} ofertaExterna={ofertaAbierta} onCerrarExterna={()=>setOfertaAbierta(null)} />
 </div>
 <div style={{ display:tab==="herramientas"?"block":"none" }}>
-  <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} onAbrirOferta={(o)=>{setOfertaAbierta(o); setTab("ofertas");}} onToggleAplicada={toggleOfertaAplicada} />
+  <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} onAbrirOferta={(o)=>{setOfertaAbierta(o); setTab("ofertas");}} onToggleAplicada={toggleOfertaAplicada} onToggleChecklist={toggleChecklistItem} />
 </div>
 <div style={{ display:tab==="viajeros"?"block":"none" }}>
   <TabViajeros esPremium={esPremium} onUpgrade={()=>setMostrarMuroPago(true)} usuario={usuario} />
