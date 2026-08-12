@@ -667,6 +667,38 @@ function ModalPerfil({ perfil, onGuardar, onCerrar }) {
             </p>
           </div>
 
+          <div>
+            <label style={S.label}>
+              Región de destino en Francia
+              <span style={{ marginLeft:"0.4rem", fontSize:"0.65rem", fontWeight:400, color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif", textTransform:"none", letterSpacing:0 }}>— opcional</span>
+            </label>
+            <select value={form.region_destino||""} onChange={e=>set("region_destino",e.target.value)} style={{ ...S.input, appearance:"none", cursor:"pointer" }} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep}>
+              <option value="">Seleccioná...</option>
+              <option>Costa Azul / Var / Córcega</option>
+              <option>País Vasco / Costa Atlántica</option>
+              <option>Alpes / Saboya / Pirineos</option>
+              <option>Provenza / Interior Sur</option>
+              <option>Grandes Ciudades</option>
+            </select>
+          </div>
+
+          <div>
+            <label style={S.label}>
+              Fecha de viaje
+              <span style={{ marginLeft:"0.4rem", fontSize:"0.65rem", fontWeight:400, color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif", textTransform:"none", letterSpacing:0 }}>— opcional</span>
+            </label>
+            <input type="text" value={form.fecha_viaje||""} onChange={e=>set("fecha_viaje",e.target.value)} placeholder="Ej: Diciembre 2026" style={S.input} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
+          </div>
+
+          <div>
+            <label style={S.label}>
+              Sobre tu viaje
+              <span style={{ marginLeft:"0.4rem", fontSize:"0.65rem", fontWeight:400, color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif", textTransform:"none", letterSpacing:0 }}>— opcional</span>
+            </label>
+            <input type="text" value={form.bio_viajero||""} onChange={e=>set("bio_viajero",e.target.value.slice(0,100))} placeholder="Ej: Voy a Courchevel en diciembre y busco gente para jugar al fútbol" style={S.input} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
+            <p style={{ fontSize:"0.68rem", color:BRAND.mutedLight, margin:"0.25rem 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>{(form.bio_viajero||"").length}/100</p>
+          </div>
+
         </div>
         <button onClick={()=>{ if(!form.whatsappCodigo||!form.whatsappNumero){ alert("Ingresá tu WhatsApp para poder guardar el perfil."); return; } onGuardar({...form, whatsapp:`${form.whatsappCodigo} ${form.whatsappNumero}`}); }} style={{ ...S.btnCobalt, marginTop:"1.5rem" }}>Guardar y activar matching</button>
       </div>
@@ -1086,40 +1118,77 @@ function FrasesSup() {
 // ================================================================
 // TAB VIAJEROS
 // ================================================================
-const VIAJEROS_DEMO = [
-  { id:1, nombre:"Valentina G.", pais:"Argentina", bandera:"🇦🇷", destino:"Costa Azul", fechas:"Jun → Sep 2026", puesto:"Recepción", bio:"Llego a Niza en julio, busco con quien compartir la experiencia", tipo:"Solo" },
-  { id:2, nombre:"Mateo R.", pais:"Colombia", bandera:"🇨🇴", destino:"Alpes", fechas:"Dic → Mar 2027", puesto:"Servicio", bio:"Primera temporada de ski, busco crew para Courchevel", tipo:"Solo" },
-  { id:3, nombre:"Camila T.", pais:"Chile", bandera:"🇨🇱", destino:"Córcega", fechas:"Jul → Sep 2026", puesto:"Housekeeping", bio:"Viajo con mi pareja, buscamos compañeros de temporada", tipo:"Pareja" },
-  { id:4, nombre:"Lucía F.", pais:"México", bandera:"🇲🇽", destino:"Costa Azul", fechas:"Jun → Oct 2026", puesto:"Animación", bio:"Busco compañeras para Saint-Tropez", tipo:"Solo" },
-];
 
-function TabViajeros({ esPremium, onUpgrade, usuario }) {
-  const [solicitados, setSolicitados] = useState({});
+
+function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onResponderSolicitud, onCambioSolicitudes }) {
+  const [perfiles, setPerfiles] = useState([]);
+  const [conexiones, setConexiones] = useState([]);
+  const [cargando, setCargando] = useState(true);
   const [filtro, setFiltro] = useState("todos");
-  const destinos = ["todos","Costa Azul","Alpes","Córcega","París"];
+  const destinos = ["todos", "Costa Azul / Var / Córcega", "País Vasco / Costa Atlántica", "Alpes / Saboya / Pirineos", "Provenza / Interior Sur", "Grandes Ciudades"];
   const tieneWhatsapp = !!usuario?.perfil?.whatsapp;
 
-  const filtrados = VIAJEROS_DEMO.filter(v =>
-    filtro === "todos" || v.destino === filtro
+  const cargarDatos = async () => {
+    setCargando(true);
+    const { data: perfilesData } = await supabase
+      .from('Perfiles')
+      .select('email, nombre, pais, puesto, disponibilidad, whatsapp, region_destino, fecha_viaje, bio_viajero')
+      .not('whatsapp', 'is', null)
+      .not('nombre', 'is', null)
+      .neq('email', usuario?.email);
+    if (perfilesData) setPerfiles(perfilesData);
+
+    const { data: conexionesData } = await supabase
+      .from('Conexiones')
+      .select('*')
+      .or(`email_solicitante.eq.${usuario?.email},email_receptor.eq.${usuario?.email}`);
+    if (conexionesData) setConexiones(conexionesData);
+
+    setCargando(false);
+  };
+
+  useEffect(() => { if (usuario?.email) cargarDatos(); }, [usuario?.email]);
+
+  const filtrados = perfiles.filter(v => filtro === "todos" || v.region_destino === filtro);
+
+  const banderaPorPais = {
+    Argentina:"🇦🇷", Chile:"🇨🇱", Uruguay:"🇺🇾", Perú:"🇵🇪", Colombia:"🇨🇴",
+    Ecuador:"🇪🇨", México:"🇲🇽", Venezuela:"🇻🇪", España:"🇪🇸", Italia:"🇮🇹",
+    Alemania:"🇩🇪", Francia:"🇫🇷", Portugal:"🇵🇹", Suiza:"🇨🇭", "Reino Unido":"🇬🇧",
+  };
+
+  const conexionCon = (emailOtro) => conexiones.find(c =>
+    (c.email_solicitante === usuario?.email && c.email_receptor === emailOtro) ||
+    (c.email_receptor === usuario?.email && c.email_solicitante === emailOtro)
   );
 
-  const solicitar = (id) => {
+  const solicitar = async (emailOtro) => {
     if (!esPremium) { onUpgrade(); return; }
-    setSolicitados(s => ({ ...s, [id]: true }));
+    await onEnviarSolicitud(emailOtro);
+    cargarDatos();
+  };
+
+  const responder = async (id, nuevoEstado) => {
+    await onResponderSolicitud(id, nuevoEstado);
+    cargarDatos();
+    onCambioSolicitudes && onCambioSolicitudes();
+  };
+
+  const contactar = (whatsapp) => {
+    const numero = whatsapp.replace(/\D/g, "");
+    window.open(`https://wa.me/${numero}`, "_blank", "noopener");
   };
 
   return (
   <div style={{ background:BRAND.bone, minHeight:"100dvh", paddingBottom:"7rem" }}>
-    {/* Header */}
     <div style={{ background:BRAND.bone }}>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"0.75rem" }}>
           <h2 style={{ fontSize:"1.1rem", fontWeight:700, color:BRAND.bone, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em" }}>Saisonniers</h2>
           <div style={{ display:"flex", alignItems:"center", gap:"6px", background:"rgba(10,58,242,0.2)", border:"1px solid rgba(10,58,242,0.35)", borderRadius:"2rem", padding:"0.25rem 0.7rem" }}>
             <div style={{ width:"5px", height:"5px", borderRadius:"50%", background:BRAND.cobalt }} />
-            <span style={{ fontSize:"0.58rem", fontWeight:500, letterSpacing:"0.1em", textTransform:"uppercase", color:BRAND.cobalt, fontFamily:"'DM Mono',monospace" }}>32 activos</span>
+            <span style={{ fontSize:"0.58rem", fontWeight:500, letterSpacing:"0.1em", textTransform:"uppercase", color:BRAND.cobalt, fontFamily:"'DM Mono',monospace" }}>{perfiles.length} activos</span>
           </div>
         </div>
-        {/* Filtros */}
         <div style={{ display:"flex", gap:"0.35rem", overflowX:"auto", paddingBottom:"0.875rem", scrollbarWidth:"none" }}>
           {destinos.map(d => (
             <button key={d} onClick={() => setFiltro(d)} style={{ background:filtro===d?BRAND.bone:"transparent", color:filtro===d?BRAND.night:"rgba(255,255,255,0.55)", border:`1px solid ${filtro===d?BRAND.bone:"rgba(255,255,255,0.15)"}`, borderRadius:"2rem", padding:"0.35rem 0.75rem", fontSize:"0.71rem", fontWeight:600, cursor:"pointer", fontFamily:"'DM Mono',monospace", whiteSpace:"nowrap", flexShrink:0, transition:"all 0.15s", letterSpacing:"0.02em" }}>
@@ -1129,7 +1198,6 @@ function TabViajeros({ esPremium, onUpgrade, usuario }) {
         </div>
       </div>
 
-      {/* Aviso WhatsApp si no lo tiene */}
       {esPremium && !tieneWhatsapp && (
         <div style={{ margin:"0.875rem 1.25rem 0", background:"rgba(10,58,242,0.05)", border:`1px solid rgba(10,58,242,0.15)`, padding:"0.875rem 1.1rem", display:"flex", alignItems:"flex-start", gap:"0.75rem" }}>
           <Icon name="info" size={15} color={BRAND.cobalt} strokeWidth={2} />
@@ -1140,28 +1208,20 @@ function TabViajeros({ esPremium, onUpgrade, usuario }) {
         </div>
       )}
 
-      {/* Counter freemium hook */}
-      <div style={{ margin:"0.875rem 1.25rem 0", background:"#fff", border:`1px solid ${BRAND.boneDeep}`, padding:"0.875rem 1.1rem", display:"flex", alignItems:"center", gap:"0.875rem" }}>
-        <div style={{ flex:1 }}>
-          <p style={{ fontSize:"0.7rem", fontWeight:500, color:BRAND.muted, margin:"0 0 0.15rem", fontFamily:"'DM Mono',monospace", textTransform:"uppercase", letterSpacing:"0.08em" }}>Compatibles con tu perfil</p>
-          <p style={{ fontSize:"0.9rem", fontWeight:700, color:BRAND.night, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif" }}>
-            <span style={{ color:BRAND.cobalt, fontSize:"1.4rem" }}>12</span> saisonniers compatibles con tu perfil
-          </p>
-        </div>
-        {!esPremium && (
-          <button onClick={onUpgrade} style={{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.5rem", padding:"0.45rem 0.875rem", fontSize:"0.71rem", fontWeight:700, cursor:"pointer", fontFamily:"'DM Mono',monospace", whiteSpace:"nowrap", letterSpacing:"0.04em" }}>Ver →</button>
-        )}
-      </div>
-
-      {/* Cards */}
       <div style={{ padding:"0.75rem 1.25rem 7rem", display:"flex", flexDirection:"column", gap:"0" }}>
-        {filtrados.map((v, i) => {
+        {cargando ? (
+          <p style={{ textAlign:"center", padding:"2rem 1rem", fontSize:"0.8rem", color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif" }}>Cargando saisonniers…</p>
+        ) : filtrados.length === 0 ? (
+          <p style={{ textAlign:"center", padding:"2rem 1rem", fontSize:"0.8rem", color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif" }}>Todavía no hay saisonniers con destino confirmado en esta región. Sé de los primeros — completá tu perfil.</p>
+        ) : filtrados.map((v, i) => {
           const bloqueado = i >= 2 && !esPremium;
+          const conexion = conexionCon(v.email);
+          const soyReceptor = conexion?.email_receptor === usuario?.email;
           return (
-            <div key={v.id} style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderTop: i > 0 ? "none" : `1px solid ${BRAND.boneDeep}`, padding:"1rem 1.1rem", position:"relative", filter: bloqueado ? "blur(3px)" : "none", userSelect: bloqueado ? "none" : "auto", pointerEvents: bloqueado ? "none" : "auto" }}>
+            <div key={v.email} style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderTop: i > 0 ? "none" : `1px solid ${BRAND.boneDeep}`, padding:"1rem 1.1rem", position:"relative", filter: bloqueado ? "blur(3px)" : "none", userSelect: bloqueado ? "none" : "auto", pointerEvents: bloqueado ? "none" : "auto" }}>
               <div style={{ display:"flex", alignItems:"flex-start", gap:"0.75rem" }}>
                 <div style={{ width:"40px", height:"40px", borderRadius:"50%", background:BRAND.night, display:"flex", alignItems:"center", justifyContent:"center", fontSize:"18px", flexShrink:0, border:`1.5px solid ${BRAND.boneDeep}` }}>
-                  {v.bandera}
+                  {banderaPorPais[v.pais] || "🌍"}
                 </div>
                 <div style={{ flex:1, minWidth:0 }}>
                   <div style={{ display:"flex", alignItems:"center", gap:"0.4rem", marginBottom:"0.15rem", flexWrap:"wrap" }}>
@@ -1169,35 +1229,45 @@ function TabViajeros({ esPremium, onUpgrade, usuario }) {
                     <span style={{ fontSize:"0.62rem", color:BRAND.muted, fontFamily:"'DM Mono',monospace" }}>de {v.pais}</span>
                   </div>
                   <div style={{ display:"flex", gap:"0.35rem", flexWrap:"wrap", marginBottom:"0.5rem" }}>
-                    <span style={{ fontSize:"0.62rem", fontWeight:500, letterSpacing:"0.08em", textTransform:"uppercase", background:BRAND.bone, color:BRAND.night, padding:"0.2rem 0.55rem", border:`1px solid ${BRAND.boneDeep}`, fontFamily:"'DM Mono',monospace" }}>{v.destino}</span>
-                    <span style={{ fontSize:"0.62rem", color:BRAND.muted, padding:"0.2rem 0.55rem", border:`1px solid ${BRAND.boneDeep}`, fontFamily:"'DM Mono',monospace" }}>{v.fechas}</span>
-                    <span style={{ fontSize:"0.62rem", color:BRAND.cobalt, padding:"0.2rem 0.55rem", border:`1px solid rgba(10,58,242,0.2)`, background:"rgba(10,58,242,0.05)", fontFamily:"'DM Mono',monospace" }}>{v.puesto}</span>
+                    {v.region_destino && <span style={{ fontSize:"0.62rem", fontWeight:500, letterSpacing:"0.08em", textTransform:"uppercase", background:BRAND.bone, color:BRAND.night, padding:"0.2rem 0.55rem", border:`1px solid ${BRAND.boneDeep}`, fontFamily:"'DM Mono',monospace" }}>{v.region_destino}</span>}
+                    {v.fecha_viaje && <span style={{ fontSize:"0.62rem", color:BRAND.muted, padding:"0.2rem 0.55rem", border:`1px solid ${BRAND.boneDeep}`, fontFamily:"'DM Mono',monospace" }}>{v.fecha_viaje}</span>}
+                    {v.puesto && <span style={{ fontSize:"0.62rem", color:BRAND.cobalt, padding:"0.2rem 0.55rem", border:`1px solid rgba(10,58,242,0.2)`, background:"rgba(10,58,242,0.05)", fontFamily:"'DM Mono',monospace" }}>{v.puesto}</span>}
                   </div>
-                  <p style={{ fontSize:"0.75rem", color:"rgba(11,20,38,0.55)", margin:0, lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif", fontStyle:"italic" }}>"{v.bio}"</p>
+                  {v.bio_viajero && <p style={{ fontSize:"0.75rem", color:"rgba(11,20,38,0.55)", margin:0, lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif", fontStyle:"italic" }}>"{v.bio_viajero}"</p>}
                 </div>
               </div>
-              <div style={{ marginTop:"0.875rem", paddingTop:"0.875rem", borderTop:`1px solid ${BRAND.boneDeep}`, display:"flex", justifyContent:"flex-end" }}>
-                {solicitados[v.id] ? (
-                  <span style={{ fontSize:"0.7rem", color:BRAND.success, fontFamily:"'DM Mono',monospace", display:"flex", alignItems:"center", gap:"0.3rem" }}>
-                    <Icon name="check" size={12} color={BRAND.success} strokeWidth={2.5} /> Solicitud enviada
-                  </span>
-                ) : (
-                  <button onClick={() => solicitar(v.id)} style={{ background:BRAND.night, color:BRAND.bone, border:"none", padding:"0.45rem 1rem", fontSize:"0.7rem", fontWeight:600, cursor:"pointer", fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em", textTransform:"uppercase", transition:"background 0.15s" }}
-                    onMouseEnter={e=>e.currentTarget.style.background=BRAND.cobalt}
-                    onMouseLeave={e=>e.currentTarget.style.background=BRAND.night}>
+              <div style={{ marginTop:"0.875rem", paddingTop:"0.875rem", borderTop:`1px solid ${BRAND.boneDeep}`, display:"flex", justifyContent:"flex-end", gap:"0.5rem" }}>
+                {!conexion && (
+                  <button onClick={() => solicitar(v.email)} style={{ background:BRAND.night, color:BRAND.bone, border:"none", padding:"0.45rem 1rem", fontSize:"0.7rem", fontWeight:600, cursor:"pointer", fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em", textTransform:"uppercase" }}>
                     Quiero conectar →
                   </button>
+                )}
+                {conexion?.estado === "pendiente" && !soyReceptor && (
+                  <span style={{ fontSize:"0.7rem", color:BRAND.muted, fontFamily:"'DM Mono',monospace" }}>Solicitud enviada</span>
+                )}
+                {conexion?.estado === "pendiente" && soyReceptor && (
+                  <>
+                    <button onClick={() => responder(conexion.id, "rechazada")} style={{ background:"#fff", color:BRAND.muted, border:`1px solid ${BRAND.boneDeep}`, padding:"0.45rem 0.9rem", fontSize:"0.7rem", fontWeight:600, cursor:"pointer", fontFamily:"'DM Mono',monospace" }}>Ignorar</button>
+                    <button onClick={() => responder(conexion.id, "aceptada")} style={{ background:BRAND.cobalt, color:"#fff", border:"none", padding:"0.45rem 0.9rem", fontSize:"0.7rem", fontWeight:600, cursor:"pointer", fontFamily:"'DM Mono',monospace" }}>Aceptar</button>
+                  </>
+                )}
+                {conexion?.estado === "aceptada" && (
+                  <button onClick={() => contactar(v.whatsapp)} style={{ background:BRAND.cobalt, color:"#fff", border:"none", padding:"0.45rem 1rem", fontSize:"0.7rem", fontWeight:600, cursor:"pointer", fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em", textTransform:"uppercase" }}>
+                    Contactar por WhatsApp →
+                  </button>
+                )}
+                {conexion?.estado === "rechazada" && (
+                  <span style={{ fontSize:"0.7rem", color:BRAND.mutedLight, fontFamily:"'DM Mono',monospace" }}>No conectaron</span>
                 )}
               </div>
             </div>
           );
         })}
 
-        {/* Paywall overlay */}
-        {!esPremium && (
+        {!esPremium && filtrados.length > 2 && (
           <div style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderTop:"none", padding:"1.25rem 1.1rem", textAlign:"center" }}>
             <p style={{ fontSize:"0.75rem", color:BRAND.muted, margin:"0 0 0.75rem", fontFamily:"'DM Mono',monospace" }}>
-              <Icon name="lock" size={12} color={BRAND.muted} /> Con Premium conectás con todos los saisonniers compatibles
+              <Icon name="lock" size={12} color={BRAND.muted} /> Con Premium enviás solicitudes a todos los saisonniers
             </p>
             <button onClick={onUpgrade} style={{ background:BRAND.cobalt, color:"#fff", border:"none", padding:"0.6rem 1.5rem", fontSize:"0.75rem", fontWeight:700, cursor:"pointer", fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em", textTransform:"uppercase" }}>
               Activar — €5,99/mes
@@ -1327,36 +1397,43 @@ function DocumentosCierre() {
   );
 }
 
-function Checklist({ onToast }) {
-  const [checks, setChecks] = useState({});
-  const toggle = id => setChecks(c=>({...c,[id]:!c[id]}));
-  const hechos = Object.values(checks).filter(Boolean).length;
+function Checklist({ onToast, perfil, onToggleChecklist }) {
+  const checks = perfil?.checklist_llegada || [];
+  const toggle = id => onToggleChecklist && onToggleChecklist(id);
+  const hechos = checks.length;
   return (
     <Section icon="checklist" title="Checklist de Llegada" badge={`${hechos}/${CL_ITEMS.length}`}>
       <div style={{ background:BRAND.boneDeep, borderRadius:"2rem", height:"4px", marginBottom:"1rem", overflow:"hidden" }}>
         <div style={{ height:"100%", background:hechos===CL_ITEMS.length?BRAND.success:BRAND.cobalt, borderRadius:"2rem", width:`${(hechos/CL_ITEMS.length)*100}%`, transition:"width 0.3s" }} />
       </div>
-      {CL_ITEMS.map(item=>(
-        <div key={item.id} style={{ borderRadius:"0.75rem", background:checks[item.id]?BRAND.boneDeep:BRAND.bone, border:`1px solid ${checks[item.id]?BRAND.cobalt+"44":BRAND.boneDeep}`, marginBottom:"0.45rem", overflow:"hidden" }}>
+      {CL_ITEMS.map(item=>{
+        const marcado = checks.includes(item.id);
+        return (
+        <div key={item.id} style={{ borderRadius:"0.75rem", background:marcado?BRAND.boneDeep:BRAND.bone, border:`1px solid ${marcado?BRAND.cobalt+"44":BRAND.boneDeep}`, marginBottom:"0.45rem", overflow:"hidden" }}>
           <div onClick={()=>toggle(item.id)} style={{ display:"flex", alignItems:"flex-start", gap:"0.75rem", padding:"0.75rem 0.875rem", cursor:"pointer" }}>
-            <div style={{ width:"18px", height:"18px", borderRadius:"5px", flexShrink:0, marginTop:"1px", background:checks[item.id]?BRAND.cobalt:"#fff", border:`2px solid ${checks[item.id]?BRAND.cobalt:BRAND.boneDeep}`, display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.2s" }}>
-              {checks[item.id] && <Icon name="check" size={11} color="#fff" strokeWidth={2.5} />}
+            <div style={{ width:"18px", height:"18px", borderRadius:"5px", flexShrink:0, marginTop:"1px", background:marcado?BRAND.cobalt:"#fff", border:`2px solid ${marcado?BRAND.cobalt:BRAND.boneDeep}`, display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.2s" }}>
+              {marcado && <Icon name="check" size={11} color="#fff" strokeWidth={2.5} />}
             </div>
             <div style={{ flex:1 }}>
               <div style={{ display:"flex", alignItems:"center", gap:"0.4rem", flexWrap:"wrap", marginBottom:"0.15rem" }}>
-                <p style={{ fontSize:"0.84rem", fontWeight:600, color:checks[item.id]?BRAND.muted:BRAND.night, margin:0, textDecoration:checks[item.id]?"line-through":"none", fontFamily:"'Hanken Grotesk',sans-serif" }}>{item.t}</p>
+                <p style={{ fontSize:"0.84rem", fontWeight:600, color:marcado?BRAND.muted:BRAND.night, margin:0, textDecoration:marcado?"line-through":"none", fontFamily:"'Hanken Grotesk',sans-serif" }}>{item.t}</p>
                 {item.badge && <span style={{ background:BRAND.boneDeep, color:BRAND.muted, fontSize:"0.56rem", fontWeight:700, padding:"0.1rem 0.4rem", borderRadius:"2rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{item.badge}</span>}
               </div>
               <p style={{ fontSize:"0.71rem", color:BRAND.mutedLight, margin:0, lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif" }}>{item.d}</p>
             </div>
           </div>
-          {/* Botón afiliado inline */}
           {item.afiliado && AFILIADOS[item.afiliado] && (
             <div style={{ borderTop:`1px solid ${BRAND.boneDeep}`, padding:"0.5rem 0.875rem 0.6rem", background:BRAND.cobaltDim, display:"flex", alignItems:"center", gap:"0.4rem" }}>
               <span style={{ fontSize:"0.71rem", color:BRAND.cobalt, fontWeight:600, flex:1, fontFamily:"'Hanken Grotesk',sans-serif" }}>{AFILIADOS[item.afiliado].cta}</span>
-              <button onClick={()=>window.open(AFILIADOS[item.afiliado].link,"_blank","noopener")} style={{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.4rem", padding:"0.25rem 0.65rem", fontSize:"0.68rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", display:"flex", alignItems:"center", gap:"0.3rem" }}>
-                <Icon name="externalLink" size={11} color="#fff" /> Ir
-              </button>
+              {AFILIADOS[item.afiliado].link ? (
+                <button onClick={()=>window.open(AFILIADOS[item.afiliado].link,"_blank","noopener")} style={{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.4rem", padding:"0.25rem 0.65rem", fontSize:"0.68rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", display:"flex", alignItems:"center", gap:"0.3rem" }}>
+                  <Icon name="externalLink" size={11} color="#fff" /> Ir
+                </button>
+              ) : (
+                <button onClick={()=>{navigator.clipboard.writeText(AFILIADOS[item.afiliado].codigo); onToast("Código copiado: "+AFILIADOS[item.afiliado].codigo);}} style={{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.4rem", padding:"0.25rem 0.65rem", fontSize:"0.68rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif" }}>
+                  Copiar código
+                </button>
+              )}
             </div>
           )}
           {item.cta && (
@@ -1367,9 +1444,8 @@ function Checklist({ onToast }) {
             </div>
           )}
         </div>
-      ))}
+      )})}
 
-      {/* Sección: sin trabajo confirmado */}
       <div style={{ marginTop:"1rem", background:BRAND.boneDeep, borderRadius:"0.875rem", padding:"0.875rem 1rem" }}>
         <p style={{ fontSize:"0.68rem", fontWeight:700, color:BRAND.muted, textTransform:"uppercase", letterSpacing:"0.08em", margin:"0 0 0.5rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>¿Todavía sin trabajo confirmado?</p>
         {[AFILIADOS.workaway, AFILIADOS.alojamiento].map(af=>(
@@ -1795,17 +1871,34 @@ export default function App() {
       frances: perfil.frances,
       disponibilidad: perfil.disponibilidad,
       documentacion: perfil.documentacion,
+      whatsapp: perfil.whatsapp,
+      region_destino: perfil.region_destino,
+      fecha_viaje: perfil.fecha_viaje,
+      bio_viajero: perfil.bio_viajero,
       score,
       semaforo,
     }).eq('email', usuario.email);
 
-    setUsuario(u=>({...u, perfil}));
+    setUsuario(u=>({...u, perfil:{...u.perfil, ...perfil}}));
     setMostrarPerfil(false);
     toast("Perfil actualizado · matching activado");
   }
 
   const esPremium = usuario?.esPremium || false;
   const [ofertaAbierta, setOfertaAbierta] = useState(null);
+  const [solicitudesPendientes, setSolicitudesPendientes] = useState(0);
+
+  async function refrescarSolicitudes() {
+    if (!usuario?.email) return;
+    const { count } = await supabase
+      .from('Conexiones')
+      .select('*', { count: 'exact', head: true })
+      .eq('email_receptor', usuario.email)
+      .eq('estado', 'pendiente');
+    setSolicitudesPendientes(count || 0);
+  }
+
+  useEffect(() => { refrescarSolicitudes(); }, [usuario?.email]);
 
   async function toggleOfertaGuardada(ofertaId) {
     const actuales = usuario?.perfil?.ofertas_guardadas || [];
@@ -1828,6 +1921,17 @@ export default function App() {
     const nuevaLista = yaEsta ? actuales.filter(id=>id!==itemId) : [...actuales, itemId];
     await supabase.from('Perfiles').update({ checklist_llegada: nuevaLista }).eq('email', usuario.email);
     setUsuario(u=>({...u, perfil:{...u.perfil, checklist_llegada: nuevaLista}}));
+  }
+  async function enviarSolicitud(emailReceptor) {
+    await supabase.from('Conexiones').insert({
+      email_solicitante: usuario.email,
+      email_receptor: emailReceptor,
+      estado: 'pendiente',
+    });
+  }
+
+  async function responderSolicitud(id, nuevoEstado) {
+    await supabase.from('Conexiones').update({ estado: nuevoEstado }).eq('id', id);
   }
 
   return (
@@ -1853,22 +1957,27 @@ export default function App() {
   <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} onAbrirOferta={(o)=>{setOfertaAbierta(o); setTab("ofertas");}} onToggleAplicada={toggleOfertaAplicada} onToggleChecklist={toggleChecklistItem} />
 </div>
 <div style={{ display:tab==="viajeros"?"block":"none" }}>
-  <TabViajeros esPremium={esPremium} onUpgrade={()=>setMostrarMuroPago(true)} usuario={usuario} />
+  <TabViajeros esPremium={esPremium} onUpgrade={()=>setMostrarMuroPago(true)} usuario={usuario} onEnviarSolicitud={enviarSolicitud} onResponderSolicitud={responderSolicitud} onCambioSolicitudes={refrescarSolicitudes} />
 </div>
 <div style={{ display:tab==="premium"?"block":"none" }}>
   <TabServicios />
 </div>
           <nav style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:200, background:BRAND.night, borderTop:`1px solid ${BRAND.nightSoft}`, display:"flex", justifyContent:"center", padding:"0.6rem 1rem calc(1rem + env(safe-area-inset-bottom))", gap:"0.35rem" }}>
-            {TABS.map(t=>{
+           {TABS.map(t=>{
               const active = tab===t.id;
               return (
                 <button key={t.id} onClick={()=>setTab(t.id)}
-                  style={{ flex:1, maxWidth:"110px", display:"flex", flexDirection:"column", alignItems:"center", gap:"0.25rem", background:active?BRAND.cobalt:"transparent", border:"none", borderRadius:"10px", padding:"0.6rem 0.4rem 0.5rem", cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", transition:"all 0.18s ease" }}
+                  style={{ flex:1, maxWidth:"110px", display:"flex", flexDirection:"column", alignItems:"center", gap:"0.25rem", background:active?BRAND.cobalt:"transparent", border:"none", borderRadius:"10px", padding:"0.6rem 0.4rem 0.5rem", cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", transition:"all 0.18s ease", position:"relative" }}
                   onMouseDown={e=>e.currentTarget.style.transform="scale(0.94)"}
                   onMouseUp={e=>e.currentTarget.style.transform="scale(1)"}
                   onTouchStart={e=>e.currentTarget.style.transform="scale(0.94)"}
                   onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"}>
-                  <Icon name={t.icon} size={19} color={active?"#fff":BRAND.mutedLight} />
+                  <div style={{ position:"relative" }}>
+                    <Icon name={t.icon} size={19} color={active?"#fff":BRAND.mutedLight} />
+                    {t.id === "viajeros" && solicitudesPendientes > 0 && (
+                      <span style={{ position:"absolute", top:"-3px", right:"-5px", width:"8px", height:"8px", borderRadius:"50%", background:BRAND.red, border:`1.5px solid ${BRAND.night}` }} />
+                    )}
+                  </div>
                   <span style={{ fontSize:"0.65rem", fontWeight:600, color:active?"#fff":BRAND.mutedLight, letterSpacing:"0.01em" }}>{t.label}</span>
                 </button>
               );
