@@ -1864,7 +1864,7 @@ export default function App() {
 
     const semaforo = score >= 85 ? "verde" : score >= 65 ? "amarillo" : "rojo";
 
-    await supabase.from('Perfiles').update({
+    const { error } = await supabase.from('Perfiles').update({
       nombre: perfil.nombre,
       pais: perfil.pais,
       puesto: perfil.puesto,
@@ -1878,6 +1878,11 @@ export default function App() {
       score,
       semaforo,
     }).eq('email', usuario.email);
+
+    if (error) {
+      alert("Error al guardar: " + error.message);
+      return;
+    }
 
     setUsuario(u=>({...u, perfil:{...u.perfil, ...perfil}}));
     setMostrarPerfil(false);
