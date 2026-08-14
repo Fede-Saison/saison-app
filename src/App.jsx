@@ -1120,7 +1120,7 @@ function FrasesSup() {
 // ================================================================
 
 
-function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onResponderSolicitud, onCambioSolicitudes }) {
+function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onResponderSolicitud, onCambioSolicitudes, onToast }) {
   const [perfiles, setPerfiles] = useState([]);
   const [conexiones, setConexiones] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -1928,11 +1928,12 @@ export default function App() {
     setUsuario(u=>({...u, perfil:{...u.perfil, checklist_llegada: nuevaLista}}));
   }
   async function enviarSolicitud(emailReceptor) {
-    await supabase.from('Conexiones').insert({
+    const { error } = await supabase.from('Conexiones').insert({
       email_solicitante: usuario.email,
       email_receptor: emailReceptor,
       estado: 'pendiente',
     });
+    return { error };
   }
 
   async function responderSolicitud(id, nuevoEstado) {
@@ -1962,7 +1963,7 @@ export default function App() {
   <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} onAbrirOferta={(o)=>{setOfertaAbierta(o); setTab("ofertas");}} onToggleAplicada={toggleOfertaAplicada} onToggleChecklist={toggleChecklistItem} />
 </div>
 <div style={{ display:tab==="viajeros"?"block":"none" }}>
-  <TabViajeros esPremium={esPremium} onUpgrade={()=>setMostrarMuroPago(true)} usuario={usuario} onEnviarSolicitud={enviarSolicitud} onResponderSolicitud={responderSolicitud} onCambioSolicitudes={refrescarSolicitudes} />
+  <TabViajeros esPremium={esPremium} onUpgrade={()=>setMostrarMuroPago(true)} usuario={usuario} onEnviarSolicitud={enviarSolicitud} onResponderSolicitud={responderSolicitud} onCambioSolicitudes={refrescarSolicitudes} onToast={toast} />
 </div>
 <div style={{ display:tab==="premium"?"block":"none" }}>
   <TabServicios />
