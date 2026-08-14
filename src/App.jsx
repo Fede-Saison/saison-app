@@ -1163,8 +1163,17 @@ function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onRespo
   );
 
   const solicitar = async (emailOtro) => {
-    if (!esPremium) { onUpgrade(); return; }
-    await onEnviarSolicitud(emailOtro);
+    if (!esPremium) {
+      onToast && onToast("Esta función es para miembros Saison — suscribite para acceder a la red de saisonniers.");
+      onUpgrade();
+      return;
+    }
+    const { error } = await onEnviarSolicitud(emailOtro);
+    if (error) {
+      alert("No se pudo enviar la solicitud: " + error.message);
+      return;
+    }
+    onToast && onToast("¡Solicitud enviada!");
     cargarDatos();
   };
 
@@ -1181,15 +1190,18 @@ function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onRespo
 
   return (
   <div style={{ background:BRAND.bone, minHeight:"100dvh", paddingBottom:"7rem" }}>
-    <div style={{ background:BRAND.bone }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"0.75rem" }}>
-          <h2 style={{ fontSize:"1.1rem", fontWeight:700, color:BRAND.bone, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em" }}>Saisonniers</h2>
-          <div style={{ display:"flex", alignItems:"center", gap:"6px", background:"rgba(10,58,242,0.2)", border:"1px solid rgba(10,58,242,0.35)", borderRadius:"2rem", padding:"0.25rem 0.7rem" }}>
+    <div style={{ background:BRAND.night, padding:"1.25rem 1.25rem 1rem" }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"0.4rem" }}>
+          <div>
+            <h2 style={{ fontSize:"1.1rem", fontWeight:700, color:BRAND.bone, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em", textTransform:"uppercase" }}>Conectá con otros saisonniers</h2>
+            <p style={{ fontSize:"0.76rem", color:"rgba(245,243,236,0.6)", margin:"0.3rem 0 0", fontFamily:"'Hanken Grotesk',sans-serif", lineHeight:1.5 }}>Conectá con otros saisonniers que van al mismo destino y en las mismas fechas.</p>
+          </div>
+          <div style={{ display:"flex", alignItems:"center", gap:"6px", background:"rgba(10,58,242,0.2)", border:"1px solid rgba(10,58,242,0.35)", borderRadius:"2rem", padding:"0.25rem 0.7rem", flexShrink:0, marginLeft:"0.75rem" }}>
             <div style={{ width:"5px", height:"5px", borderRadius:"50%", background:BRAND.cobalt }} />
             <span style={{ fontSize:"0.58rem", fontWeight:500, letterSpacing:"0.1em", textTransform:"uppercase", color:BRAND.cobalt, fontFamily:"'DM Mono',monospace" }}>{perfiles.length} activos</span>
           </div>
         </div>
-        <div style={{ display:"flex", gap:"0.35rem", overflowX:"auto", paddingBottom:"0.875rem", scrollbarWidth:"none" }}>
+        <div style={{ display:"flex", gap:"0.35rem", overflowX:"auto", paddingTop:"0.75rem", paddingBottom:"0.25rem", scrollbarWidth:"none" }}>
           {destinos.map(d => (
             <button key={d} onClick={() => setFiltro(d)} style={{ background:filtro===d?BRAND.bone:"transparent", color:filtro===d?BRAND.night:"rgba(255,255,255,0.55)", border:`1px solid ${filtro===d?BRAND.bone:"rgba(255,255,255,0.15)"}`, borderRadius:"2rem", padding:"0.35rem 0.75rem", fontSize:"0.71rem", fontWeight:600, cursor:"pointer", fontFamily:"'DM Mono',monospace", whiteSpace:"nowrap", flexShrink:0, transition:"all 0.15s", letterSpacing:"0.02em" }}>
               {d === "todos" ? "Todos" : d}
@@ -1208,68 +1220,66 @@ function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onRespo
         </div>
       )}
 
-      <div style={{ padding:"0.75rem 1.25rem 7rem", display:"flex", flexDirection:"column", gap:"0" }}>
+      <div style={{ margin:"0 1.25rem 7rem", background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"12px", padding:"0.25rem 1.1rem" }}>
         {cargando ? (
           <p style={{ textAlign:"center", padding:"2rem 1rem", fontSize:"0.8rem", color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif" }}>Cargando saisonniers…</p>
         ) : filtrados.length === 0 ? (
           <p style={{ textAlign:"center", padding:"2rem 1rem", fontSize:"0.8rem", color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif" }}>Todavía no hay saisonniers con destino confirmado en esta región. Sé de los primeros — completá tu perfil.</p>
         ) : filtrados.map((v, i) => {
-          const bloqueado = i >= 2 && !esPremium;
+
           const conexion = conexionCon(v.email);
           const soyReceptor = conexion?.email_receptor === usuario?.email;
           return (
-            <div key={v.email} style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderTop: i > 0 ? "none" : `1px solid ${BRAND.boneDeep}`, padding:"1rem 1.1rem", position:"relative", filter: bloqueado ? "blur(3px)" : "none", userSelect: bloqueado ? "none" : "auto", pointerEvents: bloqueado ? "none" : "auto" }}>
-              <div style={{ display:"flex", alignItems:"flex-start", gap:"0.75rem" }}>
-                <div style={{ width:"40px", height:"40px", borderRadius:"50%", background:BRAND.night, display:"flex", alignItems:"center", justifyContent:"center", fontSize:"18px", flexShrink:0, border:`1.5px solid ${BRAND.boneDeep}` }}>
-                  {banderaPorPais[v.pais] || "🌍"}
-                </div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:"0.4rem", marginBottom:"0.15rem", flexWrap:"wrap" }}>
-                    <span style={{ fontSize:"0.88rem", fontWeight:700, color:BRAND.night, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.01em" }}>{v.nombre}</span>
-                    <span style={{ fontSize:"0.62rem", color:BRAND.muted, fontFamily:"'DM Mono',monospace" }}>de {v.pais}</span>
+            <div key={v.email} style={{ padding:"1rem 0", borderBottom: i < filtrados.length-1 ? `1px solid ${BRAND.boneDeep}` : "none", position:"relative" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:"0.75rem" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:"0.75rem", flex:1, minWidth:0 }}>
+                  <div style={{ width:"38px", height:"38px", borderRadius:"50%", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", fontSize:"16px", flexShrink:0 }}>
+                    {banderaPorPais[v.pais] || "🌍"}
                   </div>
-                  <div style={{ display:"flex", gap:"0.35rem", flexWrap:"wrap", marginBottom:"0.5rem" }}>
-                    {v.region_destino && <span style={{ fontSize:"0.62rem", fontWeight:500, letterSpacing:"0.08em", textTransform:"uppercase", background:BRAND.bone, color:BRAND.night, padding:"0.2rem 0.55rem", border:`1px solid ${BRAND.boneDeep}`, fontFamily:"'DM Mono',monospace" }}>{v.region_destino}</span>}
-                    {v.fecha_viaje && <span style={{ fontSize:"0.62rem", color:BRAND.muted, padding:"0.2rem 0.55rem", border:`1px solid ${BRAND.boneDeep}`, fontFamily:"'DM Mono',monospace" }}>{v.fecha_viaje}</span>}
-                    {v.puesto && <span style={{ fontSize:"0.62rem", color:BRAND.cobalt, padding:"0.2rem 0.55rem", border:`1px solid rgba(10,58,242,0.2)`, background:"rgba(10,58,242,0.05)", fontFamily:"'DM Mono',monospace" }}>{v.puesto}</span>}
+                  <div style={{ minWidth:0 }}>
+                    <p style={{ margin:"0 0 2px", fontFamily:"'Bricolage Grotesque',sans-serif", fontWeight:800, fontSize:"0.94rem", color:BRAND.night, letterSpacing:"-0.01em" }}>{v.nombre}</p>
+                    <p style={{ margin:0, fontSize:"0.78rem", color:BRAND.muted, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
+                      {v.pais}{v.region_destino && ` · ${v.region_destino}`}{v.fecha_viaje && ` · ${v.fecha_viaje}`}
+                    </p>
                   </div>
-                  {v.bio_viajero && <p style={{ fontSize:"0.75rem", color:"rgba(11,20,38,0.55)", margin:0, lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif", fontStyle:"italic" }}>"{v.bio_viajero}"</p>}
                 </div>
               </div>
-              <div style={{ marginTop:"0.875rem", paddingTop:"0.875rem", borderTop:`1px solid ${BRAND.boneDeep}`, display:"flex", justifyContent:"flex-end", gap:"0.5rem" }}>
+              {v.bio_viajero && (
+                <p style={{ margin:"0.55rem 0 0", paddingLeft:"calc(38px + 0.75rem)", fontSize:"0.78rem", color:BRAND.mutedLight, fontStyle:"italic", lineHeight:1.5 }}>"{v.bio_viajero}"</p>
+              )}
+              <div style={{ marginTop:"0.65rem", paddingLeft:"calc(38px + 0.75rem)", display:"flex", justifyContent:"flex-end", gap:"0.9rem" }}>
                 {!conexion && (
-                  <button onClick={() => solicitar(v.email)} style={{ background:BRAND.night, color:BRAND.bone, border:"none", padding:"0.45rem 1rem", fontSize:"0.7rem", fontWeight:600, cursor:"pointer", fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em", textTransform:"uppercase" }}>
+                  <button onClick={() => solicitar(v.email)} style={{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.5rem", padding:"0.4rem 0.9rem", fontFamily:"'DM Mono',monospace", fontSize:"0.71rem", fontWeight:600, cursor:"pointer" }}>
                     Quiero conectar →
                   </button>
                 )}
                 {conexion?.estado === "pendiente" && !soyReceptor && (
-                  <span style={{ fontSize:"0.7rem", color:BRAND.muted, fontFamily:"'DM Mono',monospace" }}>Solicitud enviada</span>
+                  <span style={{ fontSize:"0.71rem", color:BRAND.muted, fontFamily:"'DM Mono',monospace" }}>Solicitud enviada</span>
                 )}
                 {conexion?.estado === "pendiente" && soyReceptor && (
                   <>
-                    <button onClick={() => responder(conexion.id, "rechazada")} style={{ background:"#fff", color:BRAND.muted, border:`1px solid ${BRAND.boneDeep}`, padding:"0.45rem 0.9rem", fontSize:"0.7rem", fontWeight:600, cursor:"pointer", fontFamily:"'DM Mono',monospace" }}>Ignorar</button>
-                    <button onClick={() => responder(conexion.id, "aceptada")} style={{ background:BRAND.cobalt, color:"#fff", border:"none", padding:"0.45rem 0.9rem", fontSize:"0.7rem", fontWeight:600, cursor:"pointer", fontFamily:"'DM Mono',monospace" }}>Aceptar</button>
+                    <button onClick={() => responder(conexion.id, "rechazada")} style={{ background:"none", border:"none", color:BRAND.muted, fontFamily:"'DM Mono',monospace", fontSize:"0.71rem", fontWeight:600, cursor:"pointer", padding:0 }}>Ignorar</button>
+                    <button onClick={() => responder(conexion.id, "aceptada")} style={{ background:"none", border:"none", color:BRAND.cobalt, fontFamily:"'DM Mono',monospace", fontSize:"0.71rem", fontWeight:700, cursor:"pointer", padding:0 }}>Aceptar →</button>
                   </>
                 )}
                 {conexion?.estado === "aceptada" && (
-                  <button onClick={() => contactar(v.whatsapp)} style={{ background:BRAND.cobalt, color:"#fff", border:"none", padding:"0.45rem 1rem", fontSize:"0.7rem", fontWeight:600, cursor:"pointer", fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em", textTransform:"uppercase" }}>
+                  <button onClick={() => contactar(v.whatsapp)} style={{ background:"none", border:"none", color:BRAND.cobalt, fontFamily:"'DM Mono',monospace", fontSize:"0.71rem", fontWeight:700, cursor:"pointer", padding:0 }}>
                     Contactar por WhatsApp →
                   </button>
                 )}
                 {conexion?.estado === "rechazada" && (
-                  <span style={{ fontSize:"0.7rem", color:BRAND.mutedLight, fontFamily:"'DM Mono',monospace" }}>No conectaron</span>
+                  <span style={{ fontSize:"0.71rem", color:BRAND.mutedLight, fontFamily:"'DM Mono',monospace" }}>No conectaron</span>
                 )}
               </div>
             </div>
           );
         })}
 
-        {!esPremium && filtrados.length > 2 && (
-          <div style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderTop:"none", padding:"1.25rem 1.1rem", textAlign:"center" }}>
-            <p style={{ fontSize:"0.75rem", color:BRAND.muted, margin:"0 0 0.75rem", fontFamily:"'DM Mono',monospace" }}>
-              <Icon name="lock" size={12} color={BRAND.muted} /> Con Premium enviás solicitudes a todos los saisonniers
-            </p>
-            <button onClick={onUpgrade} style={{ background:BRAND.cobalt, color:"#fff", border:"none", padding:"0.6rem 1.5rem", fontSize:"0.75rem", fontWeight:700, cursor:"pointer", fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em", textTransform:"uppercase" }}>
+        {!esPremium && filtrados.length > 0 && (
+          <div style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderTop:"none", borderRadius:"0 0 12px 12px", padding:"1.25rem 1.1rem", textAlign:"center" }}>
+            <p style={{ fontSize:"0.78rem", color:BRAND.night, fontWeight:600, margin:"0 0 0.3rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>¿Te copó alguno de estos saisonniers?</p>
+            <p style={{ fontSize:"0.73rem", color:BRAND.muted, margin:"0 0 0.75rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Con Premium podés mandarles una solicitud para conectar</p>
+            <button onClick={onUpgrade} style={{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.5rem", padding:"0.6rem 1.5rem", fontSize:"0.75rem", fontWeight:700, cursor:"pointer", fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em", textTransform:"uppercase" }}>
               Activar — €5,99/mes
             </button>
           </div>
