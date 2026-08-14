@@ -1659,7 +1659,7 @@ function TabServicios() {
               <span style={{ fontSize:"0.75rem", color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif" }}>la sesión · 45 minutos</span>
             </div>
           </div>
-          <button style={{ ...S.btnCobalt, borderRadius:0, marginTop:0 }}>Reservar asesoría →</button>
+          <button onClick={()=>window.open("https://cal.com/saison-federico-alberti/asesoria-personalizada","_blank","noopener")} style={{ ...S.btnCobalt, borderRadius:0, marginTop:0 }}>Reservar asesoría →</button>
         </div>
 
         {/* Curso de francés */}
@@ -1677,7 +1677,7 @@ function TabServicios() {
             </div>
             <p style={{ fontSize:"0.68rem", color:"rgba(245,243,236,0.3)", margin:"0 0 1.25rem", fontFamily:"'DM Mono',monospace", letterSpacing:"0.04em" }}>Máx. 8 alumnos · Google Meet · 1h/semana</p>
           </div>
-          <button onClick={()=>{}} style={{ ...S.btnCobalt, borderRadius:0, marginTop:0 }}>Conocer el curso →</button>
+          <button onClick={()=>onToast ? onToast("Muy pronto vas a poder inscribirte acá") : alert("Muy pronto vas a poder inscribirte acá")} style={{ ...S.btnCobalt, borderRadius:0, marginTop:0, opacity:0.6 }}>Muy pronto →</button>
         </div>
 
         {/* Redes */}
