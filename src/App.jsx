@@ -37,7 +37,7 @@ const S = {
 
 const STRIPE = {
   mensual:    "https://buy.stripe.com/8x2fZiaO9ezr3Y86iyfnO00",
-  trimestral: "https://buy.stripe.com/fZudRag8t8b33Y822ifnO01",
+  trimestral: "https://buy.stripe.com/aFafZi09v8b3eCM4aqfnO02",
 };
 
 // ================================================================
@@ -350,32 +350,34 @@ function MuroPago({ onCerrar }) {
             <p style={{ fontSize:"0.78rem", color:BRAND.mutedLight, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Para contactar empleadores y aplicar directamente</p>
           </div>
         </div>
+        <div style={{ background:"rgba(10,58,242,0.12)", border:`1px solid rgba(10,58,242,0.3)`, borderRadius:"0.75rem", padding:"0.65rem 0.9rem", marginBottom:"1.25rem", display:"flex", alignItems:"center", gap:"0.5rem" }}>
+          <span style={{ fontSize:"1rem" }}>🎁</span>
+          <p style={{ fontSize:"0.78rem", color:BRAND.bone, margin:0, fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif" }}>3 días gratis en cualquier plan — cancelá cuando quieras</p>
+        </div>
         <div style={{ display:"flex", flexDirection:"column", gap:"0.65rem", marginBottom:"1.5rem" }}>
-          <div style={{ background:BRAND.nightMid, border:`1px solid ${BRAND.nightSoft}`, borderRadius:"0.875rem", padding:"1rem 1.2rem", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <div onClick={()=>window.open(STRIPE.trimestral,"_blank")} style={{ cursor:"pointer", position:"relative", background:BRAND.cobalt, borderRadius:"0.875rem", padding:"1.1rem 1.2rem 1rem", overflow:"visible" }}>
+            <div style={{ position:"absolute", top:"-10px", left:"1.2rem", background:"#F5C842", color:BRAND.night, fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", fontWeight:700, letterSpacing:"0.04em", padding:"0.2rem 0.6rem", borderRadius:"2rem" }}>MÁS ELEGIDO · AHORRÁ 33%</div>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:"0.3rem" }}>
+              <div>
+                <p style={{ fontSize:"0.92rem", fontWeight:700, color:"#fff", margin:"0 0 0.1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Trimestral</p>
+                <p style={{ fontSize:"0.72rem", color:"rgba(255,255,255,0.75)", margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Toda la temporada cubierta</p>
+              </div>
+              <div style={{ textAlign:"right" }}>
+                <p style={{ fontSize:"1.3rem", fontWeight:800, color:"#fff", margin:0, fontFamily:"'Bricolage Grotesque',sans-serif" }}>€3.99<span style={{ fontSize:"0.68rem", fontWeight:500 }}>/mes</span></p>
+                <p style={{ fontSize:"0.65rem", color:"rgba(255,255,255,0.6)", margin:"0.1rem 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>€11.99 total</p>
+              </div>
+            </div>
+          </div>
+          <div onClick={()=>window.open(STRIPE.mensual,"_blank")} style={{ cursor:"pointer", background:BRAND.nightMid, border:`1px solid ${BRAND.nightSoft}`, borderRadius:"0.875rem", padding:"1rem 1.2rem", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
             <div>
               <p style={{ fontSize:"0.9rem", fontWeight:600, color:BRAND.bone, margin:"0 0 0.1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Mensual</p>
-              <p style={{ fontSize:"0.72rem", color:BRAND.mutedLight, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Acceso completo · 30 días</p>
+              <p style={{ fontSize:"0.72rem", color:BRAND.mutedLight, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Flexible, mes a mes</p>
             </div>
-            <div style={{ textAlign:"right", display:"flex", alignItems:"center", gap:"0.75rem" }}>
-              <p style={{ fontSize:"1.3rem", fontWeight:700, color:BRAND.bone, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif" }}>€5.99</p>
-              <button onClick={()=>window.open(STRIPE.mensual,"_blank")} style={{ background:BRAND.nightSoft, color:BRAND.bone, border:`1px solid ${BRAND.nightSoft}`, borderRadius:"0.5rem", padding:"0.35rem 0.875rem", fontSize:"0.76rem", fontWeight:600, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif" }}>Elegir</button>
-            </div>
-          </div>
-          <div style={{ background:BRAND.cobalt, borderRadius:"0.875rem", padding:"1rem 1.2rem", display:"flex", alignItems:"center", justifyContent:"space-between", position:"relative", overflow:"hidden" }}>
-            <div style={{ position:"absolute", top:"0.5rem", right:"0.5rem", background:"rgba(255,255,255,0.2)", borderRadius:"2rem", padding:"0.15rem 0.55rem" }}>
-              <span style={{ fontSize:"0.58rem", fontWeight:700, color:"#fff", fontFamily:"'Hanken Grotesk',sans-serif", letterSpacing:"0.06em" }}>TEMPORADA</span>
-            </div>
-            <div>
-              <p style={{ fontSize:"0.9rem", fontWeight:600, color:"#fff", margin:"0 0 0.1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Trimestral</p>
-              <p style={{ fontSize:"0.72rem", color:"rgba(255,255,255,0.7)", margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>€8/mes · Temporada completa</p>
-            </div>
-            <div style={{ textAlign:"right", display:"flex", alignItems:"center", gap:"0.75rem" }}>
-              <p style={{ fontSize:"1.3rem", fontWeight:700, color:"#fff", margin:0, fontFamily:"'Bricolage Grotesque',sans-serif" }}>€9.99</p>
-              <button onClick={()=>window.open(STRIPE.trimestral,"_blank")} style={{ background:"rgba(255,255,255,0.95)", color:BRAND.cobalt, border:"none", borderRadius:"0.5rem", padding:"0.35rem 0.875rem", fontSize:"0.76rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif" }}>Elegir</button>
-            </div>
+            <p style={{ fontSize:"1.05rem", fontWeight:700, color:BRAND.bone, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif" }}>€5.99<span style={{ fontSize:"0.65rem", fontWeight:500, color:BRAND.mutedLight }}>/mes</span></p>
           </div>
         </div>
-        {["Contacto directo con empleadores","Carta de presentación en francés con IA","Alertas personalizadas por perfil","Suite de herramientas: contratos, derechos y más","Francés laboral de supervivencia"].map((f,i)=>(
+        <button onClick={()=>window.open(STRIPE.trimestral,"_blank")} style={{ width:"100%", background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.75rem", padding:"0.9rem", fontSize:"0.92rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", marginBottom:"1.25rem" }}>Empezar gratis hoy →</button>
+        {["Contacto directo con empleadores","Carta de presentación en francés con IA","Conectá con otros saisonniers — no llegues solo","Descargá templates de CV y guías gratis","Alertas personalizadas por perfil","Francés laboral de supervivencia"].map((f,i)=>(
           <div key={i} style={{ display:"flex", alignItems:"center", gap:"0.5rem", marginBottom:"0.35rem" }}>
             <Icon name="check" size={13} color={BRAND.cobalt} strokeWidth={2.5} />
             <span style={{ fontSize:"0.76rem", color:BRAND.mutedLight, fontFamily:"'Hanken Grotesk',sans-serif" }}>{f}</span>
