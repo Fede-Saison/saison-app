@@ -642,13 +642,23 @@ const CODIGOS_PAIS_PERFIL = [
 
 const PASOS_PERFIL_TOTAL = 8;
 
-function ModalPerfil({ perfil, onGuardar, onCerrar }) {
+function SplashScreen() {
+  return (
+    <div style={{ position:"fixed", inset:0, background:BRAND.night, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", zIndex:2000 }}>
+      <svg width="34" height="34" viewBox="0 0 28 28" fill="none" style={{ marginBottom:"1rem", animation:"scaleIn 0.4s ease" }}>
+        <rect x="0" y="0" width="13" height="13" rx="2.5" fill="#0A3AF2"/><rect x="15" y="0" width="13" height="13" rx="2.5" fill="#0A3AF2" opacity="0.55"/><rect x="0" y="15" width="13" height="13" rx="2.5" fill="#0A3AF2" opacity="0.3"/><rect x="15" y="15" width="13" height="13" rx="2.5" fill="#0A3AF2" opacity="0.12"/>
+      </svg>
+      <span style={{ fontFamily:"'Bricolage Grotesque',sans-serif", fontWeight:800, fontSize:"1.1rem", color:BRAND.bone, letterSpacing:"-0.025em" }}>Saison</span>
+    </div>
+  );
+}
+function ModalPerfil({ perfil, onGuardar, onCerrar, forzado }) {
   const [form, setForm] = useState(perfil||{});
   const [paso, setPaso] = useState(0);
   const set = (k,v) => setForm(f=>({...f,[k]:v}));
 
   const irSiguiente = () => setPaso(p=>Math.min(p+1, PASOS_PERFIL_TOTAL-1));
-  const irAtras = () => paso===0 ? onCerrar() : setPaso(p=>p-1);
+  const irAtras = () => paso===0 ? (forzado ? null : onCerrar()) : setPaso(p=>p-1);
 
   const puedeAvanzar = () => {
     if (paso===0) return (form.nombre||"").trim().length>1;
@@ -683,9 +693,12 @@ function ModalPerfil({ perfil, onGuardar, onCerrar }) {
         <div style={{ padding:"1rem 1.75rem 0" }}>
           <div style={{ width:"2.5rem", height:"3px", background:BRAND.boneDeep, borderRadius:"2px", margin:"0 auto 1rem" }} />
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"0.75rem" }}>
-            <div onClick={irAtras} style={{ width:"30px", height:"30px", borderRadius:"8px", border:`1.3px solid ${BRAND.boneDeep}`, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
-              <Icon name="arrowRight" size={13} color={BRAND.night} strokeWidth={2.3} style={{transform:"rotate(180deg)"}} />
-            </div>
+            {(!forzado || paso>0) && (
+              <div onClick={irAtras} style={{ width:"30px", height:"30px", borderRadius:"8px", border:`1.3px solid ${BRAND.boneDeep}`, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+                <Icon name="arrowRight" size={13} color={BRAND.night} strokeWidth={2.3} style={{transform:"rotate(180deg)"}} />
+              </div>
+            )}
+            {forzado && paso===0 && <div />}
             <span style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.68rem", color:BRAND.muted }}>{paso+1} / {PASOS_PERFIL_TOTAL}</span>
           </div>
           <div style={{ background:BRAND.boneDeep, borderRadius:"2rem", height:"3px", marginBottom:"1.25rem", overflow:"hidden" }}>
@@ -1799,7 +1812,7 @@ function TabServicios() {
 // ================================================================
 // AUTH
 // ================================================================
-function PantallaAuth({ onLogin }) {
+function PantallaAuth({ onLogin, onIniciarLogin }) {
   const [modo, setModo] = useState("registro");
   const [form, setForm] = useState({ nombre:"", email:"", password:"" });
   const [error, setError] = useState("");
@@ -1828,7 +1841,8 @@ const handleSubmit = async () => {
     });
   }
   
-  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion, ofertas_guardadas: perfilExistente?.ofertas_guardadas || [] } });
+  onIniciarLogin && onIniciarLogin();
+  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion, whatsapp: perfilExistente?.whatsapp, region_destino: perfilExistente?.region_destino, fecha_viaje: perfilExistente?.fecha_viaje, bio_viajero: perfilExistente?.bio_viajero, checklist_llegada: perfilExistente?.checklist_llegada || [], estados_aplicacion: perfilExistente?.estados_aplicacion || {}, ofertas_guardadas: perfilExistente?.ofertas_guardadas || [] } });
   } else {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: form.email,
@@ -1838,7 +1852,8 @@ const handleSubmit = async () => {
       const u = data.user;
   const { data: perfilLogin } = await supabase.from('Perfiles').select('*').eq('email', u.email).single();
 console.log('perfil login:', perfilLogin);
-onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion, ofertas_guardadas: perfilLogin?.ofertas_guardadas || [] } });
+onIniciarLogin && onIniciarLogin();
+onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion, whatsapp: perfilLogin?.whatsapp, region_destino: perfilLogin?.region_destino, fecha_viaje: perfilLogin?.fecha_viaje, bio_viajero: perfilLogin?.bio_viajero, checklist_llegada: perfilLogin?.checklist_llegada || [], estados_aplicacion: perfilLogin?.estados_aplicacion || {}, ofertas_guardadas: perfilLogin?.ofertas_guardadas || [] } });
   }
 };
   return (
@@ -1924,12 +1939,9 @@ export default function App() {
     timer.current = setTimeout(()=>setToastOn(false), 2800);
   }
 
-  function handleLogin(u, esRegistroNuevo = false) {
+  function handleLogin(u) {
     setUsuario(u);
-    if (!esRegistroNuevo) return;
-    const campos = ["nombre","pais","puesto","frances","disponibilidad","documentacion"];
-    const pct = Math.round((campos.filter(c=>u?.perfil?.[c]).length/campos.length)*100);
-    if (pct<30) setTimeout(()=>setMostrarPerfil(true), 1500);
+    setTimeout(()=>setMostrarSplash(false), 500);
   }
 
   async function guardarPerfil(perfil) {
@@ -1996,7 +2008,9 @@ export default function App() {
   }
 
   const esPremium = usuario?.esPremium || false;
+  const perfilObligatorioCompleto = !!(usuario?.perfil?.nombre && usuario?.perfil?.pais && usuario?.perfil?.puesto && usuario?.perfil?.documentacion && usuario?.perfil?.frances && usuario?.perfil?.disponibilidad && usuario?.perfil?.whatsapp);
   const [ofertaAbierta, setOfertaAbierta] = useState(null);
+  const [mostrarSplash, setMostrarSplash] = useState(false);
   const [solicitudesPendientes, setSolicitudesPendientes] = useState(0);
 
   async function refrescarSolicitudes() {
@@ -2057,8 +2071,11 @@ export default function App() {
 @keyframes scaleIn { from{opacity:0;transform:scale(0.96)} to{opacity:1;transform:scale(1)} }
         input::placeholder { color:${BRAND.mutedLight}; }
       `}</style>
+      {mostrarSplash && <SplashScreen />}
       {!usuario ? (
-        <PantallaAuth onLogin={handleLogin} />
+        <PantallaAuth onLogin={handleLogin} onIniciarLogin={()=>setMostrarSplash(true)} />
+      ) : !perfilObligatorioCompleto ? (
+        <ModalPerfil perfil={usuario?.perfil||{}} onGuardar={guardarPerfil} onCerrar={()=>{}} forzado={true} />
       ) : (
         <div style={{ minHeight:"100vh", background:BRAND.bone }}>
          <div style={{ display:tab==="ofertas"?"block":"none" }}>
