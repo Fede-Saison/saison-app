@@ -600,81 +600,169 @@ function BannerPerfil({ perfil, onCompletar }) {
   );
 }
 
+const PASOS_PERFIL_OPCIONES = {
+  pais: {opts:[
+    {v:"Argentina", flag:"🇦🇷"},{v:"Chile", flag:"🇨🇱"},{v:"Uruguay", flag:"🇺🇾"},
+    {v:"Perú", flag:"🇵🇪"},{v:"Colombia", flag:"🇨🇴"},{v:"Ecuador", flag:"🇪🇨"},
+    {v:"México", flag:"🇲🇽"},{v:"Venezuela", flag:"🇻🇪"},{v:"España", flag:"🇪🇸"},{v:"Otro", flag:"🌍"},
+  ]},
+  puesto: {opts:[
+    {v:"Servicio de sala / Restaurante", icon:"wine"},
+    {v:"Housekeeping / Limpieza", icon:"building"},
+    {v:"Cocina / Ayudante / Lavaplatos", icon:"briefcase"}, // TODO: sin ícono específico, ajustar cuando sumes uno de cocina
+    {v:"Recepción / Atención al cliente", icon:"phone"},
+    {v:"Voiturier", icon:"briefcase"}, // TODO: sin ícono específico, ajustar cuando sumes uno de auto/llaves
+    {v:"Barman", icon:"grapes"},
+    {v:"Animación", icon:"zap"},
+    {v:"Mantenimiento", icon:"tools"},
+  ]},
+  documentacion: {opts:[
+    {v:"Ciudadano/a europeo/a (UE)", icon:"globe"},
+    {v:"Titre de Séjour / Permiso de residencia", icon:"filetext"},
+    {v:"Visa VVT aprobada y vigente", icon:"shield"},
+    {v:"Visa VVT en trámite", icon:"calendar"},
+    {v:"Sin documentación actualmente", icon:"warning"},
+  ]},
+  frances: {opts:[
+    {v:"A1 — solo saludos básicos", icon:"volume"},
+    {v:"A2 — entiendo instrucciones simples", icon:"volume"},
+    {v:"B1 — me defiendo en el trabajo", icon:"volume"},
+    {v:"B2 — me comunico con fluidez", icon:"volume"},
+    {v:"C1/C2 — nivel avanzado", icon:"volume"},
+  ]},
+  disponibilidad: {opts:[
+    {v:"Verano (abril–octubre)", icon:"sun"},
+    {v:"Invierno (diciembre–abril)", icon:"mountain"},
+    {v:"Ambas temporadas", icon:"calendar"},
+  ]},
+};
+
+const CODIGOS_PAIS_PERFIL = [
+  {pais:"Argentina", dial:"+54"},{pais:"Chile", dial:"+56"},{pais:"Uruguay", dial:"+598"},
+  {pais:"Perú", dial:"+51"},{pais:"Colombia", dial:"+57"},{pais:"Ecuador", dial:"+593"},
+  {pais:"México", dial:"+52"},{pais:"Venezuela", dial:"+58"},{pais:"España", dial:"+34"},
+  {pais:"Italia", dial:"+39"},{pais:"Alemania", dial:"+49"},{pais:"Francia", dial:"+33"},
+  {pais:"Portugal", dial:"+351"},{pais:"Suiza", dial:"+41"},{pais:"Reino Unido", dial:"+44"},
+];
+
+const PASOS_PERFIL_TOTAL = 8;
+
 function ModalPerfil({ perfil, onGuardar, onCerrar }) {
   const [form, setForm] = useState(perfil||{});
+  const [paso, setPaso] = useState(0);
   const set = (k,v) => setForm(f=>({...f,[k]:v}));
-  const campos = ["nombre","pais","puesto","frances","disponibilidad","documentacion"];
-  const pct = Math.round((campos.filter(c=>form[c]).length/campos.length)*100);
-  const CODIGOS_PAIS = [
-    {pais:"Argentina", dial:"+54"},{pais:"Chile", dial:"+56"},{pais:"Uruguay", dial:"+598"},
-    {pais:"Perú", dial:"+51"},{pais:"Colombia", dial:"+57"},{pais:"Ecuador", dial:"+593"},
-    {pais:"México", dial:"+52"},{pais:"Venezuela", dial:"+58"},{pais:"España", dial:"+34"},
-    {pais:"Italia", dial:"+39"},{pais:"Alemania", dial:"+49"},{pais:"Francia", dial:"+33"},
-    {pais:"Portugal", dial:"+351"},{pais:"Suiza", dial:"+41"},{pais:"Reino Unido", dial:"+44"},
-  ];
-  return (
-    <div onClick={onCerrar} style={{ position:"fixed", inset:0, background:"rgba(11,20,38,0.7)", backdropFilter:"blur(8px)", zIndex:800, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
-      <div onClick={e=>e.stopPropagation()} style={{ background:BRAND.bone, borderRadius:"1.5rem 1.5rem 0 0", width:"100%", maxWidth:"480px", maxHeight:"92vh", overflowY:"auto", padding:"1.75rem 1.75rem 3rem", animation:"slideUp 0.38s cubic-bezier(0.34,1.56,0.64,1)" }}>
-        <div style={{ width:"2.5rem", height:"3px", background:BRAND.boneDeep, borderRadius:"2px", margin:"0 auto 1rem" }} />
-        <div style={{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"16px" }}>
-          <svg width="18" height="18" viewBox="0 0 28 28" fill="none"><rect x="0" y="0" width="13" height="13" rx="2.5" fill="#0A3AF2"/><rect x="15" y="0" width="13" height="13" rx="2.5" fill="#0A3AF2" opacity="0.55"/><rect x="0" y="15" width="13" height="13" rx="2.5" fill="#0A3AF2" opacity="0.3"/><rect x="15" y="15" width="13" height="13" rx="2.5" fill="#0A3AF2" opacity="0.12"/></svg>
-          <span style={{ fontFamily:"'Bricolage Grotesque',sans-serif", fontWeight:800, fontSize:"14px", color:BRAND.night, letterSpacing:"-0.025em" }}>Saison</span>
-        </div>
-        <div style={{ marginBottom:"1.25rem" }}>
-          <h2 style={{ fontSize:"1.25rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.4rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em", lineHeight:1.1 }}>Activá el matching</h2>
-          <p style={{ fontSize:"0.8rem", color:BRAND.muted, margin:"0 0 0.6rem", fontFamily:"'Hanken Grotesk',sans-serif", lineHeight:1.55 }}>Completá tu perfil y te mostramos primero las ofertas que se ajustan a tu documentación, puesto y nivel de francés. Sin perfil, ves todo mezclado.</p>
-          <div style={{ display:"flex", justifyContent:"flex-end" }}>
-            <span style={{ fontSize:"0.75rem", fontWeight:600, color:pct===100?BRAND.success:BRAND.cobalt, fontFamily:"'Hanken Grotesk',sans-serif" }}>{pct}% completo</span>
-          </div>
-        </div>
-        <div style={{ background:BRAND.boneDeep, borderRadius:"2rem", height:"4px", marginBottom:"1.5rem", overflow:"hidden" }}>
-          <div style={{ height:"100%", background:pct===100?BRAND.success:BRAND.cobalt, borderRadius:"2rem", width:`${pct}%`, transition:"width 0.3s" }} />
-        </div>
-        <div style={{ display:"flex", flexDirection:"column", gap:"0.875rem" }}>
-          <div>
-            <label style={S.label}>Nombre y Apellido</label>
-            <input type="text" value={form.nombre||""} onChange={e=>set("nombre",e.target.value)} placeholder="Ej: Valentina García" style={S.input} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
-          </div>
-          {[
-            {k:"pais",l:"País de origen",opts:["Argentina","Chile","Uruguay","Perú","Colombia","Ecuador","México","Venezuela","España","Otro"]},
-            {k:"puesto",l:"Puesto principal",opts:["Servicio de sala / Restaurante","Housekeeping / Limpieza","Cocina / Ayudante / Lavaplatos","Recepción / Atención al cliente","Voiturier","Barman","Animación","Mantenimiento"]},
-            {k:"frances",l:"Nivel de francés",opts:["A1 — solo saludos básicos","A2 — entiendo instrucciones simples","B1 — me defiendo en el trabajo","B2 — me comunico con fluidez","C1/C2 — nivel avanzado"]},
-            {k:"disponibilidad",l:"Disponibilidad",opts:["Verano (abril–octubre)","Invierno (diciembre–abril)","Ambas temporadas"]},
-            {k:"documentacion",l:"Documentación para trabajar en Francia",opts:["Ciudadano/a europeo/a (UE)","Titre de Séjour / Permiso de residencia","Visa VVT aprobada y vigente","Visa VVT en trámite","Sin documentación actualmente"]},
-          ].map(f=>(
-            <div key={f.k}>
-              <label style={S.label}>{f.l}</label>
-              <select value={form[f.k]||""} onChange={e=>set(f.k,e.target.value)} style={{ ...S.input, appearance:"none", cursor:"pointer" }} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep}>
-                <option value="">Seleccioná...</option>
-                {f.opts.map(o=><option key={o}>{o}</option>)}
-              </select>
-            </div>
-          ))}
 
-          {/* WhatsApp — obligatorio */}
-          <div>
-            <label style={S.label}>
-              WhatsApp
-              <span style={{ marginLeft:"0.4rem", fontSize:"0.65rem", fontWeight:400, color:BRAND.cobalt, fontFamily:"'Hanken Grotesk',sans-serif", textTransform:"none", letterSpacing:0 }}>— obligatorio</span>
-            </label>
+  const irSiguiente = () => setPaso(p=>Math.min(p+1, PASOS_PERFIL_TOTAL-1));
+  const irAtras = () => paso===0 ? onCerrar() : setPaso(p=>p-1);
+
+  const puedeAvanzar = () => {
+    if (paso===0) return (form.nombre||"").trim().length>1;
+    if (paso===1) return !!form.pais;
+    if (paso===2) return !!form.puesto;
+    if (paso===3) return !!form.documentacion;
+    if (paso===4) return !!form.frances;
+    if (paso===5) return !!form.disponibilidad;
+    if (paso===6) return !!form.whatsappCodigo && (form.whatsappNumero||"").trim().length>3;
+    return true;
+  };
+
+  const guardarFinal = () => {
+    if (!form.whatsappCodigo || !form.whatsappNumero) { alert("Ingresá tu WhatsApp para poder guardar el perfil."); setPaso(6); return; }
+    onGuardar({...form, whatsapp:`${form.whatsappCodigo} ${form.whatsappNumero}`});
+  };
+
+  const OpcionGrande = ({icon, titulo, campo, valor}) => (
+    <div onClick={()=>set(campo,valor)} style={{ display:"flex", alignItems:"center", gap:"0.75rem", padding:"0.875rem 0.95rem", border:`1.5px solid ${form[campo]===valor?BRAND.cobalt:BRAND.boneDeep}`, background:form[campo]===valor?BRAND.cobalt+"10":"#fff", borderRadius:"10px", cursor:"pointer", marginBottom:"0.55rem", transition:"all 0.15s" }}>
+      <div style={{ width:"34px", height:"34px", borderRadius:"8px", background:form[campo]===valor?BRAND.cobalt:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+        <Icon name={icon} size={16} color={form[campo]===valor?"#fff":BRAND.night} strokeWidth={1.7} />
+      </div>
+      <span style={{ fontFamily:"'Bricolage Grotesque',sans-serif", fontWeight:700, fontSize:"0.85rem", color:BRAND.night, flex:1 }}>{titulo}</span>
+      <div style={{ width:"18px", height:"18px", borderRadius:"50%", border:`1.5px solid ${form[campo]===valor?BRAND.cobalt:BRAND.boneDeep}`, background:form[campo]===valor?BRAND.cobalt:"transparent", flexShrink:0 }} />
+    </div>
+  );
+
+  return (
+    <div style={{ position:"fixed", inset:0, background:"rgba(11,20,38,0.7)", backdropFilter:"blur(8px)", zIndex:800, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
+      <div style={{ background:BRAND.bone, borderRadius:"1.5rem 1.5rem 0 0", width:"100%", maxWidth:"480px", maxHeight:"92vh", display:"flex", flexDirection:"column", animation:"slideUp 0.38s cubic-bezier(0.34,1.56,0.64,1)" }}>
+
+        <div style={{ padding:"1rem 1.75rem 0" }}>
+          <div style={{ width:"2.5rem", height:"3px", background:BRAND.boneDeep, borderRadius:"2px", margin:"0 auto 1rem" }} />
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"0.75rem" }}>
+            <div onClick={irAtras} style={{ width:"30px", height:"30px", borderRadius:"8px", border:`1.3px solid ${BRAND.boneDeep}`, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+              <Icon name="arrowRight" size={13} color={BRAND.night} strokeWidth={2.3} style={{transform:"rotate(180deg)"}} />
+            </div>
+            <span style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.68rem", color:BRAND.muted }}>{paso+1} / {PASOS_PERFIL_TOTAL}</span>
+          </div>
+          <div style={{ background:BRAND.boneDeep, borderRadius:"2rem", height:"3px", marginBottom:"1.25rem", overflow:"hidden" }}>
+            <div style={{ height:"100%", background:BRAND.cobalt, borderRadius:"2rem", width:`${((paso+1)/PASOS_PERFIL_TOTAL)*100}%`, transition:"width 0.3s" }} />
+          </div>
+        </div>
+
+        <div style={{ padding:"0 1.75rem 1.5rem", overflowY:"auto", flex:1 }}>
+
+          {paso===0 && (<>
+            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Empecemos</p>
+            <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.4rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿Cómo te llamás?</h2>
+            <p style={{ fontSize:"0.8rem", color:BRAND.muted, margin:"0 0 1.25rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Así te van a ver otros saisonniers y los empleadores.</p>
+            <input type="text" value={form.nombre||""} onChange={e=>set("nombre",e.target.value)} placeholder="Ej: Valentina García" style={S.input} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
+          </>)}
+
+          {paso===1 && (<>
+            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Tu perfil</p>
+            <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 1.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿De dónde sos?</h2>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.5rem" }}>
+              {PASOS_PERFIL_OPCIONES.pais.opts.map(o=>(
+                <div key={o.v} onClick={()=>set("pais",o.v)} style={{ display:"flex", alignItems:"center", gap:"0.5rem", padding:"0.7rem 0.75rem", border:`1.5px solid ${form.pais===o.v?BRAND.cobalt:BRAND.boneDeep}`, background:form.pais===o.v?BRAND.cobalt+"10":"#fff", borderRadius:"9px", cursor:"pointer" }}>
+                  <span>{o.flag}</span>
+                  <span style={{ fontSize:"0.78rem", fontWeight:600, color:BRAND.night }}>{o.v}</span>
+                </div>
+              ))}
+            </div>
+          </>)}
+
+          {paso===2 && (<>
+            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Tu perfil</p>
+            <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 1.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿En qué querés trabajar?</h2>
+            {PASOS_PERFIL_OPCIONES.puesto.opts.map(o=><OpcionGrande key={o.v} icon={o.icon} titulo={o.v} campo="puesto" valor={o.v} />)}
+          </>)}
+
+          {paso===3 && (<>
+            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Documentación</p>
+            <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 1.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿Podés trabajar en Francia?</h2>
+            {PASOS_PERFIL_OPCIONES.documentacion.opts.map(o=><OpcionGrande key={o.v} icon={o.icon} titulo={o.v} campo="documentacion" valor={o.v} />)}
+          </>)}
+
+          {paso===4 && (<>
+            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Idioma</p>
+            <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 1.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿Cuánto francés hablás?</h2>
+            {PASOS_PERFIL_OPCIONES.frances.opts.map(o=><OpcionGrande key={o.v} icon={o.icon} titulo={o.v} campo="frances" valor={o.v} />)}
+          </>)}
+
+          {paso===5 && (<>
+            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Disponibilidad</p>
+            <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 1.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿Cuándo podés viajar?</h2>
+            {PASOS_PERFIL_OPCIONES.disponibilidad.opts.map(o=><OpcionGrande key={o.v} icon={o.icon} titulo={o.v} campo="disponibilidad" valor={o.v} />)}
+          </>)}
+
+          {paso===6 && (<>
+            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Contacto</p>
+            <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.4rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>Dejanos tu WhatsApp</h2>
+            <p style={{ fontSize:"0.8rem", color:BRAND.muted, margin:"0 0 1.25rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Para conectar con empleadores y otros saisonniers que van a tu mismo destino.</p>
             <div style={{ display:"flex", gap:"0.5rem" }}>
               <select value={form.whatsappCodigo||""} onChange={e=>set("whatsappCodigo",e.target.value)} style={{ ...S.input, appearance:"none", cursor:"pointer", flex:"0 0 115px" }} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep}>
                 <option value="">Código</option>
-                {CODIGOS_PAIS.map(c=><option key={c.dial} value={c.dial}>{c.dial} {c.pais}</option>)}
+                {CODIGOS_PAIS_PERFIL.map(c=><option key={c.dial} value={c.dial}>{c.dial} {c.pais}</option>)}
               </select>
               <input type="tel" value={form.whatsappNumero||""} onChange={e=>set("whatsappNumero",e.target.value)} placeholder="9 11 1234 5678" style={{ ...S.input, flex:1 }} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
             </div>
-            <p style={{ fontSize:"0.7rem", color:BRAND.muted, margin:"0.3rem 0 0", lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif" }}>
-              Para conectar con otros saisonniers que viajan en las mismas fechas y destino.
-            </p>
-          </div>
+          </>)}
 
-          <div>
-            <label style={S.label}>
-              Región de destino en Francia
-              <span style={{ marginLeft:"0.4rem", fontSize:"0.65rem", fontWeight:400, color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif", textTransform:"none", letterSpacing:0 }}>— opcional</span>
-            </label>
-            <select value={form.region_destino||""} onChange={e=>set("region_destino",e.target.value)} style={{ ...S.input, appearance:"none", cursor:"pointer" }} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep}>
+          {paso===7 && (<>
+            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Último paso</p>
+            <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.4rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>Contanos de tu viaje</h2>
+            <p style={{ fontSize:"0.8rem", color:BRAND.muted, margin:"0 0 1.25rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Esto es opcional, pero ayuda a que otros saisonniers te encuentren.</p>
+            <label style={S.label}>Región de destino</label>
+            <select value={form.region_destino||""} onChange={e=>set("region_destino",e.target.value)} style={{ ...S.input, appearance:"none", cursor:"pointer", marginBottom:"0.875rem" }} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep}>
               <option value="">Seleccioná...</option>
               <option>Costa Azul / Var / Córcega</option>
               <option>País Vasco / Costa Atlántica</option>
@@ -682,27 +770,26 @@ function ModalPerfil({ perfil, onGuardar, onCerrar }) {
               <option>Provenza / Interior Sur</option>
               <option>Grandes Ciudades</option>
             </select>
-          </div>
-
-          <div>
-            <label style={S.label}>
-              Fecha de viaje
-              <span style={{ marginLeft:"0.4rem", fontSize:"0.65rem", fontWeight:400, color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif", textTransform:"none", letterSpacing:0 }}>— opcional</span>
-            </label>
-            <input type="text" value={form.fecha_viaje||""} onChange={e=>set("fecha_viaje",e.target.value)} placeholder="Ej: Diciembre 2026" style={S.input} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
-          </div>
-
-          <div>
-            <label style={S.label}>
-              Sobre tu viaje
-              <span style={{ marginLeft:"0.4rem", fontSize:"0.65rem", fontWeight:400, color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif", textTransform:"none", letterSpacing:0 }}>— opcional</span>
-            </label>
-            <input type="text" value={form.bio_viajero||""} onChange={e=>set("bio_viajero",e.target.value.slice(0,100))} placeholder="Ej: Voy a Courchevel en diciembre y busco gente para jugar al fútbol" style={S.input} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
-            <p style={{ fontSize:"0.68rem", color:BRAND.mutedLight, margin:"0.25rem 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>{(form.bio_viajero||"").length}/100</p>
-          </div>
+            <label style={S.label}>Fecha de viaje</label>
+            <input type="text" value={form.fecha_viaje||""} onChange={e=>set("fecha_viaje",e.target.value)} placeholder="Ej: Diciembre 2026" style={{ ...S.input, marginBottom:"0.875rem" }} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
+            <label style={S.label}>Sobre vos</label>
+            <input type="text" value={form.bio_viajero||""} onChange={e=>set("bio_viajero",e.target.value.slice(0,100))} placeholder="Ej: Busco gente para jugar al fútbol" style={S.input} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
+            <p style={{ fontSize:"0.68rem", color:BRAND.mutedLight, margin:"0.25rem 0 0" }}>{(form.bio_viajero||"").length}/100</p>
+          </>)}
 
         </div>
-        <button onClick={()=>{ if(!form.whatsappCodigo||!form.whatsappNumero){ alert("Ingresá tu WhatsApp para poder guardar el perfil."); return; } onGuardar({...form, whatsapp:`${form.whatsappCodigo} ${form.whatsappNumero}`}); }} style={{ ...S.btnCobalt, marginTop:"1.5rem" }}>Guardar y activar matching</button>
+
+        <div style={{ padding:"0 1.75rem 1.75rem" }}>
+          {paso < PASOS_PERFIL_TOTAL-1 ? (
+            <button onClick={irSiguiente} disabled={!puedeAvanzar()} style={{ ...S.btnCobalt, opacity:puedeAvanzar()?1:0.35, cursor:puedeAvanzar()?"pointer":"default" }}>Siguiente →</button>
+          ) : (
+            <>
+              <button onClick={guardarFinal} style={S.btnCobalt}>Terminar →</button>
+              <p onClick={guardarFinal} style={{ textAlign:"center", fontFamily:"'DM Mono',monospace", fontSize:"0.68rem", color:BRAND.mutedLight, margin:"0.6rem 0 0", cursor:"pointer" }}>Completar esto después</p>
+            </>
+          )}
+        </div>
+
       </div>
     </div>
   );
