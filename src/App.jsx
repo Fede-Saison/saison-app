@@ -46,11 +46,11 @@ const STRIPE = {
 const FRANCES_POR_PUESTO = {
   "Lavaplatos": "ninguno",
   "Polivalente": "a2",
-  "Housekeeping": "a2",
-  "Ayudante de Cocina": "a2",
+  "Housekeeping": "a1",
+  "Ayudante de Cocina": "a1",
   "Crepero/a": "a2",
   "Trabajador Agrícola": "a2",
-  "Runner": "a2",
+  "Runner": "a1",
   "Jefe de Partida": "b1",
   "Chef de Cocina": "b1",
   "Mesero de Sala": "b1",
@@ -195,6 +195,10 @@ const Icon = ({ name, size=18, color="currentColor", strokeWidth=1.7 }) => {
     externalLink:<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></>,
     star:<><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></>,
     download:<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>,
+    chefhat:<><path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z"/><path d="M6 17h12"/></>,
+    car:<><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></>,
+    utensils:<><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></>,
+    beddouble:<><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"/><path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/><path d="M12 4v6"/><path d="M2 18h20"/></>,
   };
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">{paths[name]}</svg>;
 };
@@ -318,11 +322,38 @@ const PUESTOS_FR = {
   "Recepcionista / Guest relation":"Réceptionniste / Guest relation",
 };
 
-function generarCarta(oferta, nombre, esPremium) {
+function generarCarta(oferta, nombre, esPremium, perfil) {
   const fr = PUESTOS_FR[oferta.titulo] || oferta.titulo;
   const localidad = esPremium ? (oferta.localidad || "LOCALIDAD/CIUDAD") : "LOCALIDAD/CIUDAD";
-const establecimiento = esPremium ? (oferta.nombre_establecimiento || "[NOMBRE DEL ESTABLECIMIENTO]") : "[NOMBRE DEL ESTABLECIMIENTO]";
-  return `Madame, Monsieur,\n\nJe me permets de vous adresser ma candidature au poste de ${fr} au sein de votre établissement ${establecimiento}, situé à ${localidad}.\n\nPassionné(e) par le secteur du tourisme et de l'hôtellerie, je recherche une expérience saisonnière enrichissante en France. Je suis convaincu(e) que mes qualités — rigueur, sens du service et esprit d'équipe — correspondent pleinement aux valeurs de votre établissement.\n\nJe suis disponible immédiatement et dispose d'une grande flexibilité horaire. Je serais ravi(e) de vous rencontrer lors d'un entretien.\n\nDans l'attente de votre retour,\n\n${nombre||"[Tu nombre y apellido]"}`;
+  const establecimiento = esPremium ? (oferta.nombre_establecimiento || "[NOMBRE DEL ESTABLECIMIENTO]") : "[NOMBRE DEL ESTABLECIMIENTO]";
+
+  // Frase de experiencia según nivel de francés real
+  const frases_frances = {
+    "A1 — solo saludos básicos": "Je suis actuellement en train d'apprendre le français et je mets tout en œuvre pour progresser rapidement.",
+    "A2 — entiendo instrucciones simples": "Je comprends les consignes de base en français et je continue à me perfectionner chaque jour.",
+    "B1 — me defiendo en el trabajo": "Je maîtrise un français fonctionnel qui me permet de travailler efficacement en équipe.",
+    "B2 — me comunico con fluidez": "Je communique avec aisance en français, à l'oral comme à l'écrit.",
+    "C1/C2 — nivel avanzado": "Je maîtrise parfaitement le français, ce qui facilite grandement mon intégration dans votre équipe.",
+  };
+  const fraseFrances = frases_frances[perfil?.frances] || "Je suis motivé(e) à progresser rapidement en français.";
+
+  // Frase de disponibilidad según lo que dejó en el perfil
+  const frases_disponibilidad = {
+    "Verano (abril–octubre)": "Je suis disponible pour toute la saison d'été, d'avril à octobre.",
+    "Invierno (diciembre–abril)": "Je suis disponible pour toute la saison d'hiver, de décembre à avril.",
+    "Ambas temporadas": "Je suis disponible aussi bien pour la saison d'été que pour la saison d'hiver.",
+  };
+  const fraseDisponibilidad = frases_disponibilidad[perfil?.disponibilidad] || "Je suis disponible immédiatement et dispose d'une grande flexibilité horaire.";
+
+  // Frase de documentación, solo si aporta algo relevante para tranquilizar al empleador
+  const frases_doc = {
+    "Ciudadano/a europeo/a (UE)": "En tant que citoyen(ne) européen(ne), je peux travailler en France sans démarches administratives supplémentaires.",
+    "Titre de Séjour / Permiso de residencia": "Je dispose d'un titre de séjour valide m'autorisant à travailler en France.",
+    "Visa VVT aprobada y vigente": "Je dispose d'un visa Vacances-Travail valide, ce qui me permet de travailler légalement en France.",
+  };
+  const fraseDoc = frases_doc[perfil?.documentacion] || "";
+
+  return `Madame, Monsieur,\n\nJe me permets de vous adresser ma candidature au poste de ${fr} au sein de votre établissement ${establecimiento}, situé à ${localidad}.\n\nPassionné(e) par le secteur du tourisme et de l'hôtellerie, je recherche une expérience saisonnière enrichissante en France. Je suis convaincu(e) que mes qualités — rigueur, sens du service et esprit d'équipe — correspondent pleinement aux valeurs de votre établissement.\n\n${fraseFrances} ${fraseDisponibilidad}${fraseDoc ? " " + fraseDoc : ""}\n\nJe serais ravi(e) de vous rencontrer lors d'un entretien.\n\nDans l'attente de votre retour,\n\n${nombre||"[Tu nombre y apellido]"}`;
 }
 
 // ================================================================
@@ -411,8 +442,8 @@ function ModalOferta({ oferta, onCerrar, onToast, esPremium, nombreUsuario, perf
   const [muroPago, setMuroPago] = useState(false);
   if (!oferta) return null;
   const match = calcularMatch(oferta, perfil);
-   const copiar = () => navigator.clipboard.writeText(generarCarta(oferta, nombreUsuario, esPremium)).then(()=>onToast("Carta copiada"));
-const intentarAplicar = () => { if (!esPremium) { setMuroPago(true); return; } if (oferta.email_empleador) { const carta = generarCarta(oferta, nombreUsuario, esPremium); if (oferta.email_empleador.includes('@')) { window.location.href = `mailto:${oferta.email_empleador}?subject=Candidature - ${PUESTOS_FR[oferta.titulo] || oferta.titulo}&body=${encodeURIComponent(carta)}`; } else { window.open(oferta.email_empleador.startsWith('http') ? oferta.email_empleador : `https://${oferta.email_empleador}`, '_blank'); } } };
+   const copiar = () => navigator.clipboard.writeText(generarCarta(oferta, nombreUsuario, esPremium, perfil)).then(()=>onToast("Carta copiada"));
+const intentarAplicar = () => { if (!esPremium) { setMuroPago(true); return; } if (oferta.email_empleador) { const carta = generarCarta(oferta, nombreUsuario, esPremium, perfil); if (oferta.email_empleador.includes('@')) { window.location.href = `mailto:${oferta.email_empleador}?subject=Candidature - ${PUESTOS_FR[oferta.titulo] || oferta.titulo}&body=${encodeURIComponent(carta)}`; } else { window.open(oferta.email_empleador.startsWith('http') ? oferta.email_empleador : `https://${oferta.email_empleador}`, '_blank'); } } };
   const esCiudad = oferta.tipo==="ciudad" || false;
   return (
     <>
@@ -477,7 +508,7 @@ const intentarAplicar = () => { if (!esPremium) { setMuroPago(true); return; } i
             <button onClick={copiar} style={S.btnCobalt} onMouseDown={e=>e.currentTarget.style.transform="scale(0.97)"} onMouseUp={e=>e.currentTarget.style.transform="scale(1)"} onTouchStart={e=>e.currentTarget.style.transform="scale(0.97)"} onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"} onMouseEnter={e=>{e.currentTarget.style.opacity="0.9"}} onMouseLeave={e=>{e.currentTarget.style.opacity="1"}}>
               <span style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.5rem" }}><Icon name="copy" size={15} color="#fff" /> Copiar carta en francés</span>
             </button>
-            <p style={{ fontSize:"0.67rem", color:BRAND.muted, margin:"-0.1rem 0 0", textAlign:"center", fontFamily:"'Hanken Grotesk',sans-serif" }}>Revisá y personalizá antes de enviar</p>
+            <p style={{ fontSize:"0.67rem", color:BRAND.muted, margin:"-0.1rem 0 0", textAlign:"center", fontFamily:"'Hanken Grotesk',sans-serif", lineHeight:1.5 }}>Esta carta es una base orientativa según tu perfil — revisala y personalizala antes de enviar.</p>
             <button onClick={intentarAplicar} style={S.btnOutline} onMouseEnter={e=>e.currentTarget.style.background=BRAND.cobaltDim} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
               <span style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.5rem" }}>
                 {!esPremium && <Icon name="lock" size={14} color={BRAND.cobalt} />}
@@ -963,17 +994,16 @@ function calcularEstadoVentana(item) {
   return { urgencia:"baja", label:"Fuera de temporada", mensaje:"Esta región no tiene contrataciones activas ahora. La próxima ventana se acerca." };
 }
 const GUIA_PUESTOS = [
-  { puesto:"Plongeur (Lavaplatos)", nivel:"Ninguno", exp:"Sin experiencia", dificultad:1, tip:"Puerta de entrada táctica. Sin barreras de idioma. Alta demanda en toda Francia." },
-  { puesto:"Polyvalent (Polivalente)", nivel:"A2 básico", exp:"Mínima", dificultad:1, tip:"El más fácil de contratar. Versátil entre sala, cocina y limpieza. Muy buscado." },
-  { puesto:"Femme/Valet de Chambre", nivel:"A2 básico", exp:"Mínima", dificultad:2, tip:"Estable, mínima interacción con clientes. Ideal primer trabajo en Francia." },
-  { puesto:"Commis de Cuisine", nivel:"A2 básico", exp:"Media", dificultad:2, tip:"Escalón ideal para aprender el oficio francés con alta demanda estacional." },
-  { puesto:"Voiturier", nivel:"A2 básico", exp:"Requiere carné de conducir (manual)", dificultad:2, tip:"El carné con caja manual es más valorado que el idioma. Trato breve con el cliente, ideal si el francés todavía es limitado." },
-  { puesto:"Mantenimiento / Técnico", nivel:"A1–A2", exp:"Valorada (electricidad, plomería, oficios)", dificultad:2, tip:"Baja barrera de idioma. Si tenés experiencia previa en un oficio, es una vía de entrada subestimada con buena demanda." },
-  { puesto:"Commis de Salle", nivel:"B1 intermedio", exp:"Media", dificultad:3, tip:"Contacto directo con el cliente. Francés funcional imprescindible." },
-  { puesto:"Chef de Rang / Mesero", nivel:"B1–B2", exp:"Sólida", dificultad:3, tip:"Salario sobre el SMIC en el convenio HCR. Alta competencia en temporada alta." },
-  { puesto:"Bartender / Barman", nivel:"B1–B2", exp:"Técnica", dificultad:3, tip:"Conocimiento técnico de coctelería requerido. Propinas altas en zonas turísticas." },
-  { puesto:"Réceptionniste", nivel:"B2 + inglés", exp:"Sólida", dificultad:4, tip:"Perfil muy competitivo. Excelente remuneración en hoteles 4–5 estrellas." },
-  { puesto:"Animación", nivel:"B1–B2", exp:"Deseable, no excluyente", dificultad:4, tip:"El puesto con más exigencia de francés e interacción social. Buena paga en clubes y resorts, pero la selección es más dura." },
+  { puesto:"Plongeur (Lavaplatos)", nivel:"Ninguno", exp:"Sin experiencia", dificultad:1, icon:"waves", tip:"Puerta de entrada táctica. Sin barreras de idioma.Trabajo duro pero con alta demanda en toda Francia." },
+  { puesto:"Polyvalent (Polivalente)", nivel:"A2 básico", exp:"Mínima", dificultad:1, icon:"users", tip:"El comodín. Versátil entre sala, cocina y limpieza. Muy buscado." },
+  { puesto:"Femme/Valet de Chambre", nivel:"A1 básico", exp:"Mínima", dificultad:1, icon:"beddouble", tip:"Estable, mínima interacción con clientes. Ideal primer trabajo en Francia." },
+  { puesto:"Commis de Cuisine", nivel:"A1 básico", exp:"Media", dificultad:1, icon:"chefhat", tip:"Escalón ideal para aprender el oficio de cocina y crecer. Tiene alta demanda estacional." },
+  { puesto:"Voiturier", nivel:"A2 básico", exp:"Requiere carné de conducir (manual)", dificultad:2, icon:"car", tip:"El carné con caja manual es más valorado que el idioma. Trato breve con el cliente, recomendable un buen nivel frances/ingles" },
+  { puesto:"Mantenimiento / Técnico", nivel:"A1–A2", exp:"Valorada (electricidad, plomería, oficios)", dificultad:2, icon:"tools", tip:"Baja barrera de idioma. Si tenés experiencia previa en un oficio, es una vía de entrada subestimada con buena demanda." },
+  { puesto:"Commis de Salle", nivel:"A1 básico", exp:"Media", dificultad:2, icon:"utensils", tip:"Contacto directo con el cliente, pero con acompañamiento de un mesero. Buena puerta de entrada a sala." },
+  { puesto:"Chef de Rang / Mesero", nivel:"B1–B2", exp:"Sólida", dificultad:3, icon:"wine", tip:"Salario sobre el SMIC en el convenio HCR. Alta competencia en temporada alta." },
+  { puesto:"Bartender / Barman", nivel:"B1–B2", exp:"Técnica", dificultad:3, icon:"grapes", tip:"Conocimiento técnico de coctelería requerido. Propinas altas en zonas turísticas." },
+  { puesto:"Réceptionniste", nivel:"B2 + inglés", exp:"Sólida", dificultad:4, icon:"phone", tip:"Perfil muy competitivo. Excelente remuneración en hoteles 4–5 estrellas." },
 ];
 
 const CONTRATO_ITEMS = [
@@ -1148,27 +1178,30 @@ function CuandoAplicar() {
 
 function GuiaPuestos() {
   const [sel, setSel] = useState(null);
-  const difColor = ["#22c55e","#22c55e","#5e9af0","#5e9af0","#f0a040","#f0a040","#e05555"];
+  const difColor = [BRAND.success, BRAND.success, BRAND.cobalt, BRAND.cobalt, BRAND.warn, BRAND.warn, BRAND.red];
   return (
     <Section icon="briefcase" title="Guía de Puestos">
       <p style={{ fontSize:"0.73rem", color:BRAND.muted, margin:"0 0 0.875rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Tocá un puesto para ver requisitos de idioma y qué esperar.</p>
-      <div style={{ display:"flex", flexDirection:"column", gap:"0.45rem" }}>
+      <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem" }}>
         {GUIA_PUESTOS.map((p,i)=>(
-          <div key={i} style={{ borderRadius:"0.75rem", border:`1px solid ${sel===i?BRAND.cobalt:BRAND.boneDeep}`, background:sel===i?BRAND.boneDeep:BRAND.bone, overflow:"hidden", transition:"border-color 0.15s" }}>
-            <div onClick={()=>setSel(sel===i?null:i)} style={{ display:"flex", alignItems:"center", gap:"0.7rem", padding:"0.75rem 0.875rem", cursor:"pointer" }}>
-              <div style={{ display:"flex", gap:"2px", flexShrink:0 }}>
-                {[1,2,3,4].map(n=>(
-                  <div key={n} style={{ width:"5px", height:"16px", borderRadius:"2px", background:n<=p.dificultad?difColor[p.dificultad-1]:BRAND.boneDeep }} />
-                ))}
+          <div key={i} style={{ borderRadius:"10px", border:`1.5px solid ${sel===i?BRAND.cobalt:BRAND.boneDeep}`, background:"#fff", overflow:"hidden", transition:"border-color 0.15s" }}>
+            <div onClick={()=>setSel(sel===i?null:i)} style={{ display:"flex", alignItems:"center", gap:"0.75rem", padding:"0.8rem 0.9rem", cursor:"pointer" }}>
+              <div style={{ width:"36px", height:"36px", borderRadius:"8px", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                <Icon name={p.icon || "briefcase"} size={16} color={BRAND.night} strokeWidth={1.7} />
               </div>
               <div style={{ flex:1 }}>
-                <p style={{ fontSize:"0.85rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.1rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>{p.puesto}</p>
-                <p style={{ fontSize:"0.69rem", color:BRAND.muted, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Francés: <span style={{ color:BRAND.cobalt, fontWeight:600 }}>{p.nivel}</span> · Exp: {p.exp}</p>
+                <p style={{ fontSize:"0.86rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.15rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.01em" }}>{p.puesto}</p>
+                <p style={{ fontSize:"0.7rem", color:BRAND.muted, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Francés: <span style={{ color:BRAND.cobalt, fontWeight:600 }}>{p.nivel}</span> · Exp: {p.exp}</p>
+              </div>
+              <div style={{ display:"flex", gap:"2px", flexShrink:0 }}>
+                {[1,2,3,4].map(n=>(
+                  <div key={n} style={{ width:"4px", height:"14px", borderRadius:"2px", background:n<=p.dificultad?difColor[p.dificultad-1]:BRAND.boneDeep }} />
+                ))}
               </div>
             </div>
             {sel===i && (
-              <div style={{ padding:"0 0.875rem 0.8rem", borderTop:`1px solid ${BRAND.boneDeep}` }}>
-                <p style={{ fontSize:"0.78rem", color:BRAND.muted, margin:"0.5rem 0 0", lineHeight:1.6, fontFamily:"'Hanken Grotesk',sans-serif" }}>{p.tip}</p>
+              <div style={{ padding:"0 0.9rem 0.85rem", borderTop:`1px solid ${BRAND.boneDeep}` }}>
+                <p style={{ fontSize:"0.79rem", color:BRAND.muted, margin:"0.6rem 0 0", lineHeight:1.6, fontFamily:"'Hanken Grotesk',sans-serif" }}>{p.tip}</p>
               </div>
             )}
           </div>
