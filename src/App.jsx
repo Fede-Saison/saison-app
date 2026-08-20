@@ -1658,26 +1658,24 @@ const SECCIONES = [
 ];
 
 const CV_TEMPLATES = [
-  { id:"recepcion", titulo:"Recepcionista / Front Office", desc:"Optimizado para hoteles 4–5★. Incluye sección de idiomas y experiencia HCR.", emoji:"🏨", link:"https://www.canva.com/templates/placeholder-recepcion" },
-  { id:"sala", titulo:"Servicio de sala / Restaurante", desc:"Para mesero, chef de rang y commis de salle. Énfasis en ritmo de trabajo y idiomas.", emoji:"🍽️", link:"https://www.canva.com/templates/placeholder-sala" },
-  { id:"cocina", titulo:"Cocina / Commis / Plongeur", desc:"Para todos los niveles. Sin foto obligatoria. Funciona aunque no hables francés.", emoji:"👨‍🍳", link:"https://www.canva.com/templates/placeholder-cocina" },
-  { id:"housekeeping", titulo:"Housekeeping / Femme de chambre", desc:"Diseño limpio. Destaca disponibilidad y experiencia en establecimientos HCR.", emoji:"🛏️", link:"https://www.canva.com/templates/placeholder-housekeeping" },
+  { id:"recepcion", titulo:"Recepcionista / Front Office", desc:"Optimizado para hoteles 4–5★. Incluye sección de idiomas y experiencia HCR.", icon:"phone" },
+  { id:"sala", titulo:"Servicio de sala / Restaurante", desc:"Para mesero, chef de rang y commis de salle. Énfasis en ritmo de trabajo y idiomas.", icon:"wine" },
+  { id:"cocina", titulo:"Cocina / Commis / Plongeur", desc:"Para todos los niveles. Sin foto obligatoria. Funciona aunque no hables francés.", icon:"chefhat" },
+  { id:"housekeeping", titulo:"Housekeeping / Femme de chambre", desc:"Diseño limpio. Destaca disponibilidad y experiencia en establecimientos HCR.", icon:"beddouble" },
 ];
+
+const CV_TEMPLATES_LINK = "https://canva.link/m9vawegsvkoi5da";
 
 function RecursosDescargables() {
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:"1rem" }}>
       {/* Guía */}
-      <div style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"0.125rem", overflow:"hidden" }}>
+      <div style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"14px", overflow:"hidden" }}>
         <div style={{ background:BRAND.night, padding:"1.1rem 1.25rem", position:"relative", overflow:"hidden" }}>
           <div style={{ position:"absolute", top:0, left:0, right:0, height:"2px", background:BRAND.cobalt }} />
-          <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"0.75rem" }}>
-            <div>
-              <span style={{ fontSize:"0.58rem", fontWeight:600, letterSpacing:"0.12em", textTransform:"uppercase", color:BRAND.cobalt, fontFamily:"'DM Mono',monospace" }}>Guía Saison 2026</span>
-              <h3 style={{ fontSize:"1.2rem", fontWeight:800, color:BRAND.bone, margin:"0.3rem 0 0.4rem", lineHeight:1.1, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>Tu primera temporada en Francia</h3>
-              <p style={{ fontSize:"0.76rem", color:BRAND.mutedLight, margin:0, lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif" }}>Toda la información que nos hubiera gustado tener antes de llegar. Lo que nadie te da junto en un solo lugar.</p>
-            </div>
-          </div>
+          <span style={{ fontSize:"0.58rem", fontWeight:600, letterSpacing:"0.12em", textTransform:"uppercase", color:BRAND.cobalt, fontFamily:"'DM Mono',monospace" }}>Guía Saison 2026</span>
+          <h3 style={{ fontSize:"1.2rem", fontWeight:800, color:BRAND.bone, margin:"0.3rem 0 0.4rem", lineHeight:1.1, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>Tu primera temporada en Francia</h3>
+          <p style={{ fontSize:"0.76rem", color:BRAND.mutedLight, margin:0, lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif" }}>Toda la información que nos hubiera gustado tener antes de llegar. Lo que nadie te da junto en un solo lugar.</p>
         </div>
         <div style={{ padding:"1rem 1.25rem" }}>
           {["Cómo funciona el convenio HCR","Qué dice un contrato y qué no debe decir","Tus derechos desde el primer día","Cómo cobrar la indemnización de vacaciones","Documentos que debés pedir al salir"].map((item,i)=>(
@@ -1686,31 +1684,33 @@ function RecursosDescargables() {
               <span style={{ fontSize:"0.78rem", color:BRAND.muted, lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif" }}>{item}</span>
             </div>
           ))}
-          <button onClick={()=>window.open("https://drive.google.com/placeholder-guia","_blank","noopener")} style={{ ...S.btnCobalt, marginTop:"0.875rem" }}>
+          <button onClick={()=>window.open("https://drive.google.com/file/d/1POSjzy3jZybuTfG5FcWXQFnUCS7N81r_/view?usp=drive_link","_blank","noopener")} style={{ ...S.btnCobalt, marginTop:"0.875rem" }}>
             <span style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.5rem" }}><Icon name="download" size={14} color="#fff" /> Descargar guía PDF</span>
           </button>
         </div>
       </div>
 
       {/* Templates CV */}
-      <div>
-        <p style={{ fontSize:"0.62rem", fontWeight:700, color:BRAND.muted, textTransform:"uppercase", letterSpacing:"0.1em", margin:"0 0 0.6rem", fontFamily:"'DM Mono',monospace" }}>04 — Templates de CV</p>
-        <p style={{ fontSize:"0.76rem", color:BRAND.muted, lineHeight:1.55, margin:"0 0 0.875rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Abrís en Canva, completás tus datos y tenés un CV competitivo en 5 minutos. Sin saber de diseño.</p>
-        <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem" }}>
+      <div style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"14px", padding:"1.1rem 1.25rem" }}>
+        <p style={{ fontSize:"0.62rem", fontWeight:700, color:BRAND.cobalt, textTransform:"uppercase", letterSpacing:"0.1em", margin:"0 0 0.5rem", fontFamily:"'DM Mono',monospace" }}>Templates de CV</p>
+        <p style={{ fontSize:"0.76rem", color:BRAND.muted, lineHeight:1.55, margin:"0 0 1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>4 diseños listos, uno por tipo de puesto. Se abren juntos en Canva — necesitás una cuenta gratis para editarlos con tus datos.</p>
+        <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem", marginBottom:"1rem" }}>
           {CV_TEMPLATES.map(cv=>(
-            <div key={cv.id} style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"0.125rem", padding:"0.875rem 1rem", display:"flex", alignItems:"center", gap:"0.875rem", transition:"border-color 0.15s" }}
-              onMouseEnter={e=>e.currentTarget.style.borderColor=BRAND.cobalt+"44"}
-              onMouseLeave={e=>e.currentTarget.style.borderColor=BRAND.boneDeep}>
-              <div style={{ width:"40px", height:"40px", borderRadius:"0.625rem", background:BRAND.cobaltDim, border:`1px solid ${BRAND.cobaltSoft}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, fontSize:"1.2rem" }}>{cv.emoji}</div>
-              <div style={{ flex:1, minWidth:0 }}>
-                <p style={{ fontSize:"0.84rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.15rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{cv.titulo}</p>
-                <p style={{ fontSize:"0.68rem", color:BRAND.muted, margin:0, lineHeight:1.4, fontFamily:"'Hanken Grotesk',sans-serif" }}>{cv.desc}</p>
+            <div key={cv.id} style={{ display:"flex", alignItems:"center", gap:"0.75rem", padding:"0.7rem 0", borderBottom:`1px solid ${BRAND.boneDeep}` }}>
+              <div style={{ width:"34px", height:"34px", borderRadius:"8px", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                <Icon name={cv.icon} size={15} color={BRAND.night} strokeWidth={1.7} />
               </div>
-              <button onClick={()=>window.open(cv.link,"_blank","noopener")} style={{ background:BRAND.night, color:BRAND.bone, border:"none", borderRadius:"0.375rem", padding:"0.45rem 0.875rem", fontSize:"0.68rem", fontWeight:700, cursor:"pointer", fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em", flexShrink:0, whiteSpace:"nowrap" }}>Abrir →</button>
+              <div style={{ flex:1, minWidth:0 }}>
+                <p style={{ fontSize:"0.83rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{cv.titulo}</p>
+                <p style={{ fontSize:"0.67rem", color:BRAND.muted, margin:0, lineHeight:1.4, fontFamily:"'Hanken Grotesk',sans-serif" }}>{cv.desc}</p>
+              </div>
             </div>
           ))}
         </div>
-        <p style={{ fontSize:"0.65rem", color:BRAND.mutedLight, marginTop:"0.75rem", lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif", textAlign:"center" }}>Los templates se abren en Canva. Hacé una copia y editá con tus datos.</p>
+        <button onClick={()=>window.open(CV_TEMPLATES_LINK,"_blank","noopener")} style={S.btnCobalt}>
+          <span style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.5rem" }}><Icon name="externalLink" size={14} color="#fff" /> Abrir las 4 plantillas en Canva</span>
+        </button>
+        <p style={{ fontSize:"0.65rem", color:BRAND.mutedLight, marginTop:"0.6rem", lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif", textAlign:"center" }}>Elegí la tuya adentro, hacé una copia y editá con tus datos.</p>
       </div>
     </div>
   );
