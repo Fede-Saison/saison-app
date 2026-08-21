@@ -1,6 +1,15 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   try {
     const { emailReceptor, emailSolicitante } = await req.json()
 
@@ -61,11 +70,11 @@ Deno.serve(async (req) => {
 
     if (!resendRes.ok) {
       const err = await resendRes.text()
-      return new Response(JSON.stringify({ error: err }), { status: 500 })
+      return new Response(JSON.stringify({ error: err }), { status: 500, headers: corsHeaders })
     }
 
-    return new Response(JSON.stringify({ success: true }), { status: 200 })
+    return new Response(JSON.stringify({ success: true }), { status: 200, headers: corsHeaders })
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 })
+    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders })
   }
 })

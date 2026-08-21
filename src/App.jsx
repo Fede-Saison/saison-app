@@ -2091,6 +2091,13 @@ export default function App() {
       email_receptor: emailReceptor,
       estado: 'pendiente',
     });
+    if (!error) {
+      fetch('https://bipboatssbxxneukqxdk.supabase.co/functions/v1/enviar-notificacion-conexion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emailReceptor, emailSolicitante: usuario.email }),
+      }).catch(() => {});
+    }
     return { error };
   }
 
