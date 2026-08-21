@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
     const email = session.customer_email;
 
     await supabase
-      .from('perfiles')
+      .from('Perfiles')
       .update({ es_premium: true })
       .eq('email', email);
   }
@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
     const customer = await stripe.customers.retrieve(subscription.customer);
 
     await supabase
-      .from('perfiles')
+      .from('Perfiles')
       .update({ es_premium: false })
       .eq('email', customer.email);
   }

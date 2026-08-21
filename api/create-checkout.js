@@ -2,7 +2,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const PRICES = {
   mensual: 'price_1Txv6cJe09q68nqvFVC7KdWg',
-  trimestral: 'price_1Txv9JJe09q68nqvBBzXc1yA',
+  trimestral: 'price_1U4QwXJe09q68nqvJDG3kFiP',
 };
 
 module.exports = async (req, res) => {
