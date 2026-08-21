@@ -684,7 +684,15 @@ function SplashScreen() {
   );
 }
 function ModalPerfil({ perfil, onGuardar, onCerrar, forzado }) {
-  const [form, setForm] = useState(perfil||{});
+  const [form, setForm] = useState(() => {
+    const inicial = {...(perfil||{})};
+    if (inicial.whatsapp && !inicial.whatsappCodigo) {
+      const partes = inicial.whatsapp.split(' ');
+      inicial.whatsappCodigo = partes[0];
+      inicial.whatsappNumero = partes.slice(1).join(' ');
+    }
+    return inicial;
+  });
   const [paso, setPaso] = useState(0);
   const set = (k,v) => setForm(f=>({...f,[k]:v}));
 
@@ -1260,11 +1268,9 @@ function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onRespo
 
   const cargarDatos = async () => {
     setCargando(true);
-    const { data: perfilesData } = await supabase
-      .from('Perfiles')
-      .select('email, nombre, pais, puesto, disponibilidad, whatsapp, region_destino, fecha_viaje, bio_viajero')
-      .not('whatsapp', 'is', null)
-      .not('nombre', 'is', null)
+  const { data: perfilesData } = await supabase
+      .from('perfiles_publicos')
+      .select('*')
       .neq('email', usuario?.email);
     if (perfilesData) setPerfiles(perfilesData);
 
