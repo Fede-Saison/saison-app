@@ -542,6 +542,8 @@ function ChipsRegion({ regiones, activa, onChange, dark=true }) {
 function TarjetaOferta({ oferta, onClick, perfil, guardada, onToggleGuardar }){
   const esCiudad = oferta.tipo === "ciudad";
   const match = calcularMatch(oferta, perfil);
+  const diasPublicada = oferta.created_at ? Math.floor((Date.now() - new Date(oferta.created_at).getTime()) / (1000*60*60*24)) : null;
+  const textoPublicada = diasPublicada === null ? "Publicada recientemente" : diasPublicada === 0 ? "Publicada hoy" : diasPublicada === 1 ? "Publicada hace 1 día" : `Publicada hace ${diasPublicada} días`;
   const idxSlash = oferta.titulo.indexOf("/a");
   const tituloAntes = idxSlash>=0 ? oferta.titulo.slice(0,idxSlash) : oferta.titulo;
   const tituloDespues = idxSlash>=0 ? oferta.titulo.slice(idxSlash+2) : "";
@@ -556,8 +558,8 @@ function TarjetaOferta({ oferta, onClick, perfil, guardada, onToggleGuardar }){
       <div style={{ padding:"1.1rem 1.25rem 0.875rem" }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"0.875rem" }}>
           <div style={{ display:"flex", alignItems:"center", gap:"6px" }}>
-            <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:BRAND.cobalt }} />
-            <span style={{ fontSize:"10.5px", fontWeight:500, letterSpacing:"0.08em", textTransform:"uppercase", color:BRAND.cobalt, fontFamily:"'DM Mono',monospace" }}>Búsqueda activa</span>
+            <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:BRAND.muted }} />
+            <span style={{ fontSize:"10.5px", fontWeight:500, letterSpacing:"0.08em", textTransform:"uppercase", color:BRAND.muted, fontFamily:"'DM Mono',monospace" }}>{textoPublicada}</span>
           </div>
           <button
             onClick={(e)=>{ e.stopPropagation(); onToggleGuardar && onToggleGuardar(oferta.id); }}
