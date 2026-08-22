@@ -614,16 +614,24 @@ function TarjetaOferta({ oferta, onClick, perfil, guardada, onToggleGuardar }){
 function BannerPerfil({ perfil, onCompletar }) {
   const campos = ["nombre","pais","puesto","frances","disponibilidad","documentacion"];
   const pct = Math.round((campos.filter(c=>perfil[c]).length/campos.length)*100);
+  const completo = pct === 100;
   return (
-    <div onClick={onCompletar} style={{ margin:"0.875rem 1.25rem 0", background:BRAND.nightMid, border:`1px solid ${BRAND.nightSoft}`, borderRadius:"0.875rem", padding:"0.875rem 1.1rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.875rem" }}>
+    <div onClick={onCompletar} style={{ margin:"0.875rem 1.25rem 0", background:BRAND.nightMid, border:`1.5px solid ${completo ? BRAND.cobalt+"55" : BRAND.nightSoft}`, borderRadius:"12px", padding:"1rem 1.1rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.9rem" }}>
+      <div style={{ width:"38px", height:"38px", borderRadius:"9px", background:completo ? BRAND.cobalt : BRAND.nightSoft, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+        <Icon name={completo ? "check" : "star"} size={16} color={completo ? "#fff" : BRAND.mutedLight} strokeWidth={completo ? 2.5 : 1.7} />
+      </div>
       <div style={{ flex:1 }}>
-        <p style={{ fontSize:"0.72rem", fontWeight:600, color:BRAND.bone, margin:"0 0 0.3rem", fontFamily:"'Inter',sans-serif" }}>{pct===100 ? "Matching activado · editar perfil" : "Completá tu perfil"} — <span style={{ color:BRAND.cobalt }}>{pct}%</span></p>
-        <div style={{ background:BRAND.nightSoft, borderRadius:"2rem", height:"3px", overflow:"hidden" }}>
+        <p style={{ fontSize:"0.84rem", fontWeight:800, color:BRAND.bone, margin:"0 0 0.35rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.01em" }}>
+          {completo ? "Matching activado" : "Completá tu perfil"} <span style={{ color:BRAND.cobalt, fontWeight:700 }}>— {pct}%</span>
+        </p>
+        <div style={{ background:BRAND.nightSoft, borderRadius:"2rem", height:"4px", overflow:"hidden", marginBottom:"0.4rem" }}>
           <div style={{ height:"100%", background:BRAND.cobalt, borderRadius:"2rem", width:`${pct}%`, transition:"width 0.5s" }} />
         </div>
-        <p style={{ fontSize:"0.65rem", color:BRAND.mutedLight, margin:"0.25rem 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>Activá el matching con ofertas personalizadas →</p>
+        <p style={{ fontSize:"0.68rem", color:BRAND.mutedLight, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>
+          {completo ? "Tocá para editar tu perfil" : "Activá el matching con ofertas personalizadas"}
+        </p>
       </div>
-      <Icon name="arrowRight" size={16} color={BRAND.mutedLight} />
+      <Icon name="arrowRight" size={15} color={BRAND.mutedLight} />
     </div>
   );
 }
