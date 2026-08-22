@@ -28,7 +28,7 @@ const BRAND = {
 const S = {
   input:{ width:"100%", padding:"0.85rem 1rem", borderRadius:"0.75rem", border:`1.5px solid ${BRAND.boneDeep}`, background:BRAND.bone, fontSize:"16px", color:BRAND.night, outline:"none", boxSizing:"border-box", fontFamily:"'Hanken Grotesk',sans-serif", transition:"border-color 0.18s" },
   inputDark:{ width:"100%", padding:"0.85rem 1rem", borderRadius:"0.75rem", border:`1.5px solid ${BRAND.nightSoft}`, background:BRAND.nightMid, fontSize:"16px", color:BRAND.bone, outline:"none", boxSizing:"border-box", fontFamily:"'Hanken Grotesk',sans-serif", transition:"border-color 0.18s" },
-  label:{ display:"block", fontSize:"0.65rem", fontWeight:500, color:BRAND.muted, textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:"0.4rem", fontFamily:"'DM Mono',monospace" },
+  label:{ display:"block", fontSize:"0.65rem", fontWeight:500, color:BRAND.muted, textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:"0.4rem", fontFamily:"'Hanken Grotesk',sans-serif" },
   card:{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"0.125rem", padding:"1.25rem 1.3rem", boxShadow:"none" },
   btnCobalt:{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"10px", padding:"0.9rem 1.25rem", fontSize:"0.88rem", fontWeight:600, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", transition:"opacity 0.15s, transform 0.12s cubic-bezier(0.34,1.56,0.64,1)", width:"100%", letterSpacing:"0.01em" },
   btnOutline:{ background:"transparent", color:BRAND.cobalt, border:`1.5px solid ${BRAND.cobalt}`, borderRadius:"0.75rem", padding:"0.9rem 1.25rem", fontSize:"0.88rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", width:"100%" },
@@ -387,7 +387,7 @@ function MuroPago({ onCerrar }) {
         </div>
         <div style={{ display:"flex", flexDirection:"column", gap:"0.65rem", marginBottom:"1.5rem" }}>
           <div onClick={()=>window.open(STRIPE.trimestral,"_blank")} style={{ cursor:"pointer", position:"relative", background:BRAND.cobalt, borderRadius:"0.875rem", padding:"1.1rem 1.2rem 1rem", overflow:"visible" }}>
-            <div style={{ position:"absolute", top:"-10px", left:"1.2rem", background:"#F5C842", color:BRAND.night, fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", fontWeight:700, letterSpacing:"0.04em", padding:"0.2rem 0.6rem", borderRadius:"2rem" }}>MÁS ELEGIDO · AHORRÁ 33%</div>
+            <div style={{ position:"absolute", top:"-10px", left:"1.2rem", background:"#F5C842", color:BRAND.night, fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", fontWeight:700, letterSpacing:"0.04em", padding:"0.2rem 0.6rem", borderRadius:"2rem" }}>MÁS ELEGIDO · AHORRÁ 33%</div>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:"0.3rem" }}>
               <div>
                 <p style={{ fontSize:"0.92rem", fontWeight:700, color:"#fff", margin:"0 0 0.1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Trimestral</p>
@@ -559,7 +559,7 @@ function TarjetaOferta({ oferta, onClick, perfil, guardada, onToggleGuardar }){
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"0.875rem" }}>
           <div style={{ display:"flex", alignItems:"center", gap:"6px" }}>
             <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:BRAND.muted }} />
-            <span style={{ fontSize:"10.5px", fontWeight:500, letterSpacing:"0.08em", textTransform:"uppercase", color:BRAND.muted, fontFamily:"'DM Mono',monospace" }}>{textoPublicada}</span>
+            <span style={{ fontSize:"10.5px", fontWeight:500, letterSpacing:"0.08em", textTransform:"uppercase", color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif" }}>{textoPublicada}</span>
           </div>
           <button
             onClick={(e)=>{ e.stopPropagation(); onToggleGuardar && onToggleGuardar(oferta.id); }}
@@ -595,7 +595,7 @@ function TarjetaOferta({ oferta, onClick, perfil, guardada, onToggleGuardar }){
           { label:"Salario", value: oferta.salario },
         ].map((row,i,arr)=>(
           <div key={i} style={{ flex:1, padding:"0.75rem 1rem", borderRight: i<arr.length-1 ? `1px solid #F0EEE6` : "none" }}>
-            <p style={{ margin:"0 0 3px", fontSize:"9px", letterSpacing:"0.06em", textTransform:"uppercase", color:"rgba(11,20,38,0.32)", fontFamily:"'DM Mono',monospace" }}>{row.label}</p>
+            <p style={{ margin:"0 0 3px", fontSize:"9px", letterSpacing:"0.06em", textTransform:"uppercase", color:"rgba(11,20,38,0.32)", fontFamily:"'Hanken Grotesk',sans-serif" }}>{row.label}</p>
             <p style={{ margin:0, fontSize:"12.5px", fontWeight:600, color: row.accent ? BRAND.cobalt : BRAND.night }}>{row.value}</p>
           </div>
         ))}
@@ -621,7 +621,7 @@ function BannerPerfil({ perfil, onCompletar }) {
         <div style={{ background:BRAND.nightSoft, borderRadius:"2rem", height:"3px", overflow:"hidden" }}>
           <div style={{ height:"100%", background:BRAND.cobalt, borderRadius:"2rem", width:`${pct}%`, transition:"width 0.5s" }} />
         </div>
-        <p style={{ fontSize:"0.65rem", color:BRAND.mutedLight, margin:"0.25rem 0 0", fontFamily:"'DM Mono',monospace" }}>Activá el matching con ofertas personalizadas →</p>
+        <p style={{ fontSize:"0.65rem", color:BRAND.mutedLight, margin:"0.25rem 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>Activá el matching con ofertas personalizadas →</p>
       </div>
       <Icon name="arrowRight" size={16} color={BRAND.mutedLight} />
     </div>
@@ -740,7 +740,7 @@ function ModalPerfil({ perfil, onGuardar, onCerrar, forzado }) {
               </div>
             )}
             {forzado && paso===0 && <div />}
-            <span style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.68rem", color:BRAND.muted }}>{paso+1} / {PASOS_PERFIL_TOTAL}</span>
+            <span style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.68rem", color:BRAND.muted }}>{paso+1} / {PASOS_PERFIL_TOTAL}</span>
           </div>
           <div style={{ background:BRAND.boneDeep, borderRadius:"2rem", height:"3px", marginBottom:"1.25rem", overflow:"hidden" }}>
             <div style={{ height:"100%", background:BRAND.cobalt, borderRadius:"2rem", width:`${((paso+1)/PASOS_PERFIL_TOTAL)*100}%`, transition:"width 0.3s" }} />
@@ -750,14 +750,14 @@ function ModalPerfil({ perfil, onGuardar, onCerrar, forzado }) {
         <div style={{ padding:"0 1.75rem 1.5rem", overflowY:"auto", flex:1 }}>
 
           {paso===0 && (<>
-            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Empecemos</p>
+            <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Empecemos</p>
             <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.4rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿Cómo te llamás?</h2>
             <p style={{ fontSize:"0.8rem", color:BRAND.muted, margin:"0 0 1.25rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Así te van a ver otros saisonniers y los empleadores.</p>
             <input type="text" value={form.nombre||""} onChange={e=>set("nombre",e.target.value)} placeholder="Ej: Valentina García" style={S.input} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
           </>)}
 
           {paso===1 && (<>
-            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Tu perfil</p>
+            <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Tu perfil</p>
             <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 1.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿De dónde sos?</h2>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.5rem" }}>
               {PASOS_PERFIL_OPCIONES.pais.opts.map(o=>(
@@ -770,31 +770,31 @@ function ModalPerfil({ perfil, onGuardar, onCerrar, forzado }) {
           </>)}
 
           {paso===2 && (<>
-            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Tu perfil</p>
+            <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Tu perfil</p>
             <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 1.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿En qué querés trabajar?</h2>
             {PASOS_PERFIL_OPCIONES.puesto.opts.map(o=><OpcionGrande key={o.v} icon={o.icon} titulo={o.v} campo="puesto" valor={o.v} />)}
           </>)}
 
           {paso===3 && (<>
-            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Documentación</p>
+            <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Documentación</p>
             <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 1.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿Podés trabajar en Francia?</h2>
             {PASOS_PERFIL_OPCIONES.documentacion.opts.map(o=><OpcionGrande key={o.v} icon={o.icon} titulo={o.v} campo="documentacion" valor={o.v} />)}
           </>)}
 
           {paso===4 && (<>
-            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Idioma</p>
+            <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Idioma</p>
             <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 1.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿Cuánto francés hablás?</h2>
             {PASOS_PERFIL_OPCIONES.frances.opts.map(o=><OpcionGrande key={o.v} icon={o.icon} titulo={o.v} campo="frances" valor={o.v} />)}
           </>)}
 
           {paso===5 && (<>
-            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Disponibilidad</p>
+            <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Disponibilidad</p>
             <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 1.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿Cuándo podés viajar?</h2>
             {PASOS_PERFIL_OPCIONES.disponibilidad.opts.map(o=><OpcionGrande key={o.v} icon={o.icon} titulo={o.v} campo="disponibilidad" valor={o.v} />)}
           </>)}
 
           {paso===6 && (<>
-            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Contacto</p>
+            <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Contacto</p>
             <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.4rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>Dejanos tu WhatsApp</h2>
             <p style={{ fontSize:"0.8rem", color:BRAND.muted, margin:"0 0 1.25rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Para conectar con empleadores y otros saisonniers que van a tu mismo destino.</p>
             <div style={{ display:"flex", gap:"0.5rem" }}>
@@ -807,7 +807,7 @@ function ModalPerfil({ perfil, onGuardar, onCerrar, forzado }) {
           </>)}
 
           {paso===7 && (<>
-            <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Último paso</p>
+            <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Último paso</p>
             <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.4rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>Contanos de tu viaje</h2>
             <p style={{ fontSize:"0.8rem", color:BRAND.muted, margin:"0 0 1.25rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Esto es opcional, pero ayuda a que otros saisonniers te encuentren.</p>
             <label style={S.label}>Región de destino</label>
@@ -834,7 +834,7 @@ function ModalPerfil({ perfil, onGuardar, onCerrar, forzado }) {
           ) : (
             <>
               <button onClick={guardarFinal} style={S.btnCobalt}>Terminar →</button>
-              <p onClick={guardarFinal} style={{ textAlign:"center", fontFamily:"'DM Mono',monospace", fontSize:"0.68rem", color:BRAND.mutedLight, margin:"0.6rem 0 0", cursor:"pointer" }}>Completar esto después</p>
+              <p onClick={guardarFinal} style={{ textAlign:"center", fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.68rem", color:BRAND.mutedLight, margin:"0.6rem 0 0", cursor:"pointer" }}>Completar esto después</p>
             </>
           )}
         </div>
@@ -1088,7 +1088,7 @@ function Section({ icon, title, children, badge }) {
         <div style={{ flex:1 }}>
           <h3 style={{ fontSize:"0.88rem", fontWeight:700, color:BRAND.night, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.015em" }}>{title}</h3>
         </div>
-        {badge && <span style={{ fontSize:"0.6rem", fontWeight:500, color:BRAND.cobalt, background:BRAND.cobaltDim, border:`1px solid ${BRAND.cobaltSoft}`, borderRadius:"2rem", padding:"0.12rem 0.55rem", fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em" }}>{badge}</span>}
+        {badge && <span style={{ fontSize:"0.6rem", fontWeight:500, color:BRAND.cobalt, background:BRAND.cobaltDim, border:`1px solid ${BRAND.cobaltSoft}`, borderRadius:"2rem", padding:"0.12rem 0.55rem", fontFamily:"'Hanken Grotesk',sans-serif", letterSpacing:"0.06em" }}>{badge}</span>}
       </div>
       {children}
     </div>
@@ -1337,12 +1337,12 @@ function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onRespo
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:"6px", background:"rgba(10,58,242,0.2)", border:"1px solid rgba(10,58,242,0.35)", borderRadius:"2rem", padding:"0.25rem 0.7rem", flexShrink:0, marginLeft:"0.75rem" }}>
             <div style={{ width:"5px", height:"5px", borderRadius:"50%", background:BRAND.cobalt }} />
-            <span style={{ fontSize:"0.58rem", fontWeight:500, letterSpacing:"0.1em", textTransform:"uppercase", color:BRAND.cobalt, fontFamily:"'DM Mono',monospace" }}>{perfiles.length} activos</span>
+            <span style={{ fontSize:"0.58rem", fontWeight:500, letterSpacing:"0.1em", textTransform:"uppercase", color:BRAND.cobalt, fontFamily:"'Hanken Grotesk',sans-serif" }}>{perfiles.length} activos</span>
           </div>
         </div>
         <div style={{ display:"flex", gap:"0.35rem", overflowX:"auto", paddingTop:"0.75rem", paddingBottom:"0.25rem", scrollbarWidth:"none" }}>
           {destinos.map(d => (
-            <button key={d} onClick={() => setFiltro(d)} style={{ background:filtro===d?BRAND.bone:"transparent", color:filtro===d?BRAND.night:"rgba(255,255,255,0.55)", border:`1px solid ${filtro===d?BRAND.bone:"rgba(255,255,255,0.15)"}`, borderRadius:"2rem", padding:"0.35rem 0.75rem", fontSize:"0.71rem", fontWeight:600, cursor:"pointer", fontFamily:"'DM Mono',monospace", whiteSpace:"nowrap", flexShrink:0, transition:"all 0.15s", letterSpacing:"0.02em" }}>
+            <button key={d} onClick={() => setFiltro(d)} style={{ background:filtro===d?BRAND.bone:"transparent", color:filtro===d?BRAND.night:"rgba(255,255,255,0.55)", border:`1px solid ${filtro===d?BRAND.bone:"rgba(255,255,255,0.15)"}`, borderRadius:"2rem", padding:"0.35rem 0.75rem", fontSize:"0.71rem", fontWeight:600, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", whiteSpace:"nowrap", flexShrink:0, transition:"all 0.15s", letterSpacing:"0.02em" }}>
               {d === "todos" ? "Todos" : d}
             </button>
           ))}
@@ -1388,26 +1388,26 @@ function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onRespo
               )}
               <div style={{ marginTop:"0.65rem", paddingLeft:"calc(38px + 0.75rem)", display:"flex", justifyContent:"flex-end", gap:"0.9rem" }}>
                 {!conexion && (
-                  <button onClick={() => solicitar(v.email)} style={{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.5rem", padding:"0.4rem 0.9rem", fontFamily:"'DM Mono',monospace", fontSize:"0.71rem", fontWeight:600, cursor:"pointer" }}>
+                  <button onClick={() => solicitar(v.email)} style={{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.5rem", padding:"0.4rem 0.9rem", fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.71rem", fontWeight:600, cursor:"pointer" }}>
                     Quiero conectar →
                   </button>
                 )}
                 {conexion?.estado === "pendiente" && !soyReceptor && (
-                  <span style={{ fontSize:"0.71rem", color:BRAND.muted, fontFamily:"'DM Mono',monospace" }}>Solicitud enviada</span>
+                  <span style={{ fontSize:"0.71rem", color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif" }}>Solicitud enviada</span>
                 )}
                 {conexion?.estado === "pendiente" && soyReceptor && (
                   <>
-                    <button onClick={() => responder(conexion.id, "rechazada")} style={{ background:"none", border:"none", color:BRAND.muted, fontFamily:"'DM Mono',monospace", fontSize:"0.71rem", fontWeight:600, cursor:"pointer", padding:0 }}>Ignorar</button>
-                    <button onClick={() => responder(conexion.id, "aceptada")} style={{ background:"none", border:"none", color:BRAND.cobalt, fontFamily:"'DM Mono',monospace", fontSize:"0.71rem", fontWeight:700, cursor:"pointer", padding:0 }}>Aceptar →</button>
+                    <button onClick={() => responder(conexion.id, "rechazada")} style={{ background:"none", border:"none", color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.71rem", fontWeight:600, cursor:"pointer", padding:0 }}>Ignorar</button>
+                    <button onClick={() => responder(conexion.id, "aceptada")} style={{ background:"none", border:"none", color:BRAND.cobalt, fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.71rem", fontWeight:700, cursor:"pointer", padding:0 }}>Aceptar →</button>
                   </>
                 )}
                 {conexion?.estado === "aceptada" && (
-                  <button onClick={() => contactar(v.whatsapp)} style={{ background:"none", border:"none", color:BRAND.cobalt, fontFamily:"'DM Mono',monospace", fontSize:"0.71rem", fontWeight:700, cursor:"pointer", padding:0 }}>
+                  <button onClick={() => contactar(v.whatsapp)} style={{ background:"none", border:"none", color:BRAND.cobalt, fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.71rem", fontWeight:700, cursor:"pointer", padding:0 }}>
                     Contactar por WhatsApp →
                   </button>
                 )}
                 {conexion?.estado === "rechazada" && (
-                  <span style={{ fontSize:"0.71rem", color:BRAND.mutedLight, fontFamily:"'DM Mono',monospace" }}>No conectaron</span>
+                  <span style={{ fontSize:"0.71rem", color:BRAND.mutedLight, fontFamily:"'Hanken Grotesk',sans-serif" }}>No conectaron</span>
                 )}
               </div>
             </div>
@@ -1418,7 +1418,7 @@ function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onRespo
           <div style={{ background:"#fff", border:`1.5px solid ${BRAND.boneDeep}`, borderRadius:"10px", padding:"1.25rem 1.1rem", textAlign:"center" }}>
             <p style={{ fontSize:"0.78rem", color:BRAND.night, fontWeight:600, margin:"0 0 0.3rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>¿Querés conocer alguno de estos saisonniers?</p>
             <p style={{ fontSize:"0.73rem", color:BRAND.muted, margin:"0 0 0.75rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Con Premium podés mandarles una solicitud para conectar</p>
-            <button onClick={onUpgrade} style={{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.5rem", padding:"0.6rem 1.5rem", fontSize:"0.75rem", fontWeight:700, cursor:"pointer", fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em", textTransform:"uppercase" }}>
+            <button onClick={onUpgrade} style={{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.5rem", padding:"0.6rem 1.5rem", fontSize:"0.75rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", letterSpacing:"0.06em", textTransform:"uppercase" }}>
               Activar — €5,99/mes
             </button>
           </div>
@@ -1430,9 +1430,9 @@ function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onRespo
 
 const ESTADOS_APLICACION = [
   { v:"enviada", label:"Postulación enviada", color:BRAND.cobalt },
-  { v:"respuesta", label:"Respuesta recibida", color:BRAND.warn },
+  { v:"sin_respuesta", label:"Sin respuesta", color:BRAND.night },
   { v:"oferta", label:"Oferta recibida", color:BRAND.success },
-  { v:"rechazada", label:"Rechazada", color:BRAND.muted },
+  { v:"rechazada", label:"Rechazada", color:BRAND.red },
 ];
 
 function OfertasGuardadas({ perfil, esPremium, onUpgrade, onAbrirOferta, onSetEstadoAplicacion }) {
@@ -1486,7 +1486,7 @@ function OfertasGuardadas({ perfil, esPremium, onUpgrade, onAbrirOferta, onSetEs
                 <select
                   value={estadoActual||""}
                   onChange={e=>onSetEstadoAplicacion && onSetEstadoAplicacion(o.id, e.target.value)}
-                  style={{ flex:1, border:`1.3px solid ${infoEstado?infoEstado.color:BRAND.boneDeep}`, borderRadius:"7px", padding:"0.4rem 0.6rem", fontFamily:"'DM Mono',monospace", fontSize:"0.68rem", fontWeight:600, color:infoEstado?infoEstado.color:BRAND.muted, background:"#fff", cursor:"pointer", appearance:"none" }}
+                  style={{ flex:1, border:`1.3px solid ${infoEstado?infoEstado.color:BRAND.boneDeep}`, borderRadius:"7px", padding:"0.4rem 0.6rem", fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.7rem", fontWeight:700, letterSpacing:"0.03em", textTransform:"uppercase", color:infoEstado?infoEstado.color:BRAND.muted, background:"#fff", cursor:"pointer", appearance:"none" }}
                 >
                   <option value="">Sin aplicar todavía</option>
                   {ESTADOS_APLICACION.map(e=><option key={e.v} value={e.v}>{e.label}</option>)}
@@ -1682,7 +1682,7 @@ function RecursosDescargables() {
       <div style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"14px", overflow:"hidden" }}>
         <div style={{ background:BRAND.night, padding:"1.1rem 1.25rem", position:"relative", overflow:"hidden" }}>
           <div style={{ position:"absolute", top:0, left:0, right:0, height:"2px", background:BRAND.cobalt }} />
-          <span style={{ fontSize:"0.58rem", fontWeight:600, letterSpacing:"0.12em", textTransform:"uppercase", color:BRAND.cobalt, fontFamily:"'DM Mono',monospace" }}>Guía Saison 2026</span>
+          <span style={{ fontSize:"0.58rem", fontWeight:600, letterSpacing:"0.12em", textTransform:"uppercase", color:BRAND.cobalt, fontFamily:"'Hanken Grotesk',sans-serif" }}>Guía Saison 2026</span>
           <h3 style={{ fontSize:"1.2rem", fontWeight:800, color:BRAND.bone, margin:"0.3rem 0 0.4rem", lineHeight:1.1, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>Tu primera temporada en Francia</h3>
           <p style={{ fontSize:"0.76rem", color:BRAND.mutedLight, margin:0, lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif" }}>Toda la información que nos hubiera gustado tener antes de llegar. Lo que nadie te da junto en un solo lugar.</p>
         </div>
@@ -1701,7 +1701,7 @@ function RecursosDescargables() {
 
       {/* Templates CV */}
       <div style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"14px", padding:"1.1rem 1.25rem" }}>
-        <p style={{ fontSize:"0.62rem", fontWeight:700, color:BRAND.cobalt, textTransform:"uppercase", letterSpacing:"0.1em", margin:"0 0 0.5rem", fontFamily:"'DM Mono',monospace" }}>Templates de CV</p>
+        <p style={{ fontSize:"0.62rem", fontWeight:700, color:BRAND.cobalt, textTransform:"uppercase", letterSpacing:"0.1em", margin:"0 0 0.5rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Templates de CV</p>
         <p style={{ fontSize:"0.76rem", color:BRAND.muted, lineHeight:1.55, margin:"0 0 1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>4 diseños listos, uno por tipo de puesto. Se abren juntos en Canva — necesitás una cuenta gratis para editarlos con tus datos.</p>
         <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem", marginBottom:"1rem" }}>
           {CV_TEMPLATES.map(cv=>(
@@ -1795,7 +1795,7 @@ function TabServicios() {
         {/* Asesoría */}
         <div style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, marginBottom:"0.75rem", overflow:"hidden" }}>
           <div style={{ padding:"1.25rem 1.25rem 0" }}>
-            <p style={{ fontSize:"0.6rem", fontWeight:500, color:BRAND.cobalt, textTransform:"uppercase", letterSpacing:"0.12em", margin:"0 0 0.75rem", fontFamily:"'DM Mono',monospace" }}>Asesoría personal</p>
+            <p style={{ fontSize:"0.6rem", fontWeight:500, color:BRAND.cobalt, textTransform:"uppercase", letterSpacing:"0.12em", margin:"0 0 0.75rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Asesoría personal</p>
             <h3 style={{ fontSize:"1.2rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.5rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em", lineHeight:1.1 }}>Asesoría Personalizada.</h3>
             <p style={{ fontSize:"0.8rem", color:BRAND.muted, lineHeight:1.65, margin:"0 0 1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Nuestro equipo tiene más de 4 años de temporadas en Francia, Suiza e Italia. Sabe exactamente qué buscan los empleadores y cómo posicionarte. Estrategia de búsqueda, revisión de perfil — todo lo que necesitás para llegar bien.</p>
 
@@ -1817,7 +1817,7 @@ function TabServicios() {
         <div style={{ background:BRAND.night, marginBottom:"1.5rem", overflow:"hidden", position:"relative" }}>
           <div style={{ position:"absolute", top:0, left:0, right:0, height:"2px", background:BRAND.cobalt }} />
           <div style={{ padding:"1.25rem 1.25rem 0" }}>
-            <p style={{ fontSize:"0.6rem", fontWeight:500, color:BRAND.cobalt, textTransform:"uppercase", letterSpacing:"0.12em", margin:"0 0 0.75rem", fontFamily:"'DM Mono',monospace" }}>Curso de francés</p>
+            <p style={{ fontSize:"0.6rem", fontWeight:500, color:BRAND.cobalt, textTransform:"uppercase", letterSpacing:"0.12em", margin:"0 0 0.75rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Curso de francés</p>
             <h3 style={{ fontSize:"1.2rem", fontWeight:800, color:BRAND.bone, margin:"0 0 0.5rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em", lineHeight:1.1 }}>Mientras más hablés,<br/>mejor la vas a pasar.</h3>
             <p style={{ fontSize:"0.8rem", color:"rgba(245,243,236,0.5)", lineHeight:1.65, margin:"0 0 1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>3 meses con una profesora nativa, orientado al mundo de la hospitalidad. 12 clases de 1 hora por semana por Google Meet. Grupos de máximo 8 alumnos — para que realmente aprendas.</p>
 
@@ -1826,13 +1826,13 @@ function TabServicios() {
               <span style={{ fontFamily:"'Bricolage Grotesque',sans-serif", fontWeight:800, fontSize:"2.5rem", color:BRAND.bone, letterSpacing:"-0.04em", lineHeight:1 }}>€96</span>
               <span style={{ fontSize:"0.75rem", color:"rgba(245,243,236,0.4)", fontFamily:"'Hanken Grotesk',sans-serif" }}>los 3 meses · 12 clases</span>
             </div>
-            <p style={{ fontSize:"0.68rem", color:"rgba(245,243,236,0.3)", margin:"0 0 1.25rem", fontFamily:"'DM Mono',monospace", letterSpacing:"0.04em" }}>Máx. 8 alumnos · Google Meet · 1h/semana</p>
+            <p style={{ fontSize:"0.68rem", color:"rgba(245,243,236,0.3)", margin:"0 0 1.25rem", fontFamily:"'Hanken Grotesk',sans-serif", letterSpacing:"0.04em" }}>Máx. 8 alumnos · Google Meet · 1h/semana</p>
           </div>
           <button onClick={()=>onToast ? onToast("Muy pronto vas a poder inscribirte acá") : alert("Muy pronto vas a poder inscribirte acá")} style={{ ...S.btnCobalt, borderRadius:0, marginTop:0, opacity:0.6 }}>Muy pronto →</button>
         </div>
 
         {/* Redes */}
-        <p style={{ fontSize:"0.6rem", fontWeight:500, color:BRAND.muted, textTransform:"uppercase", letterSpacing:"0.12em", margin:"0 0 0.75rem", fontFamily:"'DM Mono',monospace" }}>Seguinos</p>
+        <p style={{ fontSize:"0.6rem", fontWeight:500, color:BRAND.muted, textTransform:"uppercase", letterSpacing:"0.12em", margin:"0 0 0.75rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Seguinos</p>
         <div style={{ display:"flex", justifyContent:"center", gap:"0.75rem" }}>
           {[
             { label:"Instagram", icon:"instagram", url:"https://instagram.com/saisonfr" },
@@ -1841,7 +1841,7 @@ function TabServicios() {
           ].map(r=>(
             <button key={r.label} onClick={()=>window.open(r.url,"_blank","noopener")} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:"0.35rem", background:"#fff", border:`1px solid ${BRAND.boneDeep}`, padding:"0.875rem 1rem", cursor:"pointer", minWidth:"72px" }}>
               <Icon name={r.icon} size={20} color={BRAND.cobalt} />
-              <span style={{ fontSize:"0.6rem", fontWeight:500, color:BRAND.muted, fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em", textTransform:"uppercase" }}>{r.label}</span>
+              <span style={{ fontSize:"0.6rem", fontWeight:500, color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif", letterSpacing:"0.06em", textTransform:"uppercase" }}>{r.label}</span>
             </button>
           ))}
         </div>
