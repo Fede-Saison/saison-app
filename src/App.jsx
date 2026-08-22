@@ -976,7 +976,7 @@ const CALENDARIO = [
 ];
 function calcularEstadoVentana(item) {
   if (!item.ventanaInicio) {
-    return { urgencia:"baja", label:"Flexible", mensaje:"Podés aplicar en cualquier momento del año." };
+    return { urgencia:"flexible", label:"Flexible", mensaje:"Podés aplicar en cualquier momento del año." };
   }
   const mesActual = new Date().getMonth() + 1;
   const { ventanaInicio, ventanaFin, temporadaInicio, temporadaFin } = item;
@@ -986,22 +986,22 @@ function calcularEstadoVentana(item) {
     : (mesActual >= temporadaInicio || mesActual <= temporadaFin);
 
   if (enVentana) {
-    return { urgencia:"alta", label:"¡Es el momento! Aplicá ahora", mensaje:"La ventana ideal de postulación está abierta ahora mismo. Los mejores puestos se cierran en las próximas semanas." };
+    return { urgencia:"momento", label:"¡Es el momento! Aplicá ahora", mensaje:"La ventana ideal de postulación está abierta ahora mismo. Los mejores puestos se cierran en las próximas semanas." };
   }
   if (mesActual < ventanaInicio) {
     const faltan = ventanaInicio - mesActual;
-    return { urgencia:"baja", label:`Ventana abre en ${faltan} mes${faltan!==1?"es":""}`, mensaje:"Todavía no arrancó la temporada de postulaciones para esta región. Guardá la fecha." };
+    return { urgencia:"flexible", label:`Ventana abre en ${faltan} mes${faltan!==1?"es":""}`, mensaje:"Todavía no arrancó la temporada de postulaciones para esta región. Guardá la fecha." };
   }
   if (enTemporada) {
     const restantes = temporadaInicio <= temporadaFin
       ? temporadaFin - mesActual
       : (mesActual <= temporadaFin ? temporadaFin - mesActual : (12 - mesActual) + temporadaFin);
     if (restantes <= 2) {
-      return { urgencia:"alta", label:"Temporada terminando — quedan pocas ofertas", mensaje:"La ventana ideal ya pasó y la temporada está por cerrar. Quedan las últimas vacantes de reemplazo, pero la selección es limitada." };
+      return { urgencia:"tarde", label:"Temporada terminando — quedan pocas ofertas", mensaje:"La ventana ideal ya pasó y la temporada está por cerrar. Quedan las últimas vacantes de reemplazo, pero la selección es limitada." };
     }
-    return { urgencia:"media", label:"Ventana cerrada, temporada en curso", mensaje:"Los mejores puestos ya se cerraron, pero todavía surgen vacantes de reemplazo durante la temporada." };
+    return { urgencia:"tarde", label:"Ventana cerrada, temporada en curso", mensaje:"Los mejores puestos ya se cerraron, pero todavía surgen vacantes de reemplazo durante la temporada." };
   }
-  return { urgencia:"baja", label:"Fuera de temporada", mensaje:"Esta región no tiene contrataciones activas ahora. La próxima ventana se acerca." };
+  return { urgencia:"flexible", label:"Fuera de temporada", mensaje:"Esta región no tiene contrataciones activas ahora. La próxima ventana se acerca." };
 }
 const GUIA_PUESTOS = [
   { puesto:"Plongeur (Lavaplatos)", nivel:"Ninguno", exp:"Sin experiencia", dificultad:1, icon:"waves", tip:"Puerta de entrada táctica. Sin barreras de idioma.Trabajo duro pero con alta demanda en toda Francia." },
@@ -1151,32 +1151,33 @@ function Calculadora() {
 
 function CuandoAplicar() {
   const [abierto, setAbierto] = useState(null);
-  const urgColor = { alta:BRAND.red, media:"#C07000", baja:BRAND.cobalt };
+  const urgColor = { momento:BRAND.success, tarde:BRAND.red, flexible:BRAND.cobalt };
   return (
     <Section icon="calendar" title="¿Cuándo aplicar?">
       <p style={{ fontSize:"0.73rem", color:BRAND.muted, margin:"0 0 0.875rem", lineHeight:1.55, fontFamily:"'Hanken Grotesk',sans-serif" }}>La anticipación es el diferenciador real. Los mejores puestos se cierran meses antes del inicio de temporada.</p>
       <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem" }}>
         {CALENDARIO.map((item,i)=>{
           const estado = calcularEstadoVentana(item);
+          const abiertoAqui = abierto===i;
           return (
-          <div key={i} style={{ borderRadius:"0.75rem", border:`1px solid ${BRAND.boneDeep}`, overflow:"hidden" }}>
-            <div onClick={()=>setAbierto(abierto===i?null:i)} style={{ display:"flex", alignItems:"center", gap:"0.7rem", padding:"0.8rem 0.9rem", cursor:"pointer" }}>
-              <div style={{ width:"30px", height:"30px", borderRadius:"0.5rem", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                <Icon name={item.icon} size={15} color={BRAND.cobalt} />
+          <div key={i} style={{ borderRadius:"10px", border:`1.5px solid ${abiertoAqui?BRAND.cobalt:BRAND.boneDeep}`, overflow:"hidden", background:"#fff", transition:"border-color 0.15s" }}>
+            <div onClick={()=>setAbierto(abiertoAqui?null:i)} style={{ display:"flex", alignItems:"center", gap:"0.75rem", padding:"0.8rem 0.9rem", cursor:"pointer" }}>
+              <div style={{ width:"36px", height:"36px", borderRadius:"8px", background:abiertoAqui?BRAND.cobalt:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"background 0.15s" }}>
+                <Icon name={item.icon} size={16} color={abiertoAqui?"#fff":BRAND.night} strokeWidth={1.7} />
               </div>
               <div style={{ flex:1, minWidth:0 }}>
-                <p style={{ fontSize:"0.83rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.12rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>{item.region}</p>
-                <div style={{ display:"flex", alignItems:"center", gap:"0.4rem" }}>
-                  <span style={{ fontSize:"0.7rem", color:BRAND.cobalt, fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif" }}>{item.meses}</span>
-                  <span style={{ background:urgColor[estado.urgencia]+"18", color:urgColor[estado.urgencia], fontSize:"0.58rem", fontWeight:700, padding:"0.1rem 0.45rem", borderRadius:"2rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{estado.label}</span>
+                <p style={{ fontSize:"0.86rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.15rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.01em" }}>{item.region}</p>
+                <div style={{ display:"flex", alignItems:"center", gap:"7px" }}>
+                  <span style={{ fontSize:"0.7rem", color:BRAND.muted, fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif" }}>{item.meses}</span>
+                  <span style={{ background:urgColor[estado.urgencia]+"18", color:urgColor[estado.urgencia], fontSize:"0.58rem", fontWeight:700, padding:"0.15rem 0.5rem", borderRadius:"2rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{estado.label}</span>
                 </div>
               </div>
             </div>
-            {abierto===i && (
-              <div style={{ padding:"0 0.9rem 0.8rem", borderTop:`1px solid ${BRAND.boneDeep}` }}>
-                <p style={{ fontSize:"0.78rem", color:urgColor[estado.urgencia], fontWeight:600, margin:"0.55rem 0 0.35rem", lineHeight:1.6, fontFamily:"'Hanken Grotesk',sans-serif" }}>{estado.mensaje}</p>
-                <p style={{ fontSize:"0.78rem", color:BRAND.muted, margin:"0 0 0.25rem", lineHeight:1.6, fontFamily:"'Hanken Grotesk',sans-serif" }}>{item.detalle}</p>
-                <p style={{ fontSize:"0.7rem", color:BRAND.mutedLight, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>{item.temporada}</p>
+            {abiertoAqui && (
+              <div style={{ padding:"0 0.9rem 0.9rem", borderTop:`1px solid ${BRAND.boneDeep}` }}>
+                <p style={{ fontSize:"0.79rem", color:urgColor[estado.urgencia], fontWeight:700, margin:"0.65rem 0 0.4rem", lineHeight:1.6, fontFamily:"'Hanken Grotesk',sans-serif" }}>{estado.mensaje}</p>
+                <p style={{ fontSize:"0.79rem", color:BRAND.muted, margin:"0 0 0.3rem", lineHeight:1.6, fontFamily:"'Hanken Grotesk',sans-serif" }}>{item.detalle}</p>
+                <p style={{ fontSize:"0.71rem", color:BRAND.mutedLight, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>{item.temporada}</p>
               </div>
             )}
           </div>
