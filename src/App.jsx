@@ -1894,7 +1894,7 @@ function TabServicios() {
           {[
             { label:"Instagram", icon:"instagram", url:"https://instagram.com/saisonfr" },
             { label:"Facebook", icon:"facebook", url:"https://facebook.com/saisonfr" },
-            { label:"WhatsApp", icon:"whatsapp", url:"https://wa.me/saisonfr" },
+            { label:"WhatsApp", icon:"whatsapp", url:"https://chat.whatsapp.com/HVnifNjtk2LIifo2HSpHSi?mode=gi_t" },
           ].map(r=>(
             <button key={r.label} onClick={()=>window.open(r.url,"_blank","noopener")} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:"0.35rem", background:"#fff", border:`1px solid ${BRAND.boneDeep}`, padding:"0.875rem 1rem", cursor:"pointer", minWidth:"72px" }}>
               <Icon name={r.icon} size={20} color={BRAND.cobalt} />
