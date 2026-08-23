@@ -199,6 +199,7 @@ const Icon = ({ name, size=18, color="currentColor", strokeWidth=1.7 }) => {
     car:<><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></>,
     utensils:<><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></>,
     beddouble:<><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"/><path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/><path d="M12 4v6"/><path d="M2 18h20"/></>,
+    x:<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>,
   };
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">{paths[name]}</svg>;
 };
@@ -370,7 +371,10 @@ function Toast({ msg, visible }) {
 function MuroPago({ onCerrar }) {
   return (
     <div onClick={onCerrar} style={{ position:"fixed", inset:0, background:"rgba(11,20,38,0.85)", backdropFilter:"blur(12px)", zIndex:1100, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
-      <div onClick={e=>e.stopPropagation()} style={{ background:BRAND.night, borderRadius:"1.5rem 1.5rem 0 0", width:"100%", maxWidth:"480px", padding:"1.75rem 1.75rem 3rem", animation:"slideUp 0.38s cubic-bezier(0.34,1.56,0.64,1)", border:`1px solid ${BRAND.nightSoft}`, borderBottom:"none" }}>
+      <div onClick={e=>e.stopPropagation()} style={{ position:"relative", background:BRAND.night, borderRadius:"1.5rem 1.5rem 0 0", width:"100%", maxWidth:"480px", padding:"1.75rem 1.75rem 3rem", animation:"slideUp 0.38s cubic-bezier(0.34,1.56,0.64,1)", border:`1px solid ${BRAND.nightSoft}`, borderBottom:"none" }}>
+        <button onClick={onCerrar} style={{ position:"absolute", top:"1.1rem", right:"1.1rem", width:"32px", height:"32px", borderRadius:"50%", background:BRAND.nightMid, border:"none", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", zIndex:2 }}>
+          <Icon name="x" size={15} color={BRAND.bone} strokeWidth={2.3} />
+        </button>
         <div style={{ width:"2.5rem", height:"3px", background:BRAND.nightSoft, borderRadius:"2px", margin:"0 auto 1.75rem" }} />
         <div style={{ display:"flex", alignItems:"center", gap:"0.75rem", marginBottom:"1.5rem" }}>
           <div style={{ width:"44px", height:"44px", borderRadius:"0.75rem", background:BRAND.cobalt, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
@@ -382,7 +386,7 @@ function MuroPago({ onCerrar }) {
           </div>
         </div>
         <div style={{ background:"rgba(10,58,242,0.12)", border:`1px solid rgba(10,58,242,0.3)`, borderRadius:"0.75rem", padding:"0.65rem 0.9rem", marginBottom:"1.25rem", display:"flex", alignItems:"center", gap:"0.5rem" }}>
-          <span style={{ fontSize:"1rem" }}>🎁</span>
+          <Icon name="star" size={15} color={BRAND.bone} strokeWidth={0} />
           <p style={{ fontSize:"0.78rem", color:BRAND.bone, margin:0, fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif" }}>3 días gratis en cualquier plan — cancelá cuando quieras</p>
         </div>
         <div style={{ display:"flex", flexDirection:"column", gap:"0.65rem", marginBottom:"1.5rem" }}>
@@ -448,9 +452,12 @@ const intentarAplicar = () => { if (!esPremium) { setMuroPago(true); return; } i
   return (
     <>
       <div onClick={onCerrar} style={{ position:"fixed", inset:0, background:"rgba(11,20,38,0.7)", backdropFilter:"blur(8px)", zIndex:500, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
-        <div onClick={e=>e.stopPropagation()} style={{ background:"#ffffff", borderRadius:"1.5rem 1.5rem 0 0", width:"100%", maxWidth:"480px", maxHeight:"90vh", overflowY:"auto", padding:"1.75rem 1.75rem 3rem", animation:"slideUp 0.38s cubic-bezier(0.34,1.56,0.64,1)" }}>
+        <div onClick={e=>e.stopPropagation()} style={{ position:"relative", background:"#ffffff", borderRadius:"1.5rem 1.5rem 0 0", width:"100%", maxWidth:"480px", maxHeight:"90vh", overflowY:"auto", padding:"1.75rem 1.75rem 3rem", animation:"slideUp 0.38s cubic-bezier(0.34,1.56,0.64,1)" }}>
           <div style={{ width:"2.5rem", height:"3px", background:BRAND.boneDeep, borderRadius:"2px", margin:"0 auto 1.5rem" }} />
-          <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"1rem", marginBottom:"1.25rem" }}>
+          <button onClick={onCerrar} style={{ position:"absolute", top:"1.1rem", right:"1.1rem", width:"32px", height:"32px", borderRadius:"50%", background:BRAND.boneDeep, border:"none", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", zIndex:2 }}>
+            <Icon name="x" size={15} color={BRAND.night} strokeWidth={2.3} />
+          </button>
+          <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"1rem", marginBottom:"1.25rem", paddingRight:"2.2rem" }}>
             <div style={{ flex:1 }}>
               <h2 style={{ fontSize:"1.25rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em", lineHeight:1.2 }}>{oferta.titulo}</h2>
               <p style={{ fontSize:"0.84rem", color:BRAND.muted, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>{oferta.establecimiento} · {oferta.ciudad}</p>
