@@ -689,6 +689,48 @@ const CODIGOS_PAIS_PERFIL = [
 ];
 
 const PASOS_PERFIL_TOTAL = 8;
+function PantallaNuevaContrasena({ onListo }) {
+  const [pass1, setPass1] = useState("");
+  const [pass2, setPass2] = useState("");
+  const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
+
+  const confirmar = async () => {
+    if (pass1.length < 6) { setError("Mínimo 6 caracteres"); return; }
+    if (pass1 !== pass2) { setError("Las contraseñas no coinciden"); return; }
+    setError("");
+    setCargando(true);
+    const { error } = await supabase.auth.updateUser({ password: pass1 });
+    setCargando(false);
+    if (error) { setError(error.message); return; }
+    onListo();
+  };
+
+  return (
+    <div style={{ minHeight:"100vh", background:BRAND.bone, display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", padding:"2rem 1.75rem" }}>
+      <div style={{ width:"100%", maxWidth:"320px" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:"0.5rem", marginBottom:"1.5rem" }}>
+          <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+            <rect x="0" y="0" width="13" height="13" rx="2.5" fill="#0A3AF2"/><rect x="15" y="0" width="13" height="13" rx="2.5" fill="#0A3AF2" opacity="0.55"/><rect x="0" y="15" width="13" height="13" rx="2.5" fill="#0A3AF2" opacity="0.3"/><rect x="15" y="15" width="13" height="13" rx="2.5" fill="#0A3AF2" opacity="0.12"/>
+          </svg>
+          <span style={{ fontSize:"1.05rem", fontWeight:800, color:BRAND.night, fontFamily:"'Bricolage Grotesque',sans-serif" }}>Saison</span>
+        </div>
+        <h1 style={{ fontSize:"1.35rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.6rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em" }}>Elegí tu nueva contraseña</h1>
+        <p style={{ fontSize:"0.82rem", color:BRAND.muted, lineHeight:1.6, margin:"0 0 1.25rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Escribila dos veces para confirmar.</p>
+        <div style={{ marginBottom:"0.875rem" }}>
+          <label style={{ ...S.label }}>Nueva contraseña</label>
+          <input type="password" value={pass1} onChange={e=>setPass1(e.target.value)} placeholder="Mínimo 6 caracteres" style={S.input} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
+        </div>
+        <div style={{ marginBottom:"0.875rem" }}>
+          <label style={{ ...S.label }}>Confirmar contraseña</label>
+          <input type="password" value={pass2} onChange={e=>setPass2(e.target.value)} placeholder="Repetí la contraseña" onKeyDown={e=>e.key==="Enter"&&confirmar()} style={S.input} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
+        </div>
+        {error && <p style={{ fontSize:"0.75rem", color:BRAND.red, margin:"0 0 0.65rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{error}</p>}
+        <button onClick={confirmar} disabled={cargando} style={{ ...S.btnCobalt, opacity:cargando?0.6:1 }}>{cargando ? "Guardando..." : "Guardar contraseña →"}</button>
+      </div>
+    </div>
+  );
+}
 
 function SplashScreen() {
   return (
@@ -1874,10 +1916,21 @@ function PantallaAuth({ onLogin, onIniciarLogin }) {
   const [form, setForm] = useState({ nombre:"", email:"", password:"" });
   const [error, setError] = useState("");
   const set = (k,v) => setForm(f=>({...f,[k]:v}));
+  const [recuperado, setRecuperado] = useState(false);
+  const handleRecuperar = async () => {
+    if (!form.email.includes("@")) { setError("Ingresá un email válido"); return; }
+    setError("");
+    const { error } = await supabase.auth.resetPasswordForEmail(form.email, {
+      redirectTo: window.location.origin,
+    });
+    if (error) { setError(error.message); return; }
+    setRecuperado(true);
+  };
 const handleSubmit = async () => {
   if (modo==="registro"&&!form.nombre.trim()) { setError("Ingresá tu nombre"); return; }
   if (!form.email.includes("@")) { setError("Email inválido"); return; }
   if (form.password.length<6) { setError("Mínimo 6 caracteres"); return; }
+  if (modo==="registro" && form.password !== form.confirmarPassword) { setError("Las contraseñas no coinciden"); return; }
   setError("");
 
   if (modo === "registro") {
@@ -1913,19 +1966,53 @@ onIniciarLogin && onIniciarLogin();
 onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion, whatsapp: perfilLogin?.whatsapp, region_destino: perfilLogin?.region_destino, fecha_viaje: perfilLogin?.fecha_viaje, bio_viajero: perfilLogin?.bio_viajero, checklist_llegada: perfilLogin?.checklist_llegada || [], estados_aplicacion: perfilLogin?.estados_aplicacion || {}, ofertas_guardadas: perfilLogin?.ofertas_guardadas || [] } });
   }
 };
+  if (modo === "recuperar") {
+    return (
+      <div style={{ minHeight:"100vh", background:BRAND.bone, display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", padding:"2rem 1.75rem" }}>
+        <div style={{ width:"100%", maxWidth:"320px" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:"0.5rem", marginBottom:"1.5rem" }}>
+            <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+              <rect x="0" y="0" width="13" height="13" rx="2.5" fill="#0A3AF2"/><rect x="15" y="0" width="13" height="13" rx="2.5" fill="#0A3AF2" opacity="0.55"/><rect x="0" y="15" width="13" height="13" rx="2.5" fill="#0A3AF2" opacity="0.3"/><rect x="15" y="15" width="13" height="13" rx="2.5" fill="#0A3AF2" opacity="0.12"/>
+            </svg>
+            <span style={{ fontSize:"1.05rem", fontWeight:800, color:BRAND.night, fontFamily:"'Bricolage Grotesque',sans-serif" }}>Saison</span>
+          </div>
+          {recuperado ? (
+            <>
+              <h1 style={{ fontSize:"1.35rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.6rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em" }}>Revisá tu email</h1>
+              <p style={{ fontSize:"0.82rem", color:BRAND.muted, lineHeight:1.6, margin:"0 0 1.5rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Te mandamos un link a <b>{form.email}</b> para elegir una contraseña nueva. Revisá también la carpeta de spam/promociones.</p>
+              <p onClick={()=>{setModo("login"); setRecuperado(false);}} style={{ fontSize:"0.78rem", color:BRAND.cobalt, fontWeight:600, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif" }}>← Volver a iniciar sesión</p>
+            </>
+          ) : (
+            <>
+              <h1 style={{ fontSize:"1.35rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.6rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em" }}>Recuperar contraseña</h1>
+              <p style={{ fontSize:"0.82rem", color:BRAND.muted, lineHeight:1.6, margin:"0 0 1.25rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Ingresá tu email y te mandamos un link para elegir una contraseña nueva.</p>
+              <div style={{ marginBottom:"0.875rem" }}>
+                <label style={{ ...S.label }}>Correo electrónico</label>
+                <input type="email" value={form.email} onChange={e=>set("email",e.target.value)} placeholder="tu@email.com" onKeyDown={e=>e.key==="Enter"&&handleRecuperar()} style={S.input} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
+              </div>
+              {error && <p style={{ fontSize:"0.75rem", color:BRAND.red, margin:"0 0 0.65rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{error}</p>}
+              <button onClick={handleRecuperar} style={S.btnCobalt}>Mandar link →</button>
+              <p onClick={()=>{setModo("login"); setError("");}} style={{ textAlign:"center", fontSize:"0.75rem", color:BRAND.muted, marginTop:"1rem", cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif" }}>← Volver a iniciar sesión</p>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
   return (
     <div style={{ minHeight:"100vh", background:BRAND.bone, display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", padding:"2rem 1.75rem" }}>
-      <div style={{ marginBottom:"2rem", textAlign:"center" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:"0.5rem", justifyContent:"center", marginBottom:"0.5rem" }}>
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <div style={{ marginBottom:"1.75rem", textAlign:"center", width:"100%", maxWidth:"320px" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:"0.5rem", justifyContent:"center", marginBottom:"1rem" }}>
+          <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
             <rect x="0" y="0" width="13" height="13" rx="2.5" fill="#0A3AF2"/>
             <rect x="15" y="0" width="13" height="13" rx="2.5" fill="#0A3AF2" opacity="0.55"/>
             <rect x="0" y="15" width="13" height="13" rx="2.5" fill="#0A3AF2" opacity="0.3"/>
             <rect x="15" y="15" width="13" height="13" rx="2.5" fill="#0A3AF2" opacity="0.12"/>
           </svg>
-          <span style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.03em" }}>Saison</span>
+          <span style={{ fontSize:"1.1rem", fontWeight:800, color:BRAND.night, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em" }}>Saison</span>
         </div>
-        <p style={{ fontSize:"0.84rem", color:BRAND.muted, margin:"0.5rem auto 0", lineHeight:1.65, maxWidth:"260px", fontFamily:"'Hanken Grotesk',sans-serif" }}>Trabajos de temporada en Francia, en español. Filtrá por alojamiento incluido y encontrá lo que buscás.</p>
+        <h1 style={{ fontSize:"1.55rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.5rem", lineHeight:1.1, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.03em" }}>Tu temporada en Francia empieza acá.</h1>
+        <p style={{ fontSize:"0.82rem", color:BRAND.muted, margin:0, lineHeight:1.6, fontFamily:"'Hanken Grotesk',sans-serif" }}>Ofertas con alojamiento incluido, en español.</p>
       </div>
       {/* Stats bar */}
       <div style={{ width:"100%", maxWidth:"320px", display:"grid", gridTemplateColumns:"1fr 1fr", gap:"1px", background:BRAND.boneDeep, border:`1px solid ${BRAND.boneDeep}`, borderRadius:"0.875rem", overflow:"hidden", marginBottom:"1.5rem" }}>
@@ -1961,6 +2048,15 @@ onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.spli
           <label style={{ ...S.label }}>Contraseña</label>
           <input type="password" value={form.password} onChange={e=>set("password",e.target.value)} placeholder={modo==="registro"?"Mínimo 6 caracteres":"Tu contraseña"} onKeyDown={e=>e.key==="Enter"&&handleSubmit()} style={S.input} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
         </div>
+        {modo==="registro" && (
+          <div style={{ marginBottom:"0.875rem" }}>
+            <label style={{ ...S.label }}>Confirmar contraseña</label>
+            <input type="password" value={form.confirmarPassword||""} onChange={e=>set("confirmarPassword",e.target.value)} placeholder="Repetí tu contraseña" onKeyDown={e=>e.key==="Enter"&&handleSubmit()} style={S.input} onFocus={e=>e.target.style.borderColor=BRAND.cobalt} onBlur={e=>e.target.style.borderColor=BRAND.boneDeep} />
+          </div>
+        )}
+        {modo==="login" && (
+          <p onClick={()=>setModo("recuperar")} style={{ textAlign:"right", fontSize:"0.72rem", color:BRAND.cobalt, fontWeight:600, margin:"-0.4rem 0 0.875rem", cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif" }}>¿Olvidaste tu contraseña?</p>
+        )}
         {error && <p style={{ fontSize:"0.75rem", color:BRAND.red, margin:"0 0 0.65rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{error}</p>}
         <button onClick={handleSubmit} style={S.btnCobalt} onMouseDown={e=>e.currentTarget.style.transform="scale(0.97)"} onMouseUp={e=>e.currentTarget.style.transform="scale(1)"} onTouchStart={e=>e.currentTarget.style.transform="scale(0.97)"} onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"} onMouseEnter={e=>{e.currentTarget.style.opacity="0.9"}} onMouseLeave={e=>{e.currentTarget.style.opacity="1"}}>
           {modo==="registro"?"Crear cuenta gratis →":"Entrar →"}
@@ -2069,6 +2165,14 @@ export default function App() {
   const [ofertaAbierta, setOfertaAbierta] = useState(null);
   const [mostrarSplash, setMostrarSplash] = useState(false);
   const [solicitudesPendientes, setSolicitudesPendientes] = useState(0);
+  const [recuperandoContrasena, setRecuperandoContrasena] = useState(false);
+
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") setRecuperandoContrasena(true);
+    });
+    return () => listener.subscription.unsubscribe();
+  }, []);
 
   async function refrescarSolicitudes() {
     if (!usuario?.email) return;
@@ -2136,7 +2240,9 @@ export default function App() {
         input::placeholder { color:${BRAND.mutedLight}; }
       `}</style>
       {mostrarSplash && <SplashScreen />}
-      {!usuario ? (
+      {recuperandoContrasena ? (
+        <PantallaNuevaContrasena onListo={()=>{ setRecuperandoContrasena(false); toast("Contraseña actualizada"); }} />
+      ) : !usuario ? (
         <PantallaAuth onLogin={handleLogin} onIniciarLogin={()=>setMostrarSplash(true)} />
       ) : !perfilObligatorioCompleto ? (
         <ModalPerfil perfil={usuario?.perfil||{}} onGuardar={guardarPerfil} onCerrar={()=>{}} forzado={true} />
