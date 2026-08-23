@@ -40,6 +40,17 @@ const STRIPE = {
   trimestral: "https://buy.stripe.com/aFafZi09v8b3eCM4aqfnO02",
 };
 
+async function iniciarCheckout(plan) {
+  const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+    body: { plan },
+  });
+  if (error || !data?.url) {
+    alert("No se pudo iniciar el pago. Intentá de nuevo.");
+    return;
+  }
+  window.location.href = data.url;
+}
+
 // ================================================================
 // NIVELES DE FRANCÉS POR PUESTO (estándar Saison)
 // ================================================================
@@ -390,7 +401,7 @@ function MuroPago({ onCerrar }) {
           <p style={{ fontSize:"0.78rem", color:BRAND.bone, margin:0, fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif" }}>3 días gratis en cualquier plan — cancelá cuando quieras</p>
         </div>
         <div style={{ display:"flex", flexDirection:"column", gap:"0.65rem", marginBottom:"1.5rem" }}>
-          <div onClick={()=>window.open(STRIPE.trimestral,"_blank")} style={{ cursor:"pointer", position:"relative", background:BRAND.cobalt, borderRadius:"0.875rem", padding:"1.1rem 1.2rem 1rem", overflow:"visible" }}>
+          <div onClick={()=>iniciarCheckout("trimestral")} style={{ cursor:"pointer", position:"relative", background:BRAND.cobalt, borderRadius:"0.875rem", padding:"1.1rem 1.2rem 1rem", overflow:"visible" }}>
             <div style={{ position:"absolute", top:"-10px", left:"1.2rem", background:"#F5C842", color:BRAND.night, fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", fontWeight:700, letterSpacing:"0.04em", padding:"0.2rem 0.6rem", borderRadius:"2rem" }}>MÁS ELEGIDO · AHORRÁ 33%</div>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:"0.3rem" }}>
               <div>
@@ -403,7 +414,7 @@ function MuroPago({ onCerrar }) {
               </div>
             </div>
           </div>
-          <div onClick={()=>window.open(STRIPE.mensual,"_blank")} style={{ cursor:"pointer", background:BRAND.nightMid, border:`1px solid ${BRAND.nightSoft}`, borderRadius:"0.875rem", padding:"1rem 1.2rem", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <div onClick={()=>iniciarCheckout("mensual")} style={{ cursor:"pointer", background:BRAND.nightMid, border:`1px solid ${BRAND.nightSoft}`, borderRadius:"0.875rem", padding:"1rem 1.2rem", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
             <div>
               <p style={{ fontSize:"0.9rem", fontWeight:600, color:BRAND.bone, margin:"0 0 0.1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Mensual</p>
               <p style={{ fontSize:"0.72rem", color:BRAND.mutedLight, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Flexible, mes a mes</p>
@@ -411,7 +422,7 @@ function MuroPago({ onCerrar }) {
             <p style={{ fontSize:"1.05rem", fontWeight:700, color:BRAND.bone, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif" }}>€5.99<span style={{ fontSize:"0.65rem", fontWeight:500, color:BRAND.mutedLight }}>/mes</span></p>
           </div>
         </div>
-        <button onClick={()=>window.open(STRIPE.trimestral,"_blank")} style={{ width:"100%", background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.75rem", padding:"0.9rem", fontSize:"0.92rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", marginBottom:"1.25rem" }}>Empezar gratis hoy →</button>
+        <button onClick={()=>iniciarCheckout("trimestral")} style={{ width:"100%", background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.75rem", padding:"0.9rem", fontSize:"0.92rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", marginBottom:"1.25rem" }}>Empezar gratis hoy →</button>
         {["Contacto directo con empleadores","Carta de presentación en francés con IA","Conectá con otros saisonniers — no llegues solo","Descargá templates de CV y guías gratis","Alertas personalizadas por perfil","Francés laboral de supervivencia"].map((f,i)=>(
           <div key={i} style={{ display:"flex", alignItems:"center", gap:"0.5rem", marginBottom:"0.35rem" }}>
             <Icon name="check" size={13} color={BRAND.cobalt} strokeWidth={2.5} />
