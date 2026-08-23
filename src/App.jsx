@@ -2167,10 +2167,30 @@ export default function App() {
   const [solicitudesPendientes, setSolicitudesPendientes] = useState(0);
   const [recuperandoContrasena, setRecuperandoContrasena] = useState(false);
 
+  const [verificandoSesion, setVerificandoSesion] = useState(true);
+
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") setRecuperandoContrasena(true);
     });
+
+    const restaurarSesion = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const u = session.user;
+        const { data: perfil } = await supabase.from('Perfiles').select('*').eq('email', u.email).single();
+        setUsuario({
+          nombre: perfil?.nombre || u.user_metadata?.nombre || u.email.split("@")[0],
+          email: u.email,
+          esPremium: perfil?.es_premium || false,
+          id: u.id,
+          perfil: { nombre: perfil?.nombre, pais: perfil?.pais, puesto: perfil?.puesto, frances: perfil?.frances, disponibilidad: perfil?.disponibilidad, documentacion: perfil?.documentacion, whatsapp: perfil?.whatsapp, region_destino: perfil?.region_destino, fecha_viaje: perfil?.fecha_viaje, bio_viajero: perfil?.bio_viajero, checklist_llegada: perfil?.checklist_llegada || [], estados_aplicacion: perfil?.estados_aplicacion || {}, ofertas_guardadas: perfil?.ofertas_guardadas || [] }
+        });
+      }
+      setVerificandoSesion(false);
+    };
+    restaurarSesion();
+
     return () => listener.subscription.unsubscribe();
   }, []);
 
@@ -2240,7 +2260,9 @@ export default function App() {
         input::placeholder { color:${BRAND.mutedLight}; }
       `}</style>
       {mostrarSplash && <SplashScreen />}
-      {recuperandoContrasena ? (
+      {verificandoSesion ? (
+        <SplashScreen />
+      ) : recuperandoContrasena ? (
         <PantallaNuevaContrasena onListo={()=>{ setRecuperandoContrasena(false); toast("Contraseña actualizada"); }} />
       ) : !usuario ? (
         <PantallaAuth onLogin={handleLogin} onIniciarLogin={()=>setMostrarSplash(true)} />
