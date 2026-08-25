@@ -380,6 +380,7 @@ function Toast({ msg, visible }) {
 }
 function GestionCuenta({ usuario, onCerrar, onCerrarSesion, onToast }) {
   const [pantalla, setPantalla] = useState("principal");
+  const [cancelando, setCancelando] = useState(false);
   const esPremium = usuario?.esPremium || false;
   const premiumHasta = usuario?.premiumHasta;
 
@@ -478,7 +479,24 @@ function GestionCuenta({ usuario, onCerrar, onCerrarSesion, onToast }) {
             <div style={{ display:"flex", justifyContent:"space-between", padding:"0.3rem 0", fontSize:"0.78rem" }}><span style={{ color:BRAND.muted }}>Próximo cobro</span><span style={{ fontWeight:700, color:BRAND.red }}>Cancelado</span></div>
           </div>
           <button onClick={()=>setPantalla("principal")} style={{ width:"100%", background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"10px", padding:"0.85rem", fontSize:"0.82rem", fontWeight:700, cursor:"pointer", marginBottom:"0.6rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Mantener mi Premium</button>
-          <button onClick={()=>{ onToast("PENDIENTE: falta conectar con la función de Stripe"); }} style={{ width:"100%", background:"transparent", border:"none", padding:"0.8rem", fontSize:"0.78rem", fontWeight:600, color:BRAND.muted, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif" }}>Cancelar de todas formas</button>
+          <button onClick={async ()=>{
+            setCancelando(true);
+            try {
+              const res = await fetch('https://bipboatssbxxneukqxdk.supabase.co/functions/v1/cancelar-suscripcion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: usuario.email }),
+              });
+              const data = await res.json();
+              if (!res.ok) throw new Error(data.error || "No se pudo cancelar");
+              onToast("Suscripción cancelada — mantenés el acceso hasta el fin del período");
+              setPantalla("principal");
+              onCerrar();
+            } catch (err) {
+              onToast("Error: " + err.message);
+            }
+            setCancelando(false);
+          }} disabled={cancelando} style={{ width:"100%", background:"transparent", border:"none", padding:"0.8rem", fontSize:"0.78rem", fontWeight:600, color:BRAND.muted, cursor:cancelando?"default":"pointer", opacity:cancelando?0.5:1, fontFamily:"'Hanken Grotesk',sans-serif" }}>{cancelando ? "Cancelando..." : "Cancelar de todas formas"}</button>
         </div>
       )}
 
