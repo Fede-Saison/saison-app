@@ -378,6 +378,111 @@ function Toast({ msg, visible }) {
     </div>
   );
 }
+function GestionCuenta({ usuario, onCerrar, onCerrarSesion, onToast }) {
+  const [pantalla, setPantalla] = useState("principal");
+  const esPremium = usuario?.esPremium || false;
+  const premiumHasta = usuario?.premiumHasta;
+
+  const fechaFormateada = premiumHasta ? new Date(premiumHasta).toLocaleDateString('es-AR', { day:'numeric', month:'long', year:'numeric' }) : null;
+
+  return (
+    <div style={{ position:"fixed", inset:0, background:BRAND.bone, zIndex:900, display:"flex", flexDirection:"column" }}>
+      {pantalla === "principal" && (
+        <>
+          <div style={{ display:"flex", alignItems:"center", gap:"0.75rem", padding:"1.25rem 1.25rem 1rem" }}>
+            <button onClick={onCerrar} style={{ background:"none", border:"none", cursor:"pointer", padding:"4px", display:"flex" }}>
+              <Icon name="arrowRight" size={18} color={BRAND.night} strokeWidth={2.3} style={{transform:"rotate(180deg)"}} />
+            </button>
+            <h2 style={{ fontSize:"1.05rem", fontWeight:800, color:BRAND.night, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif" }}>Gestión de cuenta</h2>
+          </div>
+
+          <div style={{ flex:1, overflowY:"auto", padding:"0 1.25rem 2rem" }}>
+
+            <p style={{ fontSize:"0.66rem", fontWeight:700, color:BRAND.muted, textTransform:"uppercase", letterSpacing:"0.06em", margin:"0.5rem 0 0.5rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Suscripción</p>
+            <div style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"12px", overflow:"hidden", marginBottom:"1.5rem" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.75rem", padding:"0.9rem 1rem", borderBottom:`1px solid ${BRAND.boneDeep}` }}>
+                <div style={{ width:"34px", height:"34px", borderRadius:"8px", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <Icon name="diamond" size={15} color={BRAND.night} strokeWidth={1.8} />
+                </div>
+                <div>
+                  <p style={{ fontSize:"0.83rem", fontWeight:700, color:BRAND.night, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>{esPremium ? "Plan Premium" : "Plan Gratuito"}</p>
+                  <p style={{ fontSize:"0.71rem", color:BRAND.muted, margin:"1px 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>
+                    {esPremium ? (fechaFormateada ? `Activo · renueva ${fechaFormateada}` : "Activo") : "Explorando gratis"}
+                  </p>
+                </div>
+              </div>
+              {esPremium && (
+                <div onClick={()=>setPantalla("cancelar")} style={{ display:"flex", alignItems:"center", gap:"0.75rem", padding:"0.9rem 1rem", cursor:"pointer" }}>
+                  <div style={{ width:"34px", height:"34px", borderRadius:"8px", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <Icon name="x" size={15} color={BRAND.night} strokeWidth={1.8} />
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <p style={{ fontSize:"0.83rem", fontWeight:700, color:BRAND.night, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Cancelar suscripción</p>
+                    <p style={{ fontSize:"0.71rem", color:BRAND.muted, margin:"1px 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>Termina al fin del período</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <p style={{ fontSize:"0.66rem", fontWeight:700, color:BRAND.muted, textTransform:"uppercase", letterSpacing:"0.06em", margin:"0 0 0.5rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Legal</p>
+            <div style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"12px", overflow:"hidden", marginBottom:"1.5rem" }}>
+              <div onClick={()=>window.open("https://saisonfr.com/terminos","_blank")} style={{ display:"flex", alignItems:"center", gap:"0.75rem", padding:"0.9rem 1rem", borderBottom:`1px solid ${BRAND.boneDeep}`, cursor:"pointer" }}>
+                <div style={{ width:"34px", height:"34px", borderRadius:"8px", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <Icon name="filetext" size={15} color={BRAND.night} strokeWidth={1.8} />
+                </div>
+                <p style={{ fontSize:"0.83rem", fontWeight:700, color:BRAND.night, margin:0, flex:1, fontFamily:"'Hanken Grotesk',sans-serif" }}>Términos y condiciones</p>
+              </div>
+              <div onClick={()=>window.open("https://saisonfr.com/privacidad","_blank")} style={{ display:"flex", alignItems:"center", gap:"0.75rem", padding:"0.9rem 1rem", cursor:"pointer" }}>
+                <div style={{ width:"34px", height:"34px", borderRadius:"8px", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <Icon name="shield" size={15} color={BRAND.night} strokeWidth={1.8} />
+                </div>
+                <p style={{ fontSize:"0.83rem", fontWeight:700, color:BRAND.night, margin:0, flex:1, fontFamily:"'Hanken Grotesk',sans-serif" }}>Política de privacidad</p>
+              </div>
+            </div>
+
+            <p style={{ fontSize:"0.66rem", fontWeight:700, color:BRAND.red, textTransform:"uppercase", letterSpacing:"0.06em", margin:"0 0 0.5rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Zona de peligro</p>
+            <div style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"12px", overflow:"hidden", marginBottom:"1.5rem" }}>
+              <div onClick={()=>setPantalla("eliminar")} style={{ display:"flex", alignItems:"center", gap:"0.75rem", padding:"0.9rem 1rem", cursor:"pointer" }}>
+                <div style={{ width:"34px", height:"34px", borderRadius:"8px", background:"#FBE9E9", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <Icon name="warning" size={15} color={BRAND.red} strokeWidth={1.8} />
+                </div>
+                <div>
+                  <p style={{ fontSize:"0.83rem", fontWeight:700, color:BRAND.red, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Eliminar cuenta</p>
+                  <p style={{ fontSize:"0.71rem", color:BRAND.muted, margin:"1px 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>Acción irreversible</p>
+                </div>
+              </div>
+            </div>
+
+            <button onClick={onCerrarSesion} style={{ width:"100%", background:"#fff", border:`1.5px solid ${BRAND.boneDeep}`, borderRadius:"10px", padding:"0.85rem", fontSize:"0.82rem", fontWeight:700, color:BRAND.night, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif" }}>Cerrar sesión</button>
+          </div>
+        </>
+      )}
+
+      {pantalla === "cancelar" && (
+        <div style={{ flex:1, display:"flex", flexDirection:"column", justifyContent:"center", padding:"2rem 1.5rem" }}>
+          <div style={{ width:"52px", height:"52px", borderRadius:"14px", background:"#FBE9E9", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1.25rem" }}>
+            <Icon name="warning" size={24} color={BRAND.red} strokeWidth={1.8} />
+          </div>
+          <h2 style={{ fontSize:"1.2rem", fontWeight:800, color:BRAND.night, textAlign:"center", margin:"0 0 0.6rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>¿Cancelar tu Premium?</h2>
+          <p style={{ fontSize:"0.82rem", color:BRAND.muted, textAlign:"center", lineHeight:1.6, margin:"0 auto 1.25rem", maxWidth:"280px", fontFamily:"'Hanken Grotesk',sans-serif" }}>Vas a perder el contacto directo con empleadores, las alertas personalizadas y la carta con IA al finalizar tu período actual.</p>
+          <div style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"12px", padding:"0.9rem 1rem", marginBottom:"1.5rem" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", padding:"0.3rem 0", fontSize:"0.78rem" }}><span style={{ color:BRAND.muted }}>Acceso hasta</span><span style={{ fontWeight:700, color:BRAND.night }}>{fechaFormateada || "—"}</span></div>
+            <div style={{ display:"flex", justifyContent:"space-between", padding:"0.3rem 0", fontSize:"0.78rem" }}><span style={{ color:BRAND.muted }}>Próximo cobro</span><span style={{ fontWeight:700, color:BRAND.red }}>Cancelado</span></div>
+          </div>
+          <button onClick={()=>{ onToast("PENDIENTE: falta conectar con la función de Stripe"); }} style={{ width:"100%", background:BRAND.red, color:"#fff", border:"none", borderRadius:"10px", padding:"0.85rem", fontSize:"0.82rem", fontWeight:700, cursor:"pointer", marginBottom:"0.6rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Sí, cancelar suscripción</button>
+          <button onClick={()=>setPantalla("principal")} style={{ width:"100%", background:"transparent", border:`1.5px solid ${BRAND.boneDeep}`, borderRadius:"10px", padding:"0.8rem", fontSize:"0.82rem", fontWeight:700, color:BRAND.night, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif" }}>Mantener mi Premium</button>
+        </div>
+      )}
+
+      {pantalla === "eliminar" && (
+        <div style={{ flex:1, display:"flex", flexDirection:"column", justifyContent:"center", padding:"2rem 1.5rem" }}>
+          <p style={{ fontSize:"0.9rem", color:BRAND.muted, textAlign:"center", fontFamily:"'Hanken Grotesk',sans-serif" }}>PENDIENTE: flujo de eliminar cuenta, lo armamos en el próximo paso.</p>
+          <button onClick={()=>setPantalla("principal")} style={{ width:"100%", background:"transparent", border:`1.5px solid ${BRAND.boneDeep}`, borderRadius:"10px", padding:"0.8rem", fontSize:"0.82rem", fontWeight:700, color:BRAND.night, cursor:"pointer", marginTop:"1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Volver</button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function MuroPago({ onCerrar }) {
   return (
@@ -915,8 +1020,9 @@ function ModalPerfil({ perfil, onGuardar, onCerrar, forzado }) {
 // ================================================================
 // TAB OFERTAS
 // ================================================================
-function TabOfertas({ usuario, onToast, esPremium, onCompletarPerfil, onToggleGuardar, ofertaExterna, onCerrarExterna }) {
+function TabOfertas({ usuario, onToast, esPremium, onCompletarPerfil, onToggleGuardar, ofertaExterna, onCerrarExterna, onAbrirGestionCuenta }) {
  const [modo, setModo] = useState("alojamiento");
+  const [menuAbierto, setMenuAbierto] = useState(false);
   const [ofertasDB, setOfertasDB] = useState([]);
 
   useEffect(() => {
@@ -981,10 +1087,40 @@ const mr = regionActiva==="todas"||o.region===(REGION_MAP[regionActiva]||regionA
             <SaisonLogo dark={false} size="md" />
             <p style={{ fontSize:"0.72rem", color:BRAND.mutedLight, margin:"0.2rem 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>Hola, <span style={{ color:BRAND.bone, fontWeight:500 }}>{usuario?.perfil?.nombre||usuario?.nombre}</span></p>
           </div>
-          <button style={{ background:"transparent", border:`1px solid ${BRAND.nightSoft}`, borderRadius:"0.75rem", width:"38px", height:"38px", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", position:"relative" }}>
-            <Icon name="bell" size={16} color={BRAND.mutedLight} />
-            <span style={{ position:"absolute", top:"8px", right:"8px", width:"5px", height:"5px", background:BRAND.cobalt, borderRadius:"50%", border:`1.5px solid ${BRAND.night}` }} />
-          </button>
+          <div style={{ position:"relative" }}>
+            <button onClick={()=>setMenuAbierto(m=>!m)} style={{ background:menuAbierto?BRAND.cobalt:"transparent", border:`1px solid ${menuAbierto?BRAND.cobalt:BRAND.nightSoft}`, borderRadius:"0.75rem", width:"38px", height:"38px", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.15s" }}>
+              <div style={{ display:"flex", flexDirection:"column", gap:"3px", width:"15px" }}>
+                <span style={{ height:"1.6px", background:"#fff", borderRadius:"2px", display:"block" }} />
+                <span style={{ height:"1.6px", background:"#fff", borderRadius:"2px", display:"block" }} />
+                <span style={{ height:"1.6px", background:"#fff", borderRadius:"2px", display:"block" }} />
+              </div>
+            </button>
+            {menuAbierto && (
+              <>
+                <div onClick={()=>setMenuAbierto(false)} style={{ position:"fixed", inset:0, zIndex:110 }} />
+                <div style={{ position:"absolute", top:"46px", right:0, width:"210px", background:"#fff", borderRadius:"14px", boxShadow:"0 12px 30px rgba(11,20,38,0.3)", overflow:"hidden", zIndex:111 }}>
+                  <div onClick={()=>{ setMenuAbierto(false); onCompletarPerfil(); }} style={{ display:"flex", alignItems:"center", gap:"11px", padding:"13px 14px", borderBottom:`1px solid ${BRAND.boneDeep}`, cursor:"pointer" }}>
+                    <div style={{ width:"30px", height:"30px", borderRadius:"8px", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      <Icon name="users" size={14} color={BRAND.night} strokeWidth={1.8} />
+                    </div>
+                    <div>
+                      <p style={{ fontSize:"0.78rem", fontWeight:700, color:BRAND.night, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Mi perfil</p>
+                      <p style={{ fontSize:"0.64rem", color:BRAND.muted, margin:"1px 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>Datos y matching</p>
+                    </div>
+                  </div>
+                  <div onClick={()=>{ setMenuAbierto(false); onAbrirGestionCuenta(); }} style={{ display:"flex", alignItems:"center", gap:"11px", padding:"13px 14px", cursor:"pointer" }}>
+                    <div style={{ width:"30px", height:"30px", borderRadius:"8px", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      <Icon name="tools" size={14} color={BRAND.night} strokeWidth={1.8} />
+                    </div>
+                    <div>
+                      <p style={{ fontSize:"0.78rem", fontWeight:700, color:BRAND.night, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Gestión de cuenta</p>
+                      <p style={{ fontSize:"0.64rem", color:BRAND.muted, margin:"1px 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>Suscripción y legal</p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
         <div style={{ display:"flex", background:BRAND.nightMid, borderRadius:"0.75rem", padding:"0.18rem", marginBottom:"0.875rem", border:`1px solid ${BRAND.nightSoft}` }}>
           {[["alojamiento","Con alojamiento"],["ciudad","Sin alojamiento"]].map(([m,l])=>(
@@ -1963,7 +2099,7 @@ const handleSubmit = async () => {
   }
   
   onIniciarLogin && onIniciarLogin();
-  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion, whatsapp: perfilExistente?.whatsapp, region_destino: perfilExistente?.region_destino, fecha_viaje: perfilExistente?.fecha_viaje, bio_viajero: perfilExistente?.bio_viajero, checklist_llegada: perfilExistente?.checklist_llegada || [], estados_aplicacion: perfilExistente?.estados_aplicacion || {}, ofertas_guardadas: perfilExistente?.ofertas_guardadas || [] } });
+  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, premiumHasta: perfilExistente?.premium_hasta || null, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion, whatsapp: perfilExistente?.whatsapp, region_destino: perfilExistente?.region_destino, fecha_viaje: perfilExistente?.fecha_viaje, bio_viajero: perfilExistente?.bio_viajero, checklist_llegada: perfilExistente?.checklist_llegada || [], estados_aplicacion: perfilExistente?.estados_aplicacion || {}, ofertas_guardadas: perfilExistente?.ofertas_guardadas || [] } });
   } else {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: form.email,
@@ -1974,7 +2110,7 @@ const handleSubmit = async () => {
   const { data: perfilLogin } = await supabase.from('Perfiles').select('*').eq('email', u.email).single();
 console.log('perfil login:', perfilLogin);
 onIniciarLogin && onIniciarLogin();
-onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion, whatsapp: perfilLogin?.whatsapp, region_destino: perfilLogin?.region_destino, fecha_viaje: perfilLogin?.fecha_viaje, bio_viajero: perfilLogin?.bio_viajero, checklist_llegada: perfilLogin?.checklist_llegada || [], estados_aplicacion: perfilLogin?.estados_aplicacion || {}, ofertas_guardadas: perfilLogin?.ofertas_guardadas || [] } });
+onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, premiumHasta: perfilLogin?.premium_hasta || null, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion, whatsapp: perfilLogin?.whatsapp, region_destino: perfilLogin?.region_destino, fecha_viaje: perfilLogin?.fecha_viaje, bio_viajero: perfilLogin?.bio_viajero, checklist_llegada: perfilLogin?.checklist_llegada || [], estados_aplicacion: perfilLogin?.estados_aplicacion || {}, ofertas_guardadas: perfilLogin?.ofertas_guardadas || [] } });
   }
 };
   if (modo === "recuperar") {
@@ -2095,6 +2231,7 @@ export default function App() {
   const [toastOn, setToastOn] = useState(false);
   const [mostrarPerfil, setMostrarPerfil] = useState(false);
   const [mostrarMuroPago, setMostrarMuroPago] = useState(false);
+  const [mostrarGestionCuenta, setMostrarGestionCuenta] = useState(false);
   const timer = useRef(null);
 
   function toast(msg) {
@@ -2194,6 +2331,7 @@ export default function App() {
           nombre: perfil?.nombre || u.user_metadata?.nombre || u.email.split("@")[0],
           email: u.email,
           esPremium: perfil?.es_premium || false,
+          premiumHasta: perfil?.premium_hasta || null,
           id: u.id,
           perfil: { nombre: perfil?.nombre, pais: perfil?.pais, puesto: perfil?.puesto, frances: perfil?.frances, disponibilidad: perfil?.disponibilidad, documentacion: perfil?.documentacion, whatsapp: perfil?.whatsapp, region_destino: perfil?.region_destino, fecha_viaje: perfil?.fecha_viaje, bio_viajero: perfil?.bio_viajero, checklist_llegada: perfil?.checklist_llegada || [], estados_aplicacion: perfil?.estados_aplicacion || {}, ofertas_guardadas: perfil?.ofertas_guardadas || [] }
         });
@@ -2282,7 +2420,7 @@ export default function App() {
       ) : (
         <div style={{ minHeight:"100vh", background:BRAND.bone }}>
          <div style={{ display:tab==="ofertas"?"block":"none" }}>
-  <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} onToggleGuardar={toggleOfertaGuardada} ofertaExterna={ofertaAbierta} onCerrarExterna={()=>setOfertaAbierta(null)} />
+  <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} onToggleGuardar={toggleOfertaGuardada} ofertaExterna={ofertaAbierta} onCerrarExterna={()=>setOfertaAbierta(null)} onAbrirGestionCuenta={()=>setMostrarGestionCuenta(true)} />
 </div>
 <div style={{ display:tab==="herramientas"?"block":"none" }}>
   <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} onAbrirOferta={(o)=>{setOfertaAbierta(o); setTab("ofertas");}} onSetEstadoAplicacion={setEstadoAplicacion} onToggleChecklist={toggleChecklistItem} />
@@ -2318,6 +2456,7 @@ export default function App() {
       )}
       {mostrarPerfil && <ModalPerfil perfil={usuario?.perfil||{}} onGuardar={guardarPerfil} onCerrar={()=>setMostrarPerfil(false)} />}
       {mostrarMuroPago && <MuroPago onCerrar={()=>setMostrarMuroPago(false)} />}
+      {mostrarGestionCuenta && <GestionCuenta usuario={usuario} onCerrar={()=>setMostrarGestionCuenta(false)} onCerrarSesion={async ()=>{ await supabase.auth.signOut(); setUsuario(null); setMostrarGestionCuenta(false); }} onToast={toast} />}
       <Toast msg={toastMsg} visible={toastOn} />
     </>
   );

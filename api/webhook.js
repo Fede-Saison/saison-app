@@ -19,48 +19,56 @@ module.exports = async (req, res) => {
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
+    console.log('Error verificando firma de webhook:', err.message);
     return res.status(400).json({ error: err.message });
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
-    const email = session.customer_email;
+  try {
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      const email = session.customer_email;
 
-    await supabase.from('Perfiles').update({ es_premium: true }).eq('email', email);
+      let premiumHasta = null;
+      if (session.subscription) {
+        const subscription = await stripe.subscriptions.retrieve(session.subscription);
+        premiumHasta = new Date(subscription.current_period_end * 1000).toISOString();
+      }
 
-    const { data: perfilData } = await supabase.from('Perfiles').select('id').eq('email', email).single();
-
-    if (session.subscription && perfilData) {
-      const subscription = await stripe.subscriptions.retrieve(session.subscription);
-      const plan = subscription.items.data[0]?.plan?.interval === 'month' && subscription.items.data[0]?.plan?.interval_count === 3 ? 'trimestral' : 'mensual';
-
-      await supabase.from('Suscripciones').insert({
-        user_id: perfilData.id,
-        plan,
-        estado: 'activa',
+      const { error } = await supabase.from('Perfiles').update({
+        es_premium: true,
+        subscription_status: 'activa',
         stripe_customer_id: session.customer,
         stripe_subscription_id: session.subscription,
-        fecha_fin: new Date(subscription.current_period_end * 1000).toISOString(),
-      });
+        premium_desde: new Date().toISOString(),
+        premium_hasta: premiumHasta,
+      }).eq('email', email);
+
+      if (error) console.log('Error actualizando Perfiles en checkout.session.completed:', error.message);
     }
-  }
 
-  if (event.type === 'customer.subscription.updated') {
-    const subscription = event.data.object;
-    await supabase.from('Suscripciones')
-      .update({
-        estado: subscription.cancel_at_period_end ? 'cancelando' : 'activa',
-        fecha_fin: new Date(subscription.current_period_end * 1000).toISOString(),
-      })
-      .eq('stripe_subscription_id', subscription.id);
-  }
+    if (event.type === 'customer.subscription.updated') {
+      const subscription = event.data.object;
 
-  if (event.type === 'customer.subscription.deleted') {
-    const subscription = event.data.object;
-    const customer = await stripe.customers.retrieve(subscription.customer);
+      const { error } = await supabase.from('Perfiles').update({
+        subscription_status: subscription.cancel_at_period_end ? 'cancelando' : 'activa',
+        premium_hasta: new Date(subscription.current_period_end * 1000).toISOString(),
+      }).eq('stripe_customer_id', subscription.customer);
 
-    await supabase.from('Perfiles').update({ es_premium: false }).eq('email', customer.email);
-    await supabase.from('Suscripciones').update({ estado: 'cancelada' }).eq('stripe_subscription_id', subscription.id);
+      if (error) console.log('Error actualizando Perfiles en subscription.updated:', error.message);
+    }
+
+    if (event.type === 'customer.subscription.deleted') {
+      const subscription = event.data.object;
+
+      const { error } = await supabase.from('Perfiles').update({
+        es_premium: false,
+        subscription_status: 'cancelada',
+      }).eq('stripe_customer_id', subscription.customer);
+
+      if (error) console.log('Error actualizando Perfiles en subscription.deleted:', error.message);
+    }
+  } catch (err) {
+    console.log('Error inesperado procesando evento:', err.message);
   }
 
   res.status(200).json({ received: true });
