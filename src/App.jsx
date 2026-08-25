@@ -407,7 +407,7 @@ function GestionCuenta({ usuario, onCerrar, onCerrarSesion, onToast }) {
                 <div>
                   <p style={{ fontSize:"0.83rem", fontWeight:700, color:BRAND.night, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>{esPremium ? "Plan Premium" : "Plan Gratuito"}</p>
                   <p style={{ fontSize:"0.71rem", color:BRAND.muted, margin:"1px 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>
-                    {esPremium ? (fechaFormateada ? `Activo · renueva ${fechaFormateada}` : "Activo") : "Explorando gratis"}
+                    {!esPremium ? "Explorando gratis" : usuario?.subscriptionStatus === "trialing" ? `En período de prueba gratuito hasta ${fechaFormateada}` : fechaFormateada ? `Activo · renueva ${fechaFormateada}` : "Activo"}
                   </p>
                 </div>
               </div>
@@ -463,14 +463,22 @@ function GestionCuenta({ usuario, onCerrar, onCerrarSesion, onToast }) {
           <div style={{ width:"52px", height:"52px", borderRadius:"14px", background:"#FBE9E9", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1.25rem" }}>
             <Icon name="warning" size={24} color={BRAND.red} strokeWidth={1.8} />
           </div>
-          <h2 style={{ fontSize:"1.2rem", fontWeight:800, color:BRAND.night, textAlign:"center", margin:"0 0 0.6rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>¿Cancelar tu Premium?</h2>
-          <p style={{ fontSize:"0.82rem", color:BRAND.muted, textAlign:"center", lineHeight:1.6, margin:"0 auto 1.25rem", maxWidth:"280px", fontFamily:"'Hanken Grotesk',sans-serif" }}>Vas a perder el contacto directo con empleadores, las alertas personalizadas y la carta con IA al finalizar tu período actual.</p>
+          <h2 style={{ fontSize:"1.2rem", fontWeight:800, color:BRAND.night, textAlign:"center", margin:"0 0 0.6rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>¿Seguro que querés cancelar?</h2>
+          <p style={{ fontSize:"0.82rem", color:BRAND.muted, textAlign:"center", lineHeight:1.6, margin:"0 auto 0.875rem", maxWidth:"280px", fontFamily:"'Hanken Grotesk',sans-serif" }}>Al finalizar tu período actual vas a perder:</p>
+          <div style={{ maxWidth:"280px", margin:"0 auto 1.25rem" }}>
+            {["Contacto directo con empleadores","Cartas de presentación generadas con IA","Alertas y conexión con otros saisonniers"].map((item,i)=>(
+              <div key={i} style={{ display:"flex", gap:"0.5rem", marginBottom:"0.4rem", alignItems:"flex-start" }}>
+                <span style={{ flexShrink:0, marginTop:"3px" }}><Icon name="x" size={11} color={BRAND.red} strokeWidth={2.5} /></span>
+                <span style={{ fontSize:"0.79rem", color:BRAND.night, lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif" }}>{item}</span>
+              </div>
+            ))}
+          </div>
           <div style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"12px", padding:"0.9rem 1rem", marginBottom:"1.5rem" }}>
             <div style={{ display:"flex", justifyContent:"space-between", padding:"0.3rem 0", fontSize:"0.78rem" }}><span style={{ color:BRAND.muted }}>Acceso hasta</span><span style={{ fontWeight:700, color:BRAND.night }}>{fechaFormateada || "—"}</span></div>
             <div style={{ display:"flex", justifyContent:"space-between", padding:"0.3rem 0", fontSize:"0.78rem" }}><span style={{ color:BRAND.muted }}>Próximo cobro</span><span style={{ fontWeight:700, color:BRAND.red }}>Cancelado</span></div>
           </div>
-          <button onClick={()=>{ onToast("PENDIENTE: falta conectar con la función de Stripe"); }} style={{ width:"100%", background:BRAND.red, color:"#fff", border:"none", borderRadius:"10px", padding:"0.85rem", fontSize:"0.82rem", fontWeight:700, cursor:"pointer", marginBottom:"0.6rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Sí, cancelar suscripción</button>
-          <button onClick={()=>setPantalla("principal")} style={{ width:"100%", background:"transparent", border:`1.5px solid ${BRAND.boneDeep}`, borderRadius:"10px", padding:"0.8rem", fontSize:"0.82rem", fontWeight:700, color:BRAND.night, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif" }}>Mantener mi Premium</button>
+          <button onClick={()=>setPantalla("principal")} style={{ width:"100%", background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"10px", padding:"0.85rem", fontSize:"0.82rem", fontWeight:700, cursor:"pointer", marginBottom:"0.6rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Mantener mi Premium</button>
+          <button onClick={()=>{ onToast("PENDIENTE: falta conectar con la función de Stripe"); }} style={{ width:"100%", background:"transparent", border:"none", padding:"0.8rem", fontSize:"0.78rem", fontWeight:600, color:BRAND.muted, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif" }}>Cancelar de todas formas</button>
         </div>
       )}
 
@@ -738,6 +746,7 @@ function BannerPerfil({ perfil, onCompletar }) {
   const campos = ["nombre","pais","puesto","frances","disponibilidad","documentacion"];
   const pct = Math.round((campos.filter(c=>perfil[c]).length/campos.length)*100);
   const completo = pct === 100;
+  if (completo) return null;
   return (
     <div onClick={onCompletar} style={{ margin:"0.875rem 1.25rem 0", background:BRAND.nightMid, border:`1.5px solid ${completo ? BRAND.cobalt+"55" : BRAND.nightSoft}`, borderRadius:"12px", padding:"1rem 1.1rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.9rem" }}>
       <div style={{ width:"38px", height:"38px", borderRadius:"9px", background:completo ? BRAND.cobalt : BRAND.nightSoft, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
@@ -1105,7 +1114,7 @@ const mr = regionActiva==="todas"||o.region===(REGION_MAP[regionActiva]||regionA
                     </div>
                     <div>
                       <p style={{ fontSize:"0.78rem", fontWeight:700, color:BRAND.night, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Mi perfil</p>
-                      <p style={{ fontSize:"0.64rem", color:BRAND.muted, margin:"1px 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>Datos y matching</p>
+                      <p style={{ fontSize:"0.64rem", color:BRAND.muted, margin:"1px 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>Completá o actualizá tu perfil</p>
                     </div>
                   </div>
                   <div onClick={()=>{ setMenuAbierto(false); onAbrirGestionCuenta(); }} style={{ display:"flex", alignItems:"center", gap:"11px", padding:"13px 14px", cursor:"pointer" }}>
@@ -1114,7 +1123,7 @@ const mr = regionActiva==="todas"||o.region===(REGION_MAP[regionActiva]||regionA
                     </div>
                     <div>
                       <p style={{ fontSize:"0.78rem", fontWeight:700, color:BRAND.night, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Gestión de cuenta</p>
-                      <p style={{ fontSize:"0.64rem", color:BRAND.muted, margin:"1px 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>Suscripción y legal</p>
+                      <p style={{ fontSize:"0.64rem", color:BRAND.muted, margin:"1px 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>Administrá tu suscripción</p>
                     </div>
                   </div>
                 </div>
@@ -2099,7 +2108,7 @@ const handleSubmit = async () => {
   }
   
   onIniciarLogin && onIniciarLogin();
-  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, premiumHasta: perfilExistente?.premium_hasta || null, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion, whatsapp: perfilExistente?.whatsapp, region_destino: perfilExistente?.region_destino, fecha_viaje: perfilExistente?.fecha_viaje, bio_viajero: perfilExistente?.bio_viajero, checklist_llegada: perfilExistente?.checklist_llegada || [], estados_aplicacion: perfilExistente?.estados_aplicacion || {}, ofertas_guardadas: perfilExistente?.ofertas_guardadas || [] } });
+  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, premiumHasta: perfilExistente?.premium_hasta || null, subscriptionStatus: perfilExistente?.subscription_status || null, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion, whatsapp: perfilExistente?.whatsapp, region_destino: perfilExistente?.region_destino, fecha_viaje: perfilExistente?.fecha_viaje, bio_viajero: perfilExistente?.bio_viajero, checklist_llegada: perfilExistente?.checklist_llegada || [], estados_aplicacion: perfilExistente?.estados_aplicacion || {}, ofertas_guardadas: perfilExistente?.ofertas_guardadas || [] } });
   } else {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: form.email,
@@ -2110,7 +2119,7 @@ const handleSubmit = async () => {
   const { data: perfilLogin } = await supabase.from('Perfiles').select('*').eq('email', u.email).single();
 console.log('perfil login:', perfilLogin);
 onIniciarLogin && onIniciarLogin();
-onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, premiumHasta: perfilLogin?.premium_hasta || null, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion, whatsapp: perfilLogin?.whatsapp, region_destino: perfilLogin?.region_destino, fecha_viaje: perfilLogin?.fecha_viaje, bio_viajero: perfilLogin?.bio_viajero, checklist_llegada: perfilLogin?.checklist_llegada || [], estados_aplicacion: perfilLogin?.estados_aplicacion || {}, ofertas_guardadas: perfilLogin?.ofertas_guardadas || [] } });
+onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, premiumHasta: perfilLogin?.premium_hasta || null, subscriptionStatus: perfilLogin?.subscription_status || null, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion, whatsapp: perfilLogin?.whatsapp, region_destino: perfilLogin?.region_destino, fecha_viaje: perfilLogin?.fecha_viaje, bio_viajero: perfilLogin?.bio_viajero, checklist_llegada: perfilLogin?.checklist_llegada || [], estados_aplicacion: perfilLogin?.estados_aplicacion || {}, ofertas_guardadas: perfilLogin?.ofertas_guardadas || [] } });
   }
 };
   if (modo === "recuperar") {
@@ -2331,7 +2340,7 @@ export default function App() {
           nombre: perfil?.nombre || u.user_metadata?.nombre || u.email.split("@")[0],
           email: u.email,
           esPremium: perfil?.es_premium || false,
-          premiumHasta: perfil?.premium_hasta || null,
+          premiumHasta: perfil?.premium_hasta || null, subscriptionStatus: perfil?.subscription_status || null,
           id: u.id,
           perfil: { nombre: perfil?.nombre, pais: perfil?.pais, puesto: perfil?.puesto, frances: perfil?.frances, disponibilidad: perfil?.disponibilidad, documentacion: perfil?.documentacion, whatsapp: perfil?.whatsapp, region_destino: perfil?.region_destino, fecha_viaje: perfil?.fecha_viaje, bio_viajero: perfil?.bio_viajero, checklist_llegada: perfil?.checklist_llegada || [], estados_aplicacion: perfil?.estados_aplicacion || {}, ofertas_guardadas: perfil?.ofertas_guardadas || [] }
         });
