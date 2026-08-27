@@ -639,8 +639,7 @@ const intentarAplicar = () => { if (!esPremium) { setMuroPago(true); return; } i
           <div style={{ marginBottom:"1.25rem" }}>
             {[
               {l:"Contrato", v:oferta.contrato},
-              {l:"Alojamiento", v: oferta.alojamiento ? "Incluido" : "No incluido"},
-              {l:"Salario", v:oferta.salario},
+              {l:"Alojamiento", v: oferta.alojamiento_nota || (oferta.alojamiento ? "Incluido" : "No incluido")},
               {l:"Horario", v:oferta.horario},
             ].filter(i=>i.v).map((i,idx,arr)=>(
               <div key={i.l} style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", padding:"0.75rem 0", borderBottom: idx<arr.length-1 ? `1px solid ${BRAND.boneDeep}` : "none" }}>
