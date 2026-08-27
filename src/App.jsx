@@ -602,7 +602,7 @@ const intentarAplicar = () => { if (!esPremium) { setMuroPago(true); return; } i
           <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"1rem", marginBottom:"1.25rem", paddingRight:"2.2rem" }}>
             <div style={{ flex:1 }}>
               <h2 style={{ fontSize:"1.25rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em", lineHeight:1.2 }}>{oferta.titulo}</h2>
-              <p style={{ fontSize:"0.84rem", color:BRAND.muted, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>{oferta.establecimiento} · {oferta.ciudad}</p>
+              <p style={{ fontSize:"0.84rem", color:BRAND.muted, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>{oferta.tipo_establecimiento}{oferta.tipo_establecimiento && oferta.localidad ? " · " : ""}{oferta.localidad}</p>
             </div>
             <span style={{ background:esCiudad?BRAND.boneDeep:BRAND.night, color:esCiudad?BRAND.muted:BRAND.bone, fontSize:"0.62rem", fontWeight:700, padding:"0.28rem 0.75rem", borderRadius:"2rem", whiteSpace:"nowrap", flexShrink:0, letterSpacing:"0.06em", textTransform:"uppercase", fontFamily:"'Hanken Grotesk',sans-serif" }}>
               {esCiudad?"Sin aloj.":"Aloj. ✓"}
