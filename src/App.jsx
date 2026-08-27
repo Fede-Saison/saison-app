@@ -636,35 +636,30 @@ const intentarAplicar = () => { if (!esPremium) { setMuroPago(true); return; } i
             </div>
           )}
 
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.6rem", marginBottom:"1.25rem" }}>
-            {[{l:"Salario",v:oferta.salario},{l:"Horario",v:oferta.horario}].map(i=>(
-              <div key={i.l} style={{ background:BRAND.boneDeep, borderRadius:"0.75rem", padding:"0.8rem 1rem" }}>
-                <p style={{ fontSize:"0.62rem", color:BRAND.muted, margin:"0 0 0.2rem", textTransform:"uppercase", letterSpacing:"0.08em", fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif" }}>{i.l}</p>
-                <p style={{ fontSize:"0.88rem", fontWeight:700, color:BRAND.night, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>{i.v}</p>
+          <div style={{ marginBottom:"1.25rem" }}>
+            {[
+              {l:"Contrato", v:oferta.contrato},
+              {l:"Alojamiento", v: oferta.alojamiento ? "Incluido" : "No incluido"},
+              {l:"Salario", v:oferta.salario},
+              {l:"Horario", v:oferta.horario},
+            ].filter(i=>i.v).map((i,idx,arr)=>(
+              <div key={i.l} style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", padding:"0.75rem 0", borderBottom: idx<arr.length-1 ? `1px solid ${BRAND.boneDeep}` : "none" }}>
+                <span style={{ fontSize:"0.62rem", color:BRAND.muted, textTransform:"uppercase", letterSpacing:"0.08em", fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif", paddingTop:"0.15rem" }}>{i.l}</span>
+                <span style={{ fontSize:"0.88rem", fontWeight:700, color:BRAND.night, textAlign:"right", fontFamily:"'Hanken Grotesk',sans-serif" }}>{i.v}</span>
               </div>
             ))}
           </div>
-          <p style={{ fontSize:"0.88rem", color:"#2D3A50", lineHeight:1.75, margin:"0 0 1.25rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{oferta.descripcion}</p>
-          <div style={{ marginBottom:"1.75rem" }}>
-            {(oferta.requisitos||[]).map((r,i)=>(
-              <div key={i} style={{ display:"flex", gap:"0.55rem", marginBottom:"0.4rem", alignItems:"flex-start" }}>
-                <span style={{ flexShrink:0, marginTop:"3px" }}><Icon name="check" size={12} color={BRAND.cobalt} strokeWidth={2.5} /></span>
-                <span style={{ fontSize:"0.86rem", color:"#2D3A50", lineHeight:1.55, fontFamily:"'Hanken Grotesk',sans-serif" }}>{r}</span>
-              </div>
-            ))}
-          </div>
+          <p style={{ fontSize:"0.88rem", color:"#2D3A50", lineHeight:1.75, margin:"0 0 1.75rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{oferta.descripcion}</p>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.65rem" }}>
-            <button onClick={copiar} style={S.btnCobalt} onMouseDown={e=>e.currentTarget.style.transform="scale(0.97)"} onMouseUp={e=>e.currentTarget.style.transform="scale(1)"} onTouchStart={e=>e.currentTarget.style.transform="scale(0.97)"} onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"} onMouseEnter={e=>{e.currentTarget.style.opacity="0.9"}} onMouseLeave={e=>{e.currentTarget.style.opacity="1"}}>
-              <span style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.5rem" }}><Icon name="copy" size={15} color="#fff" /> Copiar carta en francés</span>
-            </button>
-            <p style={{ fontSize:"0.67rem", color:BRAND.muted, margin:"-0.1rem 0 0", textAlign:"center", fontFamily:"'Hanken Grotesk',sans-serif", lineHeight:1.5 }}>Esta carta es una base orientativa según tu perfil — revisala y personalizala antes de enviar.</p>
-            <button onClick={intentarAplicar} style={S.btnOutline} onMouseEnter={e=>e.currentTarget.style.background=BRAND.cobaltDim} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+            <button onClick={intentarAplicar} style={S.btnCobalt} onMouseDown={e=>e.currentTarget.style.transform="scale(0.97)"} onMouseUp={e=>e.currentTarget.style.transform="scale(1)"} onTouchStart={e=>e.currentTarget.style.transform="scale(0.97)"} onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"} onMouseEnter={e=>{e.currentTarget.style.opacity="0.9"}} onMouseLeave={e=>{e.currentTarget.style.opacity="1"}}>
               <span style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.5rem" }}>
-                {!esPremium && <Icon name="lock" size={14} color={BRAND.cobalt} />}
-                <Icon name="mail" size={14} color={BRAND.cobalt} /> Aplicar con contacto directo
+                {!esPremium && <Icon name="lock" size={15} color="#fff" />}
+                <Icon name="mail" size={15} color="#fff" /> Aplicar con carta lista
               </span>
             </button>
-            {!esPremium && <p style={{ fontSize:"0.68rem", color:BRAND.warn, textAlign:"center", margin:"-0.2rem 0 0", fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif" }}>Requiere membresía · desde €5.99/mes</p>}
+            {!esPremium && <p style={{ fontSize:"0.68rem", color:BRAND.warn, textAlign:"center", margin:"-0.1rem 0 0", fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif" }}>Requiere membresía · desde €5.99/mes</p>}
+            <p onClick={copiar} style={{ fontSize:"0.72rem", color:BRAND.muted, margin:"0.15rem 0 0", textAlign:"center", fontFamily:"'Hanken Grotesk',sans-serif", textDecoration:"underline", cursor:"pointer" }}>Copiar carta en francés</p>
+            <p style={{ fontSize:"0.62rem", color:BRAND.mutedLight, margin:"0.1rem 0 0", textAlign:"center", fontFamily:"'Hanken Grotesk',sans-serif", lineHeight:1.5, letterSpacing:"0.01em" }}>Base orientativa según tu perfil — revisala antes de enviar</p>
           </div>
         </div>
       </div>
