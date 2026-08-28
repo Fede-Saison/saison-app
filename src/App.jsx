@@ -386,6 +386,7 @@ function Toast({ msg, visible }) {
 function GestionCuenta({ usuario, onCerrar, onCerrarSesion, onToast }) {
   const [pantalla, setPantalla] = useState("principal");
   const [cancelando, setCancelando] = useState(false);
+  const [eliminando, setEliminando] = useState(false);
   const esPremium = usuario?.esPremium || false;
   const premiumHasta = usuario?.premiumHasta;
 
@@ -507,8 +508,29 @@ function GestionCuenta({ usuario, onCerrar, onCerrarSesion, onToast }) {
 
       {pantalla === "eliminar" && (
         <div style={{ flex:1, display:"flex", flexDirection:"column", justifyContent:"center", padding:"2rem 1.5rem" }}>
-          <p style={{ fontSize:"0.9rem", color:BRAND.muted, textAlign:"center", fontFamily:"'Hanken Grotesk',sans-serif" }}>PENDIENTE: flujo de eliminar cuenta, lo armamos en el próximo paso.</p>
-          <button onClick={()=>setPantalla("principal")} style={{ width:"100%", background:"transparent", border:`1.5px solid ${BRAND.boneDeep}`, borderRadius:"10px", padding:"0.8rem", fontSize:"0.82rem", fontWeight:700, color:BRAND.night, cursor:"pointer", marginTop:"1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Volver</button>
+          <div style={{ width:"52px", height:"52px", borderRadius:"14px", background:"#FBE9E9", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1.25rem" }}>
+            <Icon name="warning" size={24} color={BRAND.red} strokeWidth={1.8} />
+          </div>
+          <h2 style={{ fontSize:"1.2rem", fontWeight:800, color:BRAND.night, textAlign:"center", margin:"0 0 0.6rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>¿Eliminar tu cuenta?</h2>
+          <p style={{ fontSize:"0.82rem", color:BRAND.muted, textAlign:"center", lineHeight:1.6, margin:"0 auto 1.25rem", maxWidth:"280px", fontFamily:"'Hanken Grotesk',sans-serif" }}>Esta acción es irreversible. Se borra tu perfil, ofertas guardadas e historial. No se puede deshacer.</p>
+          <button onClick={()=>setPantalla("principal")} style={{ width:"100%", background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"10px", padding:"0.85rem", fontSize:"0.82rem", fontWeight:700, cursor:"pointer", marginBottom:"0.6rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Mantener mi cuenta</button>
+          <button onClick={async ()=>{
+            setEliminando(true);
+            try {
+              const { data: { session } } = await supabase.auth.getSession();
+              const res = await fetch('https://bipboatssbxxneukqxdk.supabase.co/functions/v1/eliminar-cuenta', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+              });
+              const data = await res.json();
+              if (!res.ok) throw new Error(data.error || "No se pudo eliminar la cuenta");
+              onToast("Cuenta eliminada");
+              await onCerrarSesion();
+            } catch (err) {
+              onToast("Error: " + err.message);
+            }
+            setEliminando(false);
+          }} disabled={eliminando} style={{ width:"100%", background:"transparent", border:"none", padding:"0.8rem", fontSize:"0.78rem", fontWeight:600, color:BRAND.red, cursor:eliminando?"default":"pointer", opacity:eliminando?0.5:1, fontFamily:"'Hanken Grotesk',sans-serif" }}>{eliminando ? "Eliminando..." : "Eliminar cuenta definitivamente"}</button>
         </div>
       )}
     </div>
@@ -589,12 +611,15 @@ function MatchBadge({ match }) {
   );
 }
 
-function ModalOferta({ oferta, onCerrar, onToast, esPremium, nombreUsuario, perfil }) {
+function ModalOferta({ oferta, onCerrar, onToast, esPremium, nombreUsuario, perfil, contactosUsados, onContactoRealizado }) {
   const [muroPago, setMuroPago] = useState(false);
   if (!oferta) return null;
   const match = calcularMatch(oferta, perfil);
+  const LIMITE_GRATIS = 10;
+  const contactosRestantes = Math.max(0, LIMITE_GRATIS - (contactosUsados||0));
+  const puedeContactar = esPremium || contactosRestantes > 0;
    const copiar = () => navigator.clipboard.writeText(generarCarta(oferta, nombreUsuario, esPremium, perfil)).then(()=>onToast("Carta copiada"));
-const intentarAplicar = () => { if (!esPremium) { setMuroPago(true); return; } if (oferta.email_empleador) { const carta = generarCarta(oferta, nombreUsuario, esPremium, perfil); if (oferta.email_empleador.includes('@')) { window.location.href = `mailto:${oferta.email_empleador}?subject=Candidature - ${PUESTOS_FR[oferta.titulo] || oferta.titulo}&body=${encodeURIComponent(carta)}`; } else { window.open(oferta.email_empleador.startsWith('http') ? oferta.email_empleador : `https://${oferta.email_empleador}`, '_blank'); } } };
+const intentarAplicar = () => { if (!puedeContactar) { setMuroPago(true); return; } if (oferta.email_empleador) { const carta = generarCarta(oferta, nombreUsuario, esPremium, perfil); if (oferta.email_empleador.includes('@')) { window.location.href = `mailto:${oferta.email_empleador}?subject=Candidature - ${PUESTOS_FR[oferta.titulo] || oferta.titulo}&body=${encodeURIComponent(carta)}`; } else { window.open(oferta.email_empleador.startsWith('http') ? oferta.email_empleador : `https://${oferta.email_empleador}`, '_blank'); } if (!esPremium) onContactoRealizado && onContactoRealizado(); } };
   const esCiudad = oferta.tipo==="ciudad" || false;
   return (
     <>
@@ -657,11 +682,15 @@ const intentarAplicar = () => { if (!esPremium) { setMuroPago(true); return; } i
           <div style={{ display:"flex", flexDirection:"column", gap:"0.65rem" }}>
             <button onClick={intentarAplicar} style={S.btnCobalt} onMouseDown={e=>e.currentTarget.style.transform="scale(0.97)"} onMouseUp={e=>e.currentTarget.style.transform="scale(1)"} onTouchStart={e=>e.currentTarget.style.transform="scale(0.97)"} onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"} onMouseEnter={e=>{e.currentTarget.style.opacity="0.9"}} onMouseLeave={e=>{e.currentTarget.style.opacity="1"}}>
               <span style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.5rem" }}>
-                {!esPremium && <Icon name="lock" size={15} color="#fff" />}
+                {!puedeContactar && <Icon name="lock" size={15} color="#fff" />}
                 <Icon name="mail" size={15} color="#fff" /> Aplicar con carta lista
               </span>
             </button>
-            {!esPremium && <p style={{ fontSize:"0.68rem", color:BRAND.warn, textAlign:"center", margin:"-0.1rem 0 0", fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif" }}>Requiere membresía · desde €5.99/mes</p>}
+            {!esPremium && (
+              <p style={{ fontSize:"0.68rem", color:contactosRestantes>0?BRAND.muted:BRAND.warn, textAlign:"center", margin:"-0.1rem 0 0", fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif" }}>
+                {contactosRestantes>0 ? `Te quedan ${contactosRestantes} contactos gratis` : "Sin contactos gratis · desde €5.99/mes"}
+              </p>
+            )}
             <p onClick={copiar} style={{ fontSize:"0.72rem", color:BRAND.muted, margin:"0.15rem 0 0", textAlign:"center", fontFamily:"'Hanken Grotesk',sans-serif", textDecoration:"underline", cursor:"pointer" }}>Copiar carta en francés</p>
             <p style={{ fontSize:"0.62rem", color:BRAND.mutedLight, margin:"0.1rem 0 0", textAlign:"center", fontFamily:"'Hanken Grotesk',sans-serif", lineHeight:1.5, letterSpacing:"0.01em" }}>Base orientativa según tu perfil — revisala antes de enviar</p>
           </div>
@@ -1046,7 +1075,7 @@ function ModalPerfil({ perfil, onGuardar, onCerrar, forzado }) {
 // ================================================================
 // TAB OFERTAS
 // ================================================================
-function TabOfertas({ usuario, onToast, esPremium, onCompletarPerfil, onToggleGuardar, ofertaExterna, onCerrarExterna, onAbrirGestionCuenta }) {
+function TabOfertas({ usuario, onToast, esPremium, onCompletarPerfil, onToggleGuardar, ofertaExterna, onCerrarExterna, onAbrirGestionCuenta, onContactoRealizado }) {
  const [modo, setModo] = useState("alojamiento");
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [ofertasDB, setOfertasDB] = useState([]);
@@ -1189,7 +1218,7 @@ const mr = regionActiva==="todas"||o.region===(REGION_MAP[regionActiva]||regionA
           </div>
         )}
       </div>
-      <ModalOferta oferta={sel} onCerrar={()=>{ setSel(null); onCerrarExterna && onCerrarExterna(); }} onToast={onToast} esPremium={esPremium} nombreUsuario={usuario?.perfil?.nombre || usuario?.nombre} perfil={perfil} />
+      <ModalOferta oferta={sel} onCerrar={()=>{ setSel(null); onCerrarExterna && onCerrarExterna(); }} onToast={onToast} esPremium={esPremium} nombreUsuario={usuario?.perfil?.nombre || usuario?.nombre} perfil={perfil} contactosUsados={usuario?.perfil?.contactos_gratis_usados} onContactoRealizado={onContactoRealizado} />
     </div>
   );
 }
@@ -2125,7 +2154,7 @@ const handleSubmit = async () => {
   }
   
   onIniciarLogin && onIniciarLogin();
-  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, premiumHasta: perfilExistente?.premium_hasta || null, subscriptionStatus: perfilExistente?.subscription_status || null, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion, whatsapp: perfilExistente?.whatsapp, region_destino: perfilExistente?.region_destino, fecha_viaje: perfilExistente?.fecha_viaje, bio_viajero: perfilExistente?.bio_viajero, checklist_llegada: perfilExistente?.checklist_llegada || [], estados_aplicacion: perfilExistente?.estados_aplicacion || {}, ofertas_guardadas: perfilExistente?.ofertas_guardadas || [] } });
+  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, premiumHasta: perfilExistente?.premium_hasta || null, subscriptionStatus: perfilExistente?.subscription_status || null, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion, whatsapp: perfilExistente?.whatsapp, region_destino: perfilExistente?.region_destino, fecha_viaje: perfilExistente?.fecha_viaje, bio_viajero: perfilExistente?.bio_viajero, checklist_llegada: perfilExistente?.checklist_llegada || [], estados_aplicacion: perfilExistente?.estados_aplicacion || {}, ofertas_guardadas: perfilExistente?.ofertas_guardadas || [], contactos_gratis_usados: perfilExistente?.contactos_gratis_usados || 0 } });
   } else {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: form.email,
@@ -2136,7 +2165,7 @@ const handleSubmit = async () => {
   const { data: perfilLogin } = await supabase.from('Perfiles').select('*').eq('email', u.email).single();
 console.log('perfil login:', perfilLogin);
 onIniciarLogin && onIniciarLogin();
-onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, premiumHasta: perfilLogin?.premium_hasta || null, subscriptionStatus: perfilLogin?.subscription_status || null, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion, whatsapp: perfilLogin?.whatsapp, region_destino: perfilLogin?.region_destino, fecha_viaje: perfilLogin?.fecha_viaje, bio_viajero: perfilLogin?.bio_viajero, checklist_llegada: perfilLogin?.checklist_llegada || [], estados_aplicacion: perfilLogin?.estados_aplicacion || {}, ofertas_guardadas: perfilLogin?.ofertas_guardadas || [] } });
+onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, premiumHasta: perfilLogin?.premium_hasta || null, subscriptionStatus: perfilLogin?.subscription_status || null, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion, whatsapp: perfilLogin?.whatsapp, region_destino: perfilLogin?.region_destino, fecha_viaje: perfilLogin?.fecha_viaje, bio_viajero: perfilLogin?.bio_viajero, checklist_llegada: perfilLogin?.checklist_llegada || [], estados_aplicacion: perfilLogin?.estados_aplicacion || {}, ofertas_guardadas: perfilLogin?.ofertas_guardadas || [], contactos_gratis_usados: perfilLogin?.contactos_gratis_usados || 0 } });
   }
 };
   if (modo === "recuperar") {
@@ -2309,6 +2338,14 @@ export default function App() {
 
     const semaforo = score >= 85 ? "verde" : score >= 65 ? "amarillo" : "rojo";
 
+
+    let contactosHeredados = usuario?.perfil?.contactos_gratis_usados || 0;
+    if (perfil.whatsapp) {
+      const { data: historial } = await supabase.from('whatsapps_historial').select('contactos_gratis_usados').eq('whatsapp', perfil.whatsapp).single();
+      if (historial && historial.contactos_gratis_usados > contactosHeredados) {
+        contactosHeredados = historial.contactos_gratis_usados;
+      }
+    }
     const { error } = await supabase.from('Perfiles').update({
       nombre: perfil.nombre,
       pais: perfil.pais,
@@ -2322,6 +2359,7 @@ export default function App() {
       bio_viajero: perfil.bio_viajero,
       score,
       semaforo,
+      contactos_gratis_usados: contactosHeredados,
     }).eq('email', usuario.email);
 
     if (error) {
@@ -2329,7 +2367,7 @@ export default function App() {
       return;
     }
 
-    setUsuario(u=>({...u, perfil:{...u.perfil, ...perfil}}));
+    setUsuario(u=>({...u, perfil:{...u.perfil, ...perfil, contactos_gratis_usados: contactosHeredados}}));
     setMostrarPerfil(false);
     toast("Perfil actualizado · matching activado");
   }
@@ -2359,7 +2397,7 @@ export default function App() {
           esPremium: perfil?.es_premium || false,
           premiumHasta: perfil?.premium_hasta || null, subscriptionStatus: perfil?.subscription_status || null,
           id: u.id,
-          perfil: { nombre: perfil?.nombre, pais: perfil?.pais, puesto: perfil?.puesto, frances: perfil?.frances, disponibilidad: perfil?.disponibilidad, documentacion: perfil?.documentacion, whatsapp: perfil?.whatsapp, region_destino: perfil?.region_destino, fecha_viaje: perfil?.fecha_viaje, bio_viajero: perfil?.bio_viajero, checklist_llegada: perfil?.checklist_llegada || [], estados_aplicacion: perfil?.estados_aplicacion || {}, ofertas_guardadas: perfil?.ofertas_guardadas || [] }
+          perfil: { nombre: perfil?.nombre, pais: perfil?.pais, puesto: perfil?.puesto, frances: perfil?.frances, disponibilidad: perfil?.disponibilidad, documentacion: perfil?.documentacion, whatsapp: perfil?.whatsapp, region_destino: perfil?.region_destino, fecha_viaje: perfil?.fecha_viaje, bio_viajero: perfil?.bio_viajero, checklist_llegada: perfil?.checklist_llegada || [], estados_aplicacion: perfil?.estados_aplicacion || {}, ofertas_guardadas: perfil?.ofertas_guardadas || [], contactos_gratis_usados: perfil?.contactos_gratis_usados || 0 }
         });
       }
       setVerificandoSesion(false);
@@ -2389,6 +2427,11 @@ export default function App() {
     setUsuario(u=>({...u, perfil:{...u.perfil, ofertas_guardadas: nuevaLista}}));
   }
 
+  async function registrarContactoGratis() {
+    const usados = (usuario?.perfil?.contactos_gratis_usados || 0) + 1;
+    await supabase.from('Perfiles').update({ contactos_gratis_usados: usados }).eq('email', usuario.email);
+    setUsuario(u=>({...u, perfil:{...u.perfil, contactos_gratis_usados: usados}}));
+  }
   async function setEstadoAplicacion(ofertaId, estado) {
     const actuales = usuario?.perfil?.estados_aplicacion || {};
     const nuevos = {...actuales, [ofertaId]: estado};
@@ -2446,7 +2489,7 @@ export default function App() {
       ) : (
         <div style={{ minHeight:"100vh", background:BRAND.bone }}>
          <div style={{ display:tab==="ofertas"?"block":"none" }}>
-  <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} onToggleGuardar={toggleOfertaGuardada} ofertaExterna={ofertaAbierta} onCerrarExterna={()=>setOfertaAbierta(null)} onAbrirGestionCuenta={()=>setMostrarGestionCuenta(true)} />
+ <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} onToggleGuardar={toggleOfertaGuardada} ofertaExterna={ofertaAbierta} onCerrarExterna={()=>setOfertaAbierta(null)} onAbrirGestionCuenta={()=>setMostrarGestionCuenta(true)} onContactoRealizado={registrarContactoGratis} />
 </div>
 <div style={{ display:tab==="herramientas"?"block":"none" }}>
   <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} onAbrirOferta={(o)=>{setOfertaAbierta(o); setTab("ofertas");}} onSetEstadoAplicacion={setEstadoAplicacion} onToggleChecklist={toggleChecklistItem} />
