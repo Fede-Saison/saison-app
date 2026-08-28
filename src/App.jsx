@@ -1055,9 +1055,9 @@ function TabOfertas({ usuario, onToast, esPremium, onCompletarPerfil, onToggleGu
     const fetchOfertas = async () => {
       const { data, error } = await supabase
         .from('ofertas')
-  
         .select('*')
-        .eq('activa', true);
+        .eq('activa', true)
+        .order('created_at', { ascending: false });
       console.log('Supabase response:', data, error);
 if (!error && data) setOfertasDB(data);
     };
