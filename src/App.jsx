@@ -292,6 +292,8 @@ const PUESTOS_FR = {
   "Runner":"Runner",
   "Lavaplatos":"Plongeur(se)",
   "Chef de Cocina":"Chef de cuisine",
+  "Encargado/a de bar":"Responsable de bar",
+  "Segundo/a de cocina":"Second de cuisine",
   "Crepero/a":"Crêpier(ère)",
   "Camarero/a de Sala":"Serveur(se) de salle",
   "Ayudante de Cocina":"Commis de cuisine",
