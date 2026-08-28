@@ -55,22 +55,57 @@ async function iniciarCheckout(plan) {
 // NIVELES DE FRANCÉS POR PUESTO (estándar Saison)
 // ================================================================
 const FRANCES_POR_PUESTO = {
-  "Lavaplatos": "ninguno",
-  "Polivalente": "a2",
-  "Housekeeping": "a1",
-  "Ayudante de Cocina": "a1",
-  "Crepero/a": "a2",
-  "Trabajador Agrícola": "a2",
-  "Runner": "a1",
-  "Jefe de Partida": "b1",
-  "Chef de Cocina": "b1",
-  "Mesero de Sala": "b1",
   "Mesero de Desayunos": "b1",
+  "Jefe de Partida — Caliente": "b1",
+  "Jefe de Partida — Frío": "b1",
+  "Mesero de Sala": "b1",
+  "Runner": "a2",
+  "Lavaplatos": "ninguno",
+  "Chef de Cocina": "b1",
+  "Encargado/a de bar": "b2",
+  "Segundo/a de cocina": "b1",
+  "Crepero/a": "a2",
+  "Camarero/a de Sala": "b1",
+  "Ayudante de Cocina": "a1",
+  "Recepcionista": "b2",
   "Mesero/a de Terraza": "b1",
   "Barman / Barmaid": "b1",
-  "Ayudante de Cocina ciudad": "a2",
-  "Camarero/a de Sala": "b1",
-  "Recepcionista": "b2",
+  "Trabajador Agrícola": "a2",
+  "Camarero/a de habitaciones": "a1",
+  "Asistente de gobierno de pisos": "b1",
+  "Equipier de habitaciones": "a1",
+  "Terapeuta de spa": "b1",
+  "Asistente de spa": "a2",
+  "Bartender": "b1",
+  "Ayudante de bartender": "a2",
+  "Sommelier": "b1",
+  "Jefe/a de rango": "b1",
+  "Mozo/a de salón": "a2",
+  "Ayudante de cocina": "a1",
+  "Cocinero/a de partida": "b1",
+  "Cocinero/a de partida - Sushi": "b1",
+  "Pastelero/a de partida": "b1",
+  "Ayudante de pastelería": "a1",
+  "Pastelero/a": "a2",
+  "Gobierno de pisos": "a2",
+  "Recepcionista nocturno": "b2",
+  "Mayordomo/a": "b2",
+  "Mayordomo/a de chalet": "b2",
+  "Valet / Portero": "a2",
+  "Jefe/a de cocina": "b1",
+  "Encargado/a de sala": "b1",
+  "Conserje": "b2",
+  "Agente de reservas": "b2",
+  "Asistente administrativo/a": "b2",
+  "Técnico/a de mantenimiento": "a2",
+  "Animador/a Kids Club": "b1",
+  "Sous-chef": "b1",
+  "Cocinero/a jefe": "b1",
+  "Responsable de desayunos": "b1",
+  "Primer/a camarero/a de habitaciones": "a2",
+  "Equipier / Lencero/a": "a1",
+  "Cocinero/a de partida / Lavaplatos": "a2",
+  "Recepcionista / Guest relation": "b2",
 };
 
 const NIVEL_FRANCES_ORDEN = ["ninguno","a1","a2","b1","b2","c1"];
@@ -117,12 +152,9 @@ function calcularMatch(oferta, perfil) {
       problemas.push({ tipo: "puesto", msg: `Tu perfil es de ${perfil.puesto} — este puesto es diferente` });
     }
   }
-  const puestoKey = Object.keys(FRANCES_POR_PUESTO).find(k =>
-    oferta.titulo?.toLowerCase().includes(k.toLowerCase())
-  );
-  const nivelRequerido = puestoKey ? FRANCES_POR_PUESTO[puestoKey] : "a2";
+  const nivelRequerido = FRANCES_POR_PUESTO[oferta.titulo] || "a2";
   if (!cumpleNivelFrances(perfil.frances, nivelRequerido) && nivelRequerido !== "ninguno") {
-    const labels = { a2:"A2", b1:"B1", b2:"B2" };
+    const labels = { a1:"A1", a2:"A2", b1:"B1", b2:"B2", c1:"C1" };
     problemas.push({ tipo: "frances", msg: `Este puesto requiere francés ${labels[nivelRequerido] || nivelRequerido}` });
   }
   if (!cumpleDocumentacion(perfil.documentacion)) {
@@ -285,66 +317,76 @@ const AFILIADOS = {
 };
 
 const PUESTOS_FR = {
-  "Mesero de Desayunos":"Serveur(se) de petit-déjeuner",
-  "Jefe de Partida — Caliente":"Chef de partie chaud",
-  "Jefe de Partida — Frío":"Chef de partie froid",
-  "Mesero de Sala":"Serveur(se) de salle",
-  "Runner":"Runner",
-  "Lavaplatos":"Plongeur(se)",
-  "Chef de Cocina":"Chef de cuisine",
-  "Encargado/a de bar":"Responsable de bar",
-  "Segundo/a de cocina":"Second de cuisine",
-  "Crepero/a":"Crêpier(ère)",
-  "Camarero/a de Sala":"Serveur(se) de salle",
-  "Ayudante de Cocina":"Commis de cuisine",
-  "Recepcionista":"Réceptionniste",
-  "Mesero/a de Terraza":"Serveur(se) en terrasse",
-  "Barman / Barmaid":"Barman / Barmaid",
-  "Trabajador Agrícola":"Ouvrier(ère) agricole",
-  "Camarero/a de habitaciones":"Valet / Femme de chambre",
-  "Asistente de gobierno de pisos":"Assistant(e) gouvernant(e)",
-  "Equipier de habitaciones":"Équipier(ère) d'étage",
-  "Terapeuta de spa":"Thérapeute spa",
-  "Asistente de spa":"Assistant(e) spa",
-  "Bartender":"Barman / Barmaid",
-  "Ayudante de bartender":"Stagiaire bar",
-  "Sommelier":"Sommelier(ière)",
-  "Jefe/a de rango":"Chef de rang",
-  "Mozo/a de salón":"Serveur(se) de restaurant",
-  "Ayudante de cocina":"Commis de cuisine",
-  "Cocinero/a de partida":"Chef de partie",
-  "Cocinero/a de partida - Sushi":"Chef de partie sushi",
-  "Pastelero/a de partida":"Chef de partie pâtisserie",
-  "Ayudante de pastelería":"Commis pâtissier(ière)",
-  "Pastelero/a":"Commis pâtissier(ière)",
-  "Gobierno de pisos":"Gouvernant(e)",
-  "Recepcionista nocturno":"Réceptionniste de nuit",
-  "Mayordomo/a":"Majordome",
-  "Mayordomo/a de chalet":"Majordome de chalet",
-  "Valet / Portero":"Voiturier / Chasseur",
-  "Jefe/a de cocina":"Chef de cuisine",
-  "Encargado/a de sala":"Responsable de salle",
-  "Encargado/a de bar":"Responsable de bar",
-  "Conserje":"Concierge",
-  "Agente de reservas":"Agent de réservation",
-  "Asistente administrativo/a":"Assistant(e) administratif(ve)",
-  "Técnico/a de mantenimiento":"Agent de maintenance",
-  "Animador/a Kids Club":"Animateur(trice) Kids Club",
-  "Sous-chef":"Sous-chef",
-  "Cocinero/a jefe":"Chef de cuisine",
-  "Responsable de desayunos":"Responsable petit-déjeuner",
-  "Primer/a camarero/a de habitaciones":"Valet / Femme de chambre",
-  "Equipier / Lencero/a":"Équipier(ère) / Personnel de lingerie",
-  "Cocinero/a de partida / Lavaplatos":"Chef de partie / Plongeur(se)",
-  "Recepcionista / Guest relation":"Réceptionniste / Guest relation",
+  "Mesero de Desayunos": {m:"Serveur de petit-déjeuner", f:"Serveuse de petit-déjeuner"},
+  "Jefe de Partida — Caliente": {m:"Chef de partie chaud", f:"Cheffe de partie chaud"},
+  "Jefe de Partida — Frío": {m:"Chef de partie froid", f:"Cheffe de partie froid"},
+  "Mesero de Sala": {m:"Serveur de salle", f:"Serveuse de salle"},
+  "Runner": "Runner",
+  "Lavaplatos": {m:"Plongeur", f:"Plongeuse"},
+  "Chef de Cocina": {m:"Chef de cuisine", f:"Cheffe de cuisine"},
+  "Encargado/a de bar": "Responsable de bar",
+  "Segundo/a de cocina": {m:"Second de cuisine", f:"Seconde de cuisine"},
+  "Crepero/a": {m:"Crêpier", f:"Crêpière"},
+  "Camarero/a de Sala": {m:"Serveur de salle", f:"Serveuse de salle"},
+  "Ayudante de Cocina": "Commis de cuisine",
+  "Recepcionista": "Réceptionniste",
+  "Mesero/a de Terraza": {m:"Serveur en terrasse", f:"Serveuse en terrasse"},
+  "Barman / Barmaid": {m:"Barman", f:"Barmaid"},
+  "Trabajador Agrícola": {m:"Ouvrier agricole", f:"Ouvrière agricole"},
+  "Camarero/a de habitaciones": {m:"Valet de chambre", f:"Femme de chambre"},
+  "Asistente de gobierno de pisos": {m:"Assistant gouvernant", f:"Assistante gouvernante"},
+  "Equipier de habitaciones": {m:"Équipier d'étage", f:"Équipière d'étage"},
+  "Terapeuta de spa": "Thérapeute spa",
+  "Asistente de spa": {m:"Assistant spa", f:"Assistante spa"},
+  "Bartender": {m:"Barman", f:"Barmaid"},
+  "Ayudante de bartender": "Stagiaire bar",
+  "Sommelier": {m:"Sommelier", f:"Sommelière"},
+  "Jefe/a de rango": {m:"Chef de rang", f:"Cheffe de rang"},
+  "Mozo/a de salón": {m:"Serveur de restaurant", f:"Serveuse de restaurant"},
+  "Ayudante de cocina": "Commis de cuisine",
+  "Cocinero/a de partida": {m:"Chef de partie", f:"Cheffe de partie"},
+  "Cocinero/a de partida - Sushi": {m:"Chef de partie sushi", f:"Cheffe de partie sushi"},
+  "Pastelero/a de partida": {m:"Chef de partie pâtisserie", f:"Cheffe de partie pâtisserie"},
+  "Ayudante de pastelería": {m:"Commis pâtissier", f:"Commis pâtissière"},
+  "Pastelero/a": {m:"Commis pâtissier", f:"Commis pâtissière"},
+  "Gobierno de pisos": {m:"Gouvernant", f:"Gouvernante"},
+  "Recepcionista nocturno": "Réceptionniste de nuit",
+  "Mayordomo/a": "Majordome",
+  "Mayordomo/a de chalet": "Majordome de chalet",
+  "Valet / Portero": {m:"Voiturier / Chasseur", f:"Voiturière / Chasseuse"},
+  "Jefe/a de cocina": {m:"Chef de cuisine", f:"Cheffe de cuisine"},
+  "Encargado/a de sala": "Responsable de salle",
+  "Conserje": "Concierge",
+  "Agente de reservas": {m:"Agent de réservation", f:"Agente de réservation"},
+  "Asistente administrativo/a": {m:"Assistant administratif", f:"Assistante administrative"},
+  "Técnico/a de mantenimiento": {m:"Agent de maintenance", f:"Agente de maintenance"},
+  "Animador/a Kids Club": {m:"Animateur Kids Club", f:"Animatrice Kids Club"},
+  "Sous-chef": {m:"Sous-chef", f:"Sous-cheffe"},
+  "Cocinero/a jefe": {m:"Chef de cuisine", f:"Cheffe de cuisine"},
+  "Responsable de desayunos": "Responsable petit-déjeuner",
+  "Primer/a camarero/a de habitaciones": {m:"Valet de chambre", f:"Femme de chambre"},
+  "Equipier / Lencero/a": {m:"Équipier / Personnel de lingerie", f:"Équipière / Personnel de lingerie"},
+  "Cocinero/a de partida / Lavaplatos": {m:"Chef de partie / Plongeur", f:"Cheffe de partie / Plongeuse"},
+  "Recepcionista / Guest relation": "Réceptionniste / Guest relation",
+  "Encargado/a de playa": "Plagiste",
+  "Vigilante de piscina": {m:"Surveillant de piscine", f:"Surveillante de piscine"},
+  "Agente de mantenimiento y limpieza": {m:"Agent de maintenance et d'entretien", f:"Agente de maintenance et d'entretien"},
 };
 
-function generarCarta(oferta, nombre, esPremium, perfil) {
-  const fr = PUESTOS_FR[oferta.titulo] || oferta.titulo;
-  const localidad = esPremium ? (oferta.localidad || "LOCALIDAD/CIUDAD") : "LOCALIDAD/CIUDAD";
-  const establecimiento = esPremium ? (oferta.nombre_establecimiento || "[NOMBRE DEL ESTABLECIMIENTO]") : "[NOMBRE DEL ESTABLECIMIENTO]";
+function tituloFr(tituloEs, genero) {
+  const entry = PUESTOS_FR[tituloEs];
+  if (!entry) return tituloEs;
+  if (typeof entry === "string") return entry;
+  return genero === "Femenino" ? entry.f : entry.m;
+}
 
-  // Frase de experiencia según nivel de francés real
+function generarCarta(oferta, nombre, esPremium, perfil) {
+  const genero = perfil?.genero;
+  const g = (masc, fem) => genero === "Femenino" ? fem : masc;
+  const fr = tituloFr(oferta.titulo, genero);
+  const localidad = oferta.localidad || "LOCALIDAD/CIUDAD";
+  const establecimiento = oferta.nombre_establecimiento || "[NOMBRE DEL ESTABLECIMIENTO]";
+
   const frases_frances = {
     "A1 — solo saludos básicos": "Je suis actuellement en train d'apprendre le français et je mets tout en œuvre pour progresser rapidement.",
     "A2 — entiendo instrucciones simples": "Je comprends les consignes de base en français et je continue à me perfectionner chaque jour.",
@@ -352,9 +394,8 @@ function generarCarta(oferta, nombre, esPremium, perfil) {
     "B2 — me comunico con fluidez": "Je communique avec aisance en français, à l'oral comme à l'écrit.",
     "C1/C2 — nivel avanzado": "Je maîtrise parfaitement le français, ce qui facilite grandement mon intégration dans votre équipe.",
   };
-  const fraseFrances = frases_frances[perfil?.frances] || "Je suis motivé(e) à progresser rapidement en français.";
+  const fraseFrances = frases_frances[perfil?.frances] || `Je suis ${g("motivé","motivée")} à progresser rapidement en français.`;
 
-  // Frase de disponibilidad según lo que dejó en el perfil
   const frases_disponibilidad = {
     "Verano (abril–octubre)": "Je suis disponible pour toute la saison d'été, d'avril à octobre.",
     "Invierno (diciembre–abril)": "Je suis disponible pour toute la saison d'hiver, de décembre à avril.",
@@ -362,15 +403,14 @@ function generarCarta(oferta, nombre, esPremium, perfil) {
   };
   const fraseDisponibilidad = frases_disponibilidad[perfil?.disponibilidad] || "Je suis disponible immédiatement et dispose d'une grande flexibilité horaire.";
 
-  // Frase de documentación, solo si aporta algo relevante para tranquilizar al empleador
   const frases_doc = {
-    "Ciudadano/a europeo/a (UE)": "En tant que citoyen(ne) européen(ne), je peux travailler en France sans démarches administratives supplémentaires.",
+    "Ciudadano/a europeo/a (UE)": `En tant que ${g("citoyen européen","citoyenne européenne")}, je peux travailler en France sans démarches administratives supplémentaires.`,
     "Titre de Séjour / Permiso de residencia": "Je dispose d'un titre de séjour valide m'autorisant à travailler en France.",
     "Visa VVT aprobada y vigente": "Je dispose d'un visa Vacances-Travail valide, ce qui me permet de travailler légalement en France.",
   };
   const fraseDoc = frases_doc[perfil?.documentacion] || "";
 
-  return `Madame, Monsieur,\n\nJe me permets de vous adresser ma candidature au poste de ${fr} au sein de votre établissement ${establecimiento}, situé à ${localidad}.\n\nPassionné(e) par le secteur du tourisme et de l'hôtellerie, je recherche une expérience saisonnière enrichissante en France. Je suis convaincu(e) que mes qualités — rigueur, sens du service et esprit d'équipe — correspondent pleinement aux valeurs de votre établissement.\n\n${fraseFrances} ${fraseDisponibilidad}${fraseDoc ? " " + fraseDoc : ""}\n\nJe serais ravi(e) de vous rencontrer lors d'un entretien.\n\nDans l'attente de votre retour,\n\n${nombre||"[Tu nombre y apellido]"}`;
+  return `Madame, Monsieur,\n\nJe me permets de vous adresser ma candidature au poste de ${fr} au sein de votre établissement ${establecimiento}, situé à ${localidad}.\n\n${g("Passionné","Passionnée")} par le secteur du tourisme et de l'hôtellerie, je recherche une expérience saisonnière enrichissante en France. Je suis ${g("convaincu","convaincue")} que mes qualités — rigueur, sens du service et esprit d'équipe — correspondent pleinement aux valeurs de votre établissement.\n\n${fraseFrances} ${fraseDisponibilidad}${fraseDoc ? " " + fraseDoc : ""}\n\nJe serais ${g("ravi","ravie")} de vous rencontrer lors d'un entretien.\n\nDans l'attente de votre retour,\n\n${nombre||"[Tu nombre y apellido]"}`;
 }
 
 // ================================================================
@@ -540,26 +580,26 @@ function GestionCuenta({ usuario, onCerrar, onCerrarSesion, onToast }) {
 function MuroPago({ onCerrar }) {
   return (
     <div onClick={onCerrar} style={{ position:"fixed", inset:0, background:"rgba(11,20,38,0.85)", backdropFilter:"blur(12px)", zIndex:1100, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
-      <div onClick={e=>e.stopPropagation()} style={{ position:"relative", background:BRAND.night, borderRadius:"1.5rem 1.5rem 0 0", width:"100%", maxWidth:"480px", padding:"1.75rem 1.75rem 3rem", animation:"slideUp 0.38s cubic-bezier(0.34,1.56,0.64,1)", border:`1px solid ${BRAND.nightSoft}`, borderBottom:"none" }}>
+      <div onClick={e=>e.stopPropagation()} style={{ position:"relative", background:`linear-gradient(180deg, ${BRAND.night} 0%, #0D1930 100%)`, borderRadius:"1.5rem 1.5rem 0 0", width:"100%", maxWidth:"480px", padding:"1.75rem 1.75rem 3rem", animation:"slideUp 0.38s cubic-bezier(0.34,1.56,0.64,1)", border:`1px solid ${BRAND.nightSoft}`, borderBottom:"none", boxShadow:"0 -20px 60px rgba(10,58,242,0.15)" }}>
         <button onClick={onCerrar} style={{ position:"absolute", top:"1.1rem", right:"1.1rem", width:"32px", height:"32px", borderRadius:"50%", background:BRAND.nightMid, border:"none", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", zIndex:2 }}>
           <Icon name="x" size={15} color={BRAND.bone} strokeWidth={2.3} />
         </button>
         <div style={{ width:"2.5rem", height:"3px", background:BRAND.nightSoft, borderRadius:"2px", margin:"0 auto 1.75rem" }} />
-        <div style={{ display:"flex", alignItems:"center", gap:"0.75rem", marginBottom:"1.5rem" }}>
-          <div style={{ width:"44px", height:"44px", borderRadius:"0.75rem", background:BRAND.cobalt, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-            <Icon name="lock" size={20} color="#fff" />
+        <div style={{ display:"flex", alignItems:"center", gap:"0.75rem", marginBottom:"1.25rem" }}>
+          <div style={{ width:"44px", height:"44px", borderRadius:"0.75rem", background:`linear-gradient(135deg, ${BRAND.cobalt} 0%, #1E4FFF 100%)`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, boxShadow:"0 4px 16px rgba(10,58,242,0.4)" }}>
+            <Icon name="diamond" size={20} color="#fff" strokeWidth={2} />
           </div>
           <div>
             <p style={{ fontSize:"1.1rem", fontWeight:700, color:BRAND.bone, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em" }}>Acceso Saison</p>
             <p style={{ fontSize:"0.78rem", color:BRAND.mutedLight, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Para contactar empleadores y aplicar directamente</p>
           </div>
         </div>
-        <div style={{ background:"rgba(10,58,242,0.12)", border:`1px solid rgba(10,58,242,0.3)`, borderRadius:"0.75rem", padding:"0.65rem 0.9rem", marginBottom:"1.25rem", display:"flex", alignItems:"center", gap:"0.5rem" }}>
-          <Icon name="star" size={15} color={BRAND.bone} strokeWidth={0} />
-          <p style={{ fontSize:"0.78rem", color:BRAND.bone, margin:0, fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif" }}>3 días gratis en cualquier plan — cancelá cuando quieras</p>
+        <div style={{ background:"rgba(255,255,255,0.04)", border:`1px solid ${BRAND.nightSoft}`, borderRadius:"0.75rem", padding:"0.6rem 0.9rem", marginBottom:"1.25rem", display:"flex", alignItems:"center", gap:"0.5rem" }}>
+          <Icon name="shield" size={14} color={BRAND.mutedLight} strokeWidth={2} />
+          <p style={{ fontSize:"0.74rem", color:BRAND.mutedLight, margin:0, fontWeight:500, fontFamily:"'Hanken Grotesk',sans-serif" }}>Pago seguro con Stripe · Cancelá cuando quieras desde tu cuenta</p>
         </div>
         <div style={{ display:"flex", flexDirection:"column", gap:"0.65rem", marginBottom:"1.5rem" }}>
-          <div onClick={()=>iniciarCheckout("trimestral")} style={{ cursor:"pointer", position:"relative", background:BRAND.cobalt, borderRadius:"0.875rem", padding:"1.1rem 1.2rem 1rem", overflow:"visible" }}>
+          <div onClick={()=>iniciarCheckout("trimestral")} style={{ cursor:"pointer", position:"relative", background:`linear-gradient(135deg, ${BRAND.cobalt} 0%, #1E4FFF 100%)`, borderRadius:"0.875rem", padding:"1.1rem 1.2rem 1rem", overflow:"visible", boxShadow:"0 6px 20px rgba(10,58,242,0.35)" }}>
             <div style={{ position:"absolute", top:"-10px", left:"1.2rem", background:"#F5C842", color:BRAND.night, fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", fontWeight:700, letterSpacing:"0.04em", padding:"0.2rem 0.6rem", borderRadius:"2rem" }}>MÁS ELEGIDO · AHORRÁ 33%</div>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:"0.3rem" }}>
               <div>
@@ -580,13 +620,15 @@ function MuroPago({ onCerrar }) {
             <p style={{ fontSize:"1.05rem", fontWeight:700, color:BRAND.bone, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif" }}>€5.99<span style={{ fontSize:"0.65rem", fontWeight:500, color:BRAND.mutedLight }}>/mes</span></p>
           </div>
         </div>
-        <button onClick={()=>iniciarCheckout("trimestral")} style={{ width:"100%", background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.75rem", padding:"0.9rem", fontSize:"0.92rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", marginBottom:"1.25rem" }}>Empezar gratis hoy →</button>
-        {["Contacto directo con empleadores","Carta de presentación en francés con IA","Conectá con otros saisonniers — no llegues solo","Descargá templates de CV y guías gratis","Alertas personalizadas por perfil","Francés laboral de supervivencia"].map((f,i)=>(
-          <div key={i} style={{ display:"flex", alignItems:"center", gap:"0.5rem", marginBottom:"0.35rem" }}>
-            <Icon name="check" size={13} color={BRAND.cobalt} strokeWidth={2.5} />
-            <span style={{ fontSize:"0.76rem", color:BRAND.mutedLight, fontFamily:"'Hanken Grotesk',sans-serif" }}>{f}</span>
-          </div>
-        ))}
+        <button onClick={()=>iniciarCheckout("trimestral")} style={{ width:"100%", background:`linear-gradient(135deg, ${BRAND.cobalt} 0%, #1E4FFF 100%)`, color:"#fff", border:"none", borderRadius:"0.75rem", padding:"0.9rem", fontSize:"0.92rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", marginBottom:"1.25rem", boxShadow:"0 6px 20px rgba(10,58,242,0.35)" }}>Activar mi acceso →</button>
+        <div style={{ marginTop:"0.25rem" }}>
+          {["Contacto directo con empleadores","Carta de presentación en francés con IA","Conectá con otros saisonniers — no llegues solo","Descargá templates de CV y guías gratis","Guardá ofertas y hacé seguimiento de tus postulaciones"].map((f,i)=>(
+            <div key={i} style={{ display:"flex", alignItems:"center", gap:"0.5rem", marginBottom:"0.35rem" }}>
+              <Icon name="check" size={13} color={BRAND.cobalt} strokeWidth={2.5} />
+              <span style={{ fontSize:"0.76rem", color:BRAND.mutedLight, fontFamily:"'Hanken Grotesk',sans-serif" }}>{f}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -618,8 +660,7 @@ function ModalOferta({ oferta, onCerrar, onToast, esPremium, nombreUsuario, perf
   const LIMITE_GRATIS = 10;
   const contactosRestantes = Math.max(0, LIMITE_GRATIS - (contactosUsados||0));
   const puedeContactar = esPremium || contactosRestantes > 0;
-   const copiar = () => navigator.clipboard.writeText(generarCarta(oferta, nombreUsuario, esPremium, perfil)).then(()=>onToast("Carta copiada"));
-const intentarAplicar = () => { if (!puedeContactar) { setMuroPago(true); return; } if (oferta.email_empleador) { const carta = generarCarta(oferta, nombreUsuario, esPremium, perfil); if (oferta.email_empleador.includes('@')) { window.location.href = `mailto:${oferta.email_empleador}?subject=Candidature - ${PUESTOS_FR[oferta.titulo] || oferta.titulo}&body=${encodeURIComponent(carta)}`; } else { window.open(oferta.email_empleador.startsWith('http') ? oferta.email_empleador : `https://${oferta.email_empleador}`, '_blank'); } if (!esPremium) onContactoRealizado && onContactoRealizado(); } };
+const intentarAplicar = () => { if (!puedeContactar) { setMuroPago(true); return; } if (oferta.email_empleador) { const carta = generarCarta(oferta, nombreUsuario, esPremium, perfil); if (oferta.email_empleador.includes('@')) { window.location.href = `mailto:${oferta.email_empleador}?subject=Candidature - ${tituloFr(oferta.titulo, perfil?.genero)}&body=${encodeURIComponent(carta)}`;} else { window.open(oferta.email_empleador.startsWith('http') ? oferta.email_empleador : `https://${oferta.email_empleador}`, '_blank'); } if (!esPremium) onContactoRealizado && onContactoRealizado(); } };
   const esCiudad = oferta.tipo==="ciudad" || false;
   return (
     <>
@@ -691,8 +732,7 @@ const intentarAplicar = () => { if (!puedeContactar) { setMuroPago(true); return
                 {contactosRestantes>0 ? `Te quedan ${contactosRestantes} contactos gratis` : "Sin contactos gratis · desde €5.99/mes"}
               </p>
             )}
-            <p onClick={copiar} style={{ fontSize:"0.72rem", color:BRAND.muted, margin:"0.15rem 0 0", textAlign:"center", fontFamily:"'Hanken Grotesk',sans-serif", textDecoration:"underline", cursor:"pointer" }}>Copiar carta en francés</p>
-            <p style={{ fontSize:"0.62rem", color:BRAND.mutedLight, margin:"0.1rem 0 0", textAlign:"center", fontFamily:"'Hanken Grotesk',sans-serif", lineHeight:1.5, letterSpacing:"0.01em" }}>Base orientativa según tu perfil — revisala antes de enviar</p>
+            <p style={{ fontSize:"0.62rem", color:BRAND.mutedLight, margin:"0.6rem 0 0", textAlign:"center", fontFamily:"'Hanken Grotesk',sans-serif", lineHeight:1.5, letterSpacing:"0.01em" }}>Base orientativa según tu perfil — revisala antes de enviar</p>
           </div>
         </div>
       </div>
@@ -849,6 +889,11 @@ const PASOS_PERFIL_OPCIONES = {
     {v:"Invierno (diciembre–abril)", icon:"mountain"},
     {v:"Ambas temporadas", icon:"calendar"},
   ]},
+  genero: {opts:[
+    {v:"Femenino", icon:"star"},
+    {v:"Masculino", icon:"shield"},
+    {v:"Prefiero no decirlo", icon:"info"},
+  ]},
 };
 
 const CODIGOS_PAIS_PERFIL = [
@@ -859,7 +904,7 @@ const CODIGOS_PAIS_PERFIL = [
   {pais:"Portugal", dial:"+351"},{pais:"Suiza", dial:"+41"},{pais:"Reino Unido", dial:"+44"},
 ];
 
-const PASOS_PERFIL_TOTAL = 8;
+const PASOS_PERFIL_TOTAL = 9;
 function PantallaNuevaContrasena({ onListo }) {
   const [pass1, setPass1] = useState("");
   const [pass2, setPass2] = useState("");
@@ -931,17 +976,17 @@ function ModalPerfil({ perfil, onGuardar, onCerrar, forzado }) {
 
   const puedeAvanzar = () => {
     if (paso===0) return (form.nombre||"").trim().length>1;
-    if (paso===1) return !!form.pais;
-    if (paso===2) return !!form.puesto;
-    if (paso===3) return !!form.documentacion;
-    if (paso===4) return !!form.frances;
-    if (paso===5) return !!form.disponibilidad;
-    if (paso===6) return !!form.whatsappCodigo && (form.whatsappNumero||"").trim().length>3;
+    if (paso===2) return !!form.pais;
+    if (paso===3) return !!form.puesto;
+    if (paso===4) return !!form.documentacion;
+    if (paso===5) return !!form.frances;
+    if (paso===6) return !!form.disponibilidad;
+    if (paso===7) return !!form.whatsappCodigo && (form.whatsappNumero||"").trim().length>3;
     return true;
   };
 
   const guardarFinal = () => {
-    if (!form.whatsappCodigo || !form.whatsappNumero) { alert("Ingresá tu WhatsApp para poder guardar el perfil."); setPaso(6); return; }
+    if (!form.whatsappCodigo || !form.whatsappNumero) { alert("Ingresá tu WhatsApp para poder guardar el perfil."); setPaso(7); return; }
     onGuardar({...form, whatsapp:`${form.whatsappCodigo} ${form.whatsappNumero}`});
   };
 
@@ -985,6 +1030,13 @@ function ModalPerfil({ perfil, onGuardar, onCerrar, forzado }) {
           </>)}
 
           {paso===1 && (<>
+            <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Casi listo</p>
+            <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.4rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿Con qué género te identificás?</h2>
+            <p style={{ fontSize:"0.8rem", color:BRAND.muted, margin:"0 0 1.25rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Lo usamos para escribir tu carta de presentación correctamente en francés.</p>
+            {PASOS_PERFIL_OPCIONES.genero.opts.map(o=><OpcionGrande key={o.v} icon={o.icon} titulo={o.v} campo="genero" valor={o.v} />)}
+          </>)}
+
+          {paso===2 && (<>
             <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Tu perfil</p>
             <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 1.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿De dónde sos?</h2>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.5rem" }}>
@@ -997,31 +1049,31 @@ function ModalPerfil({ perfil, onGuardar, onCerrar, forzado }) {
             </div>
           </>)}
 
-          {paso===2 && (<>
+          {paso===3 && (<>
             <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Tu perfil</p>
             <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 1.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿En qué querés trabajar?</h2>
             {PASOS_PERFIL_OPCIONES.puesto.opts.map(o=><OpcionGrande key={o.v} icon={o.icon} titulo={o.v} campo="puesto" valor={o.v} />)}
           </>)}
 
-          {paso===3 && (<>
+          {paso===4 && (<>
             <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Documentación</p>
             <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 1.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿Podés trabajar en Francia?</h2>
             {PASOS_PERFIL_OPCIONES.documentacion.opts.map(o=><OpcionGrande key={o.v} icon={o.icon} titulo={o.v} campo="documentacion" valor={o.v} />)}
           </>)}
 
-          {paso===4 && (<>
+          {paso===5 && (<>
             <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Idioma</p>
             <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 1.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿Cuánto francés hablás?</h2>
             {PASOS_PERFIL_OPCIONES.frances.opts.map(o=><OpcionGrande key={o.v} icon={o.icon} titulo={o.v} campo="frances" valor={o.v} />)}
           </>)}
 
-          {paso===5 && (<>
+          {paso===6 && (<>
             <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Disponibilidad</p>
             <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 1.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>¿Cuándo podés viajar?</h2>
             {PASOS_PERFIL_OPCIONES.disponibilidad.opts.map(o=><OpcionGrande key={o.v} icon={o.icon} titulo={o.v} campo="disponibilidad" valor={o.v} />)}
           </>)}
 
-          {paso===6 && (<>
+          {paso===7 && (<>
             <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Contacto</p>
             <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.4rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>Dejanos tu WhatsApp</h2>
             <p style={{ fontSize:"0.8rem", color:BRAND.muted, margin:"0 0 1.25rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Para conectar con empleadores y otros saisonniers que van a tu mismo destino.</p>
@@ -1034,7 +1086,7 @@ function ModalPerfil({ perfil, onGuardar, onCerrar, forzado }) {
             </div>
           </>)}
 
-          {paso===7 && (<>
+          {paso===8 && (<>
             <p style={{ fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", color:BRAND.cobalt, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Último paso</p>
             <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:BRAND.night, margin:"0 0 0.4rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.025em" }}>Contanos de tu viaje</h2>
             <p style={{ fontSize:"0.8rem", color:BRAND.muted, margin:"0 0 1.25rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Esto es opcional, pero ayuda a que otros saisonniers te encuentren.</p>
@@ -2154,7 +2206,7 @@ const handleSubmit = async () => {
   }
   
   onIniciarLogin && onIniciarLogin();
-  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, premiumHasta: perfilExistente?.premium_hasta || null, subscriptionStatus: perfilExistente?.subscription_status || null, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion, whatsapp: perfilExistente?.whatsapp, region_destino: perfilExistente?.region_destino, fecha_viaje: perfilExistente?.fecha_viaje, bio_viajero: perfilExistente?.bio_viajero, checklist_llegada: perfilExistente?.checklist_llegada || [], estados_aplicacion: perfilExistente?.estados_aplicacion || {}, ofertas_guardadas: perfilExistente?.ofertas_guardadas || [], contactos_gratis_usados: perfilExistente?.contactos_gratis_usados || 0 } });
+  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, premiumHasta: perfilExistente?.premium_hasta || null, subscriptionStatus: perfilExistente?.subscription_status || null, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion, whatsapp: perfilExistente?.whatsapp, region_destino: perfilExistente?.region_destino, fecha_viaje: perfilExistente?.fecha_viaje, bio_viajero: perfilExistente?.bio_viajero, checklist_llegada: perfilExistente?.checklist_llegada || [], estados_aplicacion: perfilExistente?.estados_aplicacion || {}, ofertas_guardadas: perfilExistente?.ofertas_guardadas || [], contactos_gratis_usados: perfilExistente?.contactos_gratis_usados || 0, genero: perfilExistente?.genero || null } });
   } else {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: form.email,
@@ -2165,7 +2217,7 @@ const handleSubmit = async () => {
   const { data: perfilLogin } = await supabase.from('Perfiles').select('*').eq('email', u.email).single();
 console.log('perfil login:', perfilLogin);
 onIniciarLogin && onIniciarLogin();
-onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, premiumHasta: perfilLogin?.premium_hasta || null, subscriptionStatus: perfilLogin?.subscription_status || null, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion, whatsapp: perfilLogin?.whatsapp, region_destino: perfilLogin?.region_destino, fecha_viaje: perfilLogin?.fecha_viaje, bio_viajero: perfilLogin?.bio_viajero, checklist_llegada: perfilLogin?.checklist_llegada || [], estados_aplicacion: perfilLogin?.estados_aplicacion || {}, ofertas_guardadas: perfilLogin?.ofertas_guardadas || [], contactos_gratis_usados: perfilLogin?.contactos_gratis_usados || 0 } });
+onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, premiumHasta: perfilLogin?.premium_hasta || null, subscriptionStatus: perfilLogin?.subscription_status || null, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion, whatsapp: perfilLogin?.whatsapp, region_destino: perfilLogin?.region_destino, fecha_viaje: perfilLogin?.fecha_viaje, bio_viajero: perfilLogin?.bio_viajero, checklist_llegada: perfilLogin?.checklist_llegada || [], estados_aplicacion: perfilLogin?.estados_aplicacion || {}, ofertas_guardadas: perfilLogin?.ofertas_guardadas || [], contactos_gratis_usados: perfilLogin?.contactos_gratis_usados || 0, genero: perfilLogin?.genero || null } });
   }
 };
   if (modo === "recuperar") {
@@ -2360,6 +2412,7 @@ export default function App() {
       score,
       semaforo,
       contactos_gratis_usados: contactosHeredados,
+      genero: perfil.genero,
     }).eq('email', usuario.email);
 
     if (error) {
@@ -2397,7 +2450,7 @@ export default function App() {
           esPremium: perfil?.es_premium || false,
           premiumHasta: perfil?.premium_hasta || null, subscriptionStatus: perfil?.subscription_status || null,
           id: u.id,
-          perfil: { nombre: perfil?.nombre, pais: perfil?.pais, puesto: perfil?.puesto, frances: perfil?.frances, disponibilidad: perfil?.disponibilidad, documentacion: perfil?.documentacion, whatsapp: perfil?.whatsapp, region_destino: perfil?.region_destino, fecha_viaje: perfil?.fecha_viaje, bio_viajero: perfil?.bio_viajero, checklist_llegada: perfil?.checklist_llegada || [], estados_aplicacion: perfil?.estados_aplicacion || {}, ofertas_guardadas: perfil?.ofertas_guardadas || [], contactos_gratis_usados: perfil?.contactos_gratis_usados || 0 }
+          perfil: { nombre: perfil?.nombre, pais: perfil?.pais, puesto: perfil?.puesto, frances: perfil?.frances, disponibilidad: perfil?.disponibilidad, documentacion: perfil?.documentacion, whatsapp: perfil?.whatsapp, region_destino: perfil?.region_destino, fecha_viaje: perfil?.fecha_viaje, bio_viajero: perfil?.bio_viajero, checklist_llegada: perfil?.checklist_llegada || [], estados_aplicacion: perfil?.estados_aplicacion || {}, ofertas_guardadas: perfil?.ofertas_guardadas || [], contactos_gratis_usados: perfil?.contactos_gratis_usados || 0, genero: perfil?.genero || null }
         });
       }
       setVerificandoSesion(false);
