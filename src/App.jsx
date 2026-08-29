@@ -1579,6 +1579,7 @@ function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onRespo
   const [conexiones, setConexiones] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [filtro, setFiltro] = useState("todos");
+  const [drawerPerfil, setDrawerPerfil] = useState(null);
   const destinos = ["todos", "Costa Azul / Var / Córcega", "País Vasco / Costa Atlántica", "Alpes / Saboya / Pirineos", "Provenza / Interior Sur", "Grandes Ciudades"];
   const tieneWhatsapp = !!usuario?.perfil?.whatsapp;
 
@@ -1642,6 +1643,60 @@ function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onRespo
 
   return (
   <div style={{ background:BRAND.bone, minHeight:"100dvh", paddingBottom:"7rem" }}>
+
+    {drawerPerfil && (
+      <div onClick={() => setDrawerPerfil(null)} style={{ position:"fixed", inset:0, background:"rgba(11,20,38,0.55)", backdropFilter:"blur(4px)", zIndex:200, display:"flex", alignItems:"flex-end" }}>
+        <div onClick={e => e.stopPropagation()} style={{ background:"#fff", borderRadius:"20px 20px 0 0", width:"100%", padding:"1.5rem 1.25rem 2.5rem" }}>
+          <div style={{ width:"36px", height:"3px", background:BRAND.boneDeep, borderRadius:"2px", margin:"0 auto 1.25rem" }} />
+          <div style={{ fontSize:"2.25rem", textAlign:"center", marginBottom:"0.5rem" }}>{banderaPorPais[drawerPerfil.pais] || "🌍"}</div>
+          <p style={{ fontFamily:"'Bricolage Grotesque',sans-serif", fontWeight:800, fontSize:"1.15rem", color:BRAND.night, textAlign:"center", margin:"0 0 0.25rem", letterSpacing:"-0.025em" }}>{drawerPerfil.nombre}</p>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem", marginBottom:"1rem" }}>
+            {drawerPerfil.region_destino && <span style={{ fontSize:"0.7rem", color:BRAND.muted }}>{drawerPerfil.region_destino}</span>}
+            {drawerPerfil.region_destino && drawerPerfil.fecha_viaje && <span style={{ width:"3px", height:"3px", borderRadius:"50%", background:BRAND.boneDeep, display:"inline-block" }} />}
+            {drawerPerfil.fecha_viaje && <span style={{ fontSize:"0.7rem", color:BRAND.muted }}>{drawerPerfil.fecha_viaje}</span>}
+          </div>
+          {drawerPerfil.bio_viajero && (
+            <p style={{ fontSize:"0.86rem", color:BRAND.muted, fontStyle:"italic", textAlign:"center", lineHeight:1.7, margin:"0 0 1.25rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>"{drawerPerfil.bio_viajero}"</p>
+          )}
+          <div style={{ height:"1px", background:BRAND.boneDeep, marginBottom:"1.25rem" }} />
+          {(() => {
+            const conexion = conexionCon(drawerPerfil.email);
+            const soyReceptor = conexion?.email_receptor === usuario?.email;
+            if (!conexion) return (
+              <>
+                <div style={{ background:BRAND.bone, borderRadius:"0.65rem", padding:"0.65rem 0.875rem", marginBottom:"1rem" }}>
+                  <p style={{ fontSize:"0.7rem", color:BRAND.muted, margin:0, lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif" }}>Si acepta tu solicitud, <strong style={{ color:BRAND.night }}>recibirás su WhatsApp por email</strong>. Revisá la carpeta de promociones.</p>
+                </div>
+                <button onClick={() => { solicitar(drawerPerfil.email); setDrawerPerfil(null); }} style={{ width:"100%", background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"10px", padding:"0.9rem", fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.88rem", fontWeight:700, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.5rem" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.16 1.6 5.97L0 24l6.2-1.63A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.22-3.48-8.52zM12 22c-1.85 0-3.66-.5-5.23-1.44l-.37-.22-3.87 1.02 1.03-3.77-.24-.39A9.93 9.93 0 0 1 2 12C2 6.48 6.48 2 12 2c2.67 0 5.18 1.04 7.07 2.93A9.93 9.93 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.47-7.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.5-1.78-1.68-2.08-.17-.3-.02-.46.13-.6.14-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.91-2.19-.24-.58-.48-.5-.67-.51H7.5c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.27.49 1.7.63.72.23 1.37.2 1.88.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z" fill="white"/></svg>
+                  Enviar solicitud de contacto
+                </button>
+                <button onClick={() => setDrawerPerfil(null)} style={{ width:"100%", background:"transparent", border:"none", padding:"0.6rem", fontSize:"0.78rem", color:BRAND.muted, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", marginTop:"0.35rem" }}>Cancelar</button>
+              </>
+            );
+            if (conexion.estado === "pendiente" && !soyReceptor) return (
+              <p style={{ textAlign:"center", fontSize:"0.8rem", color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif" }}>Solicitud enviada — esperando respuesta</p>
+            );
+            if (conexion.estado === "pendiente" && soyReceptor) return (
+              <div style={{ display:"flex", gap:"0.75rem" }}>
+                <button onClick={() => { responder(conexion.id, "rechazada"); setDrawerPerfil(null); }} style={{ flex:1, background:BRAND.boneDeep, border:"none", borderRadius:"10px", padding:"0.875rem", fontSize:"0.84rem", fontWeight:600, color:BRAND.muted, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif" }}>Ignorar</button>
+                <button onClick={() => { responder(conexion.id, "aceptada"); setDrawerPerfil(null); }} style={{ flex:2, background:BRAND.cobalt, border:"none", borderRadius:"10px", padding:"0.875rem", fontSize:"0.84rem", fontWeight:700, color:"#fff", cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif" }}>Aceptar solicitud →</button>
+              </div>
+            );
+            if (conexion.estado === "aceptada") return (
+              <button onClick={() => contactar(drawerPerfil.whatsapp)} style={{ width:"100%", background:"#25D366", border:"none", borderRadius:"10px", padding:"0.9rem", fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.88rem", fontWeight:700, color:"#fff", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.5rem" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.16 1.6 5.97L0 24l6.2-1.63A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.22-3.48-8.52zM12 22c-1.85 0-3.66-.5-5.23-1.44l-.37-.22-3.87 1.02 1.03-3.77-.24-.39A9.93 9.93 0 0 1 2 12C2 6.48 6.48 2 12 2c2.67 0 5.18 1.04 7.07 2.93A9.93 9.93 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.47-7.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.5-1.78-1.68-2.08-.17-.3-.02-.46.13-.6.14-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.91-2.19-.24-.58-.48-.5-.67-.51H7.5c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.27.49 1.7.63.72.23 1.37.2 1.88.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z" fill="white"/></svg>
+                Contactar por WhatsApp
+              </button>
+            );
+            if (conexion.estado === "rechazada") return (
+              <p style={{ textAlign:"center", fontSize:"0.78rem", color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif" }}>No conectaron</p>
+            );
+          })()}
+        </div>
+      </div>
+    )}
+
     <div style={{ background:BRAND.night, padding:"1.25rem 1.25rem 1rem" }}>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"0.4rem" }}>
           <div>
@@ -1659,6 +1714,11 @@ function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onRespo
               {d === "todos" ? "Todos" : d}
             </button>
           ))}
+        </div>
+        <div style={{ display:"flex", alignItems:"center", gap:"0.5rem", marginTop:"0.75rem" }}>
+          <div style={{ flex:1, height:"1px", background:"rgba(255,255,255,0.06)" }} />
+          <span style={{ fontSize:"0.58rem", color:"rgba(245,243,236,0.28)", whiteSpace:"nowrap", fontFamily:"'Hanken Grotesk',sans-serif" }}>Revisá promociones para ver tus solicitudes</span>
+          <div style={{ flex:1, height:"1px", background:"rgba(255,255,255,0.06)" }} />
         </div>
       </div>
 
@@ -1682,47 +1742,41 @@ function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onRespo
           const conexion = conexionCon(v.email);
           const soyReceptor = conexion?.email_receptor === usuario?.email;
           return (
-            <div key={v.email} style={{ background:"#fff", border:`1.5px solid ${conexion?.estado==="aceptada"?BRAND.cobalt:BRAND.boneDeep}`, borderRadius:"10px", padding:"0.95rem 1rem" }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:"0.75rem" }}>
-                <div style={{ display:"flex", alignItems:"center", gap:"0.75rem", flex:1, minWidth:0 }}>
-                  <div style={{ width:"38px", height:"38px", borderRadius:"8px", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", fontSize:"16px", flexShrink:0 }}>
-                    {banderaPorPais[v.pais] || "🌍"}
-                  </div>
-                  <div style={{ minWidth:0 }}>
-                    <p style={{ margin:"0 0 2px", fontFamily:"'Bricolage Grotesque',sans-serif", fontWeight:800, fontSize:"0.94rem", color:BRAND.night, letterSpacing:"-0.01em" }}>{v.nombre}</p>
-                    <p style={{ margin:0, fontSize:"0.78rem", color:BRAND.muted, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
-                      {v.pais}{v.region_destino && ` · ${v.region_destino}`}{v.fecha_viaje && ` · ${v.fecha_viaje}`}
-                    </p>
-                  </div>
+            <div
+              key={v.email}
+              onClick={() => setDrawerPerfil(v)}
+              style={{ background:"#fff", border:`1.5px solid ${conexion?.estado==="aceptada"?BRAND.cobalt:BRAND.boneDeep}`, borderRadius:"10px", padding:"0.75rem 0.875rem", display:"flex", alignItems:"center", gap:"0.75rem", cursor:"pointer" }}
+            >
+              <div style={{ width:"44px", height:"44px", borderRadius:"10px", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", fontSize:"1.65rem", flexShrink:0, lineHeight:1 }}>
+                {banderaPorPais[v.pais] || "🌍"}
+              </div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <p style={{ margin:"0 0 2px", fontFamily:"'Bricolage Grotesque',sans-serif", fontWeight:800, fontSize:"0.9rem", color:BRAND.night, letterSpacing:"-0.015em" }}>{v.nombre}</p>
+                <div style={{ display:"flex", alignItems:"center", gap:"0.3rem", marginBottom:"0.25rem" }}>
+                  {v.region_destino && <span style={{ fontSize:"0.62rem", color:BRAND.muted, fontWeight:500, fontFamily:"'Hanken Grotesk',sans-serif" }}>{v.region_destino}</span>}
+                  {v.region_destino && v.fecha_viaje && <span style={{ width:"2px", height:"2px", borderRadius:"50%", background:"#C8C3B8", display:"inline-block", flexShrink:0 }} />}
+                  {v.fecha_viaje && <span style={{ fontSize:"0.62rem", color:BRAND.muted, fontWeight:500, fontFamily:"'Hanken Grotesk',sans-serif" }}>{v.fecha_viaje}</span>}
                 </div>
-              </div>
-              {v.bio_viajero && (
-                <p style={{ margin:"0.55rem 0 0", paddingLeft:"calc(38px + 0.75rem)", fontSize:"0.78rem", color:BRAND.mutedLight, fontStyle:"italic", lineHeight:1.5 }}>"{v.bio_viajero}"</p>
-              )}
-              <div style={{ marginTop:"0.65rem", paddingLeft:"calc(38px + 0.75rem)", display:"flex", justifyContent:"flex-end", gap:"0.9rem" }}>
-                {!conexion && (
-                  <button onClick={() => solicitar(v.email)} style={{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.5rem", padding:"0.4rem 0.9rem", fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.71rem", fontWeight:600, cursor:"pointer" }}>
-                    Quiero conectar →
-                  </button>
-                )}
-                {conexion?.estado === "pendiente" && !soyReceptor && (
-                  <span style={{ fontSize:"0.71rem", color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif" }}>Solicitud enviada</span>
-                )}
-                {conexion?.estado === "pendiente" && soyReceptor && (
-                  <>
-                    <button onClick={() => responder(conexion.id, "rechazada")} style={{ background:"none", border:"none", color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.71rem", fontWeight:600, cursor:"pointer", padding:0 }}>Ignorar</button>
-                    <button onClick={() => responder(conexion.id, "aceptada")} style={{ background:"none", border:"none", color:BRAND.cobalt, fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.71rem", fontWeight:700, cursor:"pointer", padding:0 }}>Aceptar →</button>
-                  </>
-                )}
-                {conexion?.estado === "aceptada" && (
-                  <button onClick={() => contactar(v.whatsapp)} style={{ background:"none", border:"none", color:BRAND.cobalt, fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.71rem", fontWeight:700, cursor:"pointer", padding:0 }}>
-                    Contactar por WhatsApp →
-                  </button>
-                )}
-                {conexion?.estado === "rechazada" && (
-                  <span style={{ fontSize:"0.71rem", color:BRAND.mutedLight, fontFamily:"'Hanken Grotesk',sans-serif" }}>No conectaron</span>
+                {v.bio_viajero && (
+                  <p style={{ margin:0, fontSize:"0.7rem", color:BRAND.mutedLight, fontStyle:"italic", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", fontFamily:"'Hanken Grotesk',sans-serif", lineHeight:1.4 }}>"{v.bio_viajero}"</p>
                 )}
               </div>
+              <button
+                onClick={e => { e.stopPropagation(); setDrawerPerfil(v); }}
+                style={{ flexShrink:0, display:"flex", alignItems:"center", gap:"0.3rem", background:conexion?.estado==="aceptada"?"#25D366":!conexion?BRAND.cobalt:"transparent", border:conexion&&conexion.estado!=="aceptada"?`1px solid ${BRAND.boneDeep}`:"none", borderRadius:"8px", padding:"0.45rem 0.65rem", cursor:"pointer" }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                  <path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.16 1.6 5.97L0 24l6.2-1.63A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.22-3.48-8.52zM12 22c-1.85 0-3.66-.5-5.23-1.44l-.37-.22-3.87 1.02 1.03-3.77-.24-.39A9.93 9.93 0 0 1 2 12C2 6.48 6.48 2 12 2c2.67 0 5.18 1.04 7.07 2.93A9.93 9.93 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.47-7.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.5-1.78-1.68-2.08-.17-.3-.02-.46.13-.6.14-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.91-2.19-.24-.58-.48-.5-.67-.51H7.5c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.27.49 1.7.63.72.23 1.37.2 1.88.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z"
+                    fill={conexion&&conexion.estado!=="aceptada"?"#9BAAC4":"white"}/>
+                </svg>
+                <span style={{ fontSize:"0.6rem", fontWeight:700, color:conexion&&conexion.estado!=="aceptada"?BRAND.muted:"#fff", fontFamily:"'Hanken Grotesk',sans-serif", whiteSpace:"nowrap" }}>
+                  {!conexion && "Solicitar"}
+                  {conexion?.estado === "pendiente" && !soyReceptor && "Enviada"}
+                  {conexion?.estado === "pendiente" && soyReceptor && "Responder"}
+                  {conexion?.estado === "aceptada" && "WhatsApp"}
+                  {conexion?.estado === "rechazada" && "—"}
+                </span>
+              </button>
             </div>
           );
         })}
