@@ -373,6 +373,10 @@ const PUESTOS_FR = {
   "Encargado/a de playa": "Plagiste",
   "Vigilante de piscina": {m:"Surveillant de piscine", f:"Surveillante de piscine"},
   "Agente de mantenimiento y limpieza": {m:"Agent de maintenance et d'entretien", f:"Agente de maintenance et d'entretien"},
+  "Director/a":"Directeur/trice",
+  "Anfitrión/a":"Hôte/Hôtesse d'accueil",
+  "Encargado/a de desayunos":"Responsable petit-déjeuner",
+  "Encargado/a de almacén":"Économe",
 };
 
 function tituloFr(tituloEs, genero) {
