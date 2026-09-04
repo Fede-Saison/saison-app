@@ -1647,7 +1647,7 @@ function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onRespo
 
     {drawerPerfil && (
       <div onClick={() => setDrawerPerfil(null)} style={{ position:"fixed", inset:0, background:"rgba(11,20,38,0.55)", backdropFilter:"blur(4px)", zIndex:200, display:"flex", alignItems:"flex-end" }}>
-        <div onClick={e => e.stopPropagation()} style={{ background:"#fff", borderRadius:"20px 20px 0 0", width:"100%", padding:"1.5rem 1.25rem 2.5rem" }}>
+        <div onClick={e => e.stopPropagation()} style={{ background:"#fff", borderRadius:"20px 20px 0 0", width:"100%", padding:"1.5rem 1.25rem 2.5rem", maxHeight:"85vh", overflowY:"auto" }}>
           <div style={{ width:"36px", height:"3px", background:BRAND.boneDeep, borderRadius:"2px", margin:"0 auto 1.25rem" }} />
           <div style={{ fontSize:"2.25rem", textAlign:"center", marginBottom:"0.5rem" }}>{banderaPorPais[drawerPerfil.pais] || "🌍"}</div>
           <p style={{ fontFamily:"'Bricolage Grotesque',sans-serif", fontWeight:800, fontSize:"1.15rem", color:BRAND.night, textAlign:"center", margin:"0 0 0.25rem", letterSpacing:"-0.025em" }}>{drawerPerfil.nombre}</p>
@@ -2174,7 +2174,7 @@ function TabServicios() {
 
             {/* Precio */}
             <div style={{ display:"flex", alignItems:"baseline", gap:"0.5rem", marginBottom:"1.25rem" }}>
-              <span style={{ fontFamily:"'Bricolage Grotesque',sans-serif", fontWeight:800, fontSize:"2.5rem", color:BRAND.night, letterSpacing:"-0.04em", lineHeight:1 }}>€55</span>
+              <span style={{ fontFamily:"'Bricolage Grotesque',sans-serif", fontWeight:800, fontSize:"2.5rem", color:BRAND.night, letterSpacing:"-0.04em", lineHeight:1 }}>€20</span>
               <span style={{ fontSize:"0.75rem", color:BRAND.muted, fontFamily:"'Hanken Grotesk',sans-serif" }}>la sesión · 45 minutos</span>
             </div>
           </div>
