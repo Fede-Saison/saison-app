@@ -24,21 +24,26 @@ module.exports = async (req, res) => {
   }
 
   try {
-    if (event.type === 'checkout.session.completed') {
+      if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
       const email = session.customer_email;
 
       let premiumHasta = null;
+      let subscriptionStatus = 'activa';
+
       if (session.subscription) {
         const subscription = await stripe.subscriptions.retrieve(session.subscription);
         premiumHasta = new Date(subscription.current_period_end * 1000).toISOString();
+      } else if (session.mode === 'payment') {
+        premiumHasta = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
+        subscriptionStatus = 'pago_unico';
       }
 
       const { error } = await supabase.from('Perfiles').update({
         es_premium: true,
-        subscription_status: 'activa',
+        subscription_status: subscriptionStatus,
         stripe_customer_id: session.customer,
-        stripe_subscription_id: session.subscription,
+        stripe_subscription_id: session.subscription || null,
         premium_desde: new Date().toISOString(),
         premium_hasta: premiumHasta,
       }).eq('email', email);

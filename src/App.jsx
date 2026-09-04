@@ -259,6 +259,7 @@ const REGIONES_ALOJAMIENTO = [
   { id:"pais-vasco", label:"País Vasco", icon:"wind" },
   { id:"provenza", label:"Provenza", icon:"sun" },
   { id:"borgona", label:"Borgoña / Ródano", icon:"wine" },
+  { id:"pirineos", label:"Pirineos", icon:"mountain" },
 ];
 const REGIONES_CIUDAD = [
   { id:"todas", label:"Todas", icon:"globe" },
@@ -602,31 +603,24 @@ function MuroPago({ onCerrar }) {
         </div>
         <div style={{ background:"rgba(255,255,255,0.04)", border:`1px solid ${BRAND.nightSoft}`, borderRadius:"0.75rem", padding:"0.6rem 0.9rem", marginBottom:"1.25rem", display:"flex", alignItems:"center", gap:"0.5rem" }}>
           <Icon name="shield" size={14} color={BRAND.mutedLight} strokeWidth={2} />
-          <p style={{ fontSize:"0.74rem", color:BRAND.mutedLight, margin:0, fontWeight:500, fontFamily:"'Hanken Grotesk',sans-serif" }}>Pago seguro con Stripe · Cancelá cuando quieras desde tu cuenta</p>
+          <p style={{ fontSize:"0.74rem", color:BRAND.mutedLight, margin:0, fontWeight:500, fontFamily:"'Hanken Grotesk',sans-serif" }}>Pago seguro con Stripe · Un solo cobro, sin renovación automática</p>
         </div>
         <div style={{ display:"flex", flexDirection:"column", gap:"0.65rem", marginBottom:"1.5rem" }}>
-          <div onClick={()=>iniciarCheckout("trimestral")} style={{ cursor:"pointer", position:"relative", background:`linear-gradient(135deg, ${BRAND.cobalt} 0%, #1E4FFF 100%)`, borderRadius:"0.875rem", padding:"1.1rem 1.2rem 1rem", overflow:"visible", boxShadow:"0 6px 20px rgba(10,58,242,0.35)" }}>
-            <div style={{ position:"absolute", top:"-10px", left:"1.2rem", background:"#F5C842", color:BRAND.night, fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", fontWeight:700, letterSpacing:"0.04em", padding:"0.2rem 0.6rem", borderRadius:"2rem" }}>MÁS ELEGIDO · AHORRÁ 33%</div>
+          <div onClick={()=>iniciarCheckout("unico")} style={{ cursor:"pointer", position:"relative", background:`linear-gradient(135deg, ${BRAND.cobalt} 0%, #1E4FFF 100%)`, borderRadius:"0.875rem", padding:"1.1rem 1.2rem 1rem", overflow:"visible", boxShadow:"0 6px 20px rgba(10,58,242,0.35)" }}>
+            <div style={{ position:"absolute", top:"-10px", left:"1.2rem", background:"#F5C842", color:BRAND.night, fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.6rem", fontWeight:700, letterSpacing:"0.04em", padding:"0.2rem 0.6rem", borderRadius:"2rem" }}>OFERTA DE LANZAMIENTO</div>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:"0.3rem" }}>
               <div>
-                <p style={{ fontSize:"0.92rem", fontWeight:700, color:"#fff", margin:"0 0 0.1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Trimestral</p>
-                <p style={{ fontSize:"0.72rem", color:"rgba(255,255,255,0.75)", margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Toda la temporada cubierta</p>
+                <p style={{ fontSize:"0.92rem", fontWeight:700, color:"#fff", margin:"0 0 0.1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Acceso Saison</p>
+                <p style={{ fontSize:"0.72rem", color:"rgba(255,255,255,0.75)", margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>3 meses · pago único, sin renovación automática</p>
               </div>
               <div style={{ textAlign:"right" }}>
-                <p style={{ fontSize:"1.3rem", fontWeight:800, color:"#fff", margin:0, fontFamily:"'Bricolage Grotesque',sans-serif" }}>€3.99<span style={{ fontSize:"0.68rem", fontWeight:500 }}>/mes</span></p>
-                <p style={{ fontSize:"0.65rem", color:"rgba(255,255,255,0.6)", margin:"0.1rem 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>€11.99 total</p>
+                <p style={{ fontSize:"1.3rem", fontWeight:800, color:"#fff", margin:0, fontFamily:"'Bricolage Grotesque',sans-serif" }}>€7.99</p>
+                <p style={{ fontSize:"0.65rem", color:"rgba(255,255,255,0.6)", margin:"0.1rem 0 0", fontFamily:"'Hanken Grotesk',sans-serif", textDecoration:"line-through" }}>€14.99</p>
               </div>
             </div>
           </div>
-          <div onClick={()=>iniciarCheckout("mensual")} style={{ cursor:"pointer", background:BRAND.nightMid, border:`1px solid ${BRAND.nightSoft}`, borderRadius:"0.875rem", padding:"1rem 1.2rem", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-            <div>
-              <p style={{ fontSize:"0.9rem", fontWeight:600, color:BRAND.bone, margin:"0 0 0.1rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Mensual</p>
-              <p style={{ fontSize:"0.72rem", color:BRAND.mutedLight, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>Flexible, mes a mes</p>
-            </div>
-            <p style={{ fontSize:"1.05rem", fontWeight:700, color:BRAND.bone, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif" }}>€5.99<span style={{ fontSize:"0.65rem", fontWeight:500, color:BRAND.mutedLight }}>/mes</span></p>
-          </div>
         </div>
-        <button onClick={()=>iniciarCheckout("trimestral")} style={{ width:"100%", background:`linear-gradient(135deg, ${BRAND.cobalt} 0%, #1E4FFF 100%)`, color:"#fff", border:"none", borderRadius:"0.75rem", padding:"0.9rem", fontSize:"0.92rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", marginBottom:"1.25rem", boxShadow:"0 6px 20px rgba(10,58,242,0.35)" }}>Activar mi acceso →</button>
+        <button onClick={()=>iniciarCheckout("unico")} style={{ width:"100%", background:`linear-gradient(135deg, ${BRAND.cobalt} 0%, #1E4FFF 100%)`, color:"#fff", border:"none", borderRadius:"0.75rem", padding:"0.9rem", fontSize:"0.92rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", marginBottom:"1.25rem", boxShadow:"0 6px 20px rgba(10,58,242,0.35)" }}>Activar mi acceso →</button>
         <div style={{ marginTop:"0.25rem" }}>
           {["Contacto directo con empleadores","Carta de presentación en francés con IA","Conectá con otros saisonniers — no llegues solo","Descargá templates de CV y guías gratis","Guardá ofertas y hacé seguimiento de tus postulaciones"].map((f,i)=>(
             <div key={i} style={{ display:"flex", alignItems:"center", gap:"0.5rem", marginBottom:"0.35rem" }}>
@@ -659,12 +653,14 @@ function MatchBadge({ match }) {
   );
 }
 
-function ModalOferta({ oferta, onCerrar, onToast, esPremium, nombreUsuario, perfil, contactosUsados, onContactoRealizado }) {
+function ModalOferta({ oferta, onCerrar, onToast, esPremium, nombreUsuario, perfil, contactosUsados, contactosFecha, onContactoRealizado }) {
   const [muroPago, setMuroPago] = useState(false);
   if (!oferta) return null;
   const match = calcularMatch(oferta, perfil);
-  const LIMITE_GRATIS = 10;
-  const contactosRestantes = Math.max(0, LIMITE_GRATIS - (contactosUsados||0));
+  const LIMITE_GRATIS_DIARIO = 3;
+  const hoyISO = new Date().toISOString().slice(0,10); // límite diario en UTC
+  const contactosUsadosHoy = contactosFecha === hoyISO ? (contactosUsados||0) : 0;
+  const contactosRestantes = Math.max(0, LIMITE_GRATIS_DIARIO - contactosUsadosHoy);
   const puedeContactar = esPremium || contactosRestantes > 0;
 const intentarAplicar = () => { if (!puedeContactar) { setMuroPago(true); return; } if (oferta.email_empleador) { const carta = generarCarta(oferta, nombreUsuario, esPremium, perfil); if (oferta.email_empleador.includes('@')) { window.location.href = `mailto:${oferta.email_empleador}?subject=Candidature - ${tituloFr(oferta.titulo, perfil?.genero)}&body=${encodeURIComponent(carta)}`;} else { window.open(oferta.email_empleador.startsWith('http') ? oferta.email_empleador : `https://${oferta.email_empleador}`, '_blank'); } if (!esPremium) onContactoRealizado && onContactoRealizado(); } };
   const esCiudad = oferta.tipo==="ciudad" || false;
@@ -735,7 +731,7 @@ const intentarAplicar = () => { if (!puedeContactar) { setMuroPago(true); return
             </button>
             {!esPremium && (
               <p style={{ fontSize:"0.68rem", color:contactosRestantes>0?BRAND.muted:BRAND.warn, textAlign:"center", margin:"-0.1rem 0 0", fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif" }}>
-                {contactosRestantes>0 ? `Te quedan ${contactosRestantes} contactos gratis` : "Sin contactos gratis · desde €5.99/mes"}
+                {contactosRestantes>0 ? `Te quedan ${contactosRestantes} contactos gratis hoy` : "Ya usaste tus 3 contactos gratis de hoy · desde €7,99"}
               </p>
             )}
             <p style={{ fontSize:"0.62rem", color:BRAND.mutedLight, margin:"0.6rem 0 0", textAlign:"center", fontFamily:"'Hanken Grotesk',sans-serif", lineHeight:1.5, letterSpacing:"0.01em" }}>Base orientativa según tu perfil — revisala antes de enviar</p>
@@ -1173,7 +1169,8 @@ if (!error && data) setOfertasDB(data);
   'atlantica': 'Costa Atlántica',
   'pais-vasco': 'País Vasco',
   'provenza': 'Provenza',
-  'borgona': 'Borgoña / Ródano'
+  'borgona': 'Borgoña / Ródano',
+  'pirineos': 'Pirineos'
 };
 const mr = regionActiva==="todas"||o.region===(REGION_MAP[regionActiva]||regionActiva);
   const ma = ofertasDB.length > 0 ? (esAloj ? o.alojamiento===true : o.alojamiento===false) : true;
@@ -1276,7 +1273,7 @@ const mr = regionActiva==="todas"||o.region===(REGION_MAP[regionActiva]||regionA
           </div>
         )}
       </div>
-      <ModalOferta oferta={sel} onCerrar={()=>{ setSel(null); onCerrarExterna && onCerrarExterna(); }} onToast={onToast} esPremium={esPremium} nombreUsuario={usuario?.perfil?.nombre || usuario?.nombre} perfil={perfil} contactosUsados={usuario?.perfil?.contactos_gratis_usados} onContactoRealizado={onContactoRealizado} />
+      <ModalOferta oferta={sel} onCerrar={()=>{ setSel(null); onCerrarExterna && onCerrarExterna(); }} onToast={onToast} esPremium={esPremium} nombreUsuario={usuario?.perfil?.nombre || usuario?.nombre} perfil={perfil} contactosUsados={usuario?.perfil?.contactos_gratis_usados} contactosFecha={usuario?.perfil?.contactos_gratis_fecha} onContactoRealizado={onContactoRealizado} />
     </div>
   );
 }
@@ -1790,7 +1787,7 @@ function TabViajeros({ esPremium, onUpgrade, usuario, onEnviarSolicitud, onRespo
             <p style={{ fontSize:"0.78rem", color:BRAND.night, fontWeight:600, margin:"0 0 0.3rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>¿Querés conocer alguno de estos saisonniers?</p>
             <p style={{ fontSize:"0.73rem", color:BRAND.muted, margin:"0 0 0.75rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Con Premium podés mandarles una solicitud para conectar</p>
             <button onClick={onUpgrade} style={{ background:BRAND.cobalt, color:"#fff", border:"none", borderRadius:"0.5rem", padding:"0.6rem 1.5rem", fontSize:"0.75rem", fontWeight:700, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", letterSpacing:"0.06em", textTransform:"uppercase" }}>
-              Activar — €5,99/mes
+              Activar — €7,99 (3 meses)
             </button>
           </div>
         )}
@@ -1831,7 +1828,7 @@ function OfertasGuardadas({ perfil, esPremium, onUpgrade, onAbrirOferta, onSetEs
           </div>
         </div>
         <p style={{ fontSize:"0.77rem", color:BRAND.muted, lineHeight:1.6, margin:"0 0 0.875rem", fontFamily:"'Inter',sans-serif" }}>Guardá las ofertas que te interesan y encontralas todas juntas acá.</p>
-        <button onClick={onUpgrade} style={S.btnCobalt}>Activar membresía — €5.99/mes</button>
+        <button onClick={onUpgrade} style={S.btnCobalt}>Activar membresía — €7,99 (3 meses)</button>
       </div>
     );
   }
@@ -2126,7 +2123,7 @@ function TabHerramientas({ onToast, esPremium, usuario, onUpgrade, onAbrirOferta
               <Icon name="lock" size={20} color={BRAND.cobalt} />
             </div>
             <h3 style={{ fontSize:"1.05rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.5rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>Herramienta Saison</h3>
-            <p style={{ fontSize:"0.81rem", color:BRAND.muted, lineHeight:1.65, margin:"0 0 1.25rem", maxWidth:"240px", marginLeft:"auto", marginRight:"auto", fontFamily:"'Hanken Grotesk',sans-serif" }}>Disponible con membresía. Acceso completo desde €5.99/mes.</p>
+            <p style={{ fontSize:"0.81rem", color:BRAND.muted, lineHeight:1.65, margin:"0 0 1.25rem", maxWidth:"240px", marginLeft:"auto", marginRight:"auto", fontFamily:"'Hanken Grotesk',sans-serif" }}>Disponible con membresía. Acceso completo por €7,99 — 3 meses.</p>
             <button onClick={onUpgrade} style={{ ...S.btnCobalt, maxWidth:"260px" }}>Activar membresía</button>
           </div>
         ) : (
@@ -2225,6 +2222,14 @@ function TabServicios() {
 // ================================================================
 // AUTH
 // ================================================================
+async function chequearExpiracionPremium(perfil) {
+  if (perfil?.es_premium && perfil?.premium_hasta && new Date(perfil.premium_hasta) < new Date()) {
+    await supabase.from('Perfiles').update({ es_premium: false, subscription_status: 'expirada' }).eq('email', perfil.email);
+    perfil.es_premium = false;
+    perfil.subscription_status = 'expirada';
+  }
+}
+
 function PantallaAuth({ onLogin, onIniciarLogin }) {
   const [modo, setModo] = useState("registro");
   const [form, setForm] = useState({ nombre:"", email:"", password:"" });
@@ -2256,7 +2261,8 @@ const handleSubmit = async () => {
   if (error) { setError(error.message); return; }
   
   const { data: perfilExistente } = await supabase.from('Perfiles').select('*').eq('email', form.email).single();
-  
+  if (perfilExistente) await chequearExpiracionPremium(perfilExistente);
+
   if (!perfilExistente) {
     await supabase.from('Perfiles').insert({ 
       email: form.email, 
@@ -2266,7 +2272,7 @@ const handleSubmit = async () => {
   }
   
   onIniciarLogin && onIniciarLogin();
-  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, premiumHasta: perfilExistente?.premium_hasta || null, subscriptionStatus: perfilExistente?.subscription_status || null, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion, whatsapp: perfilExistente?.whatsapp, region_destino: perfilExistente?.region_destino, fecha_viaje: perfilExistente?.fecha_viaje, bio_viajero: perfilExistente?.bio_viajero, checklist_llegada: perfilExistente?.checklist_llegada || [], estados_aplicacion: perfilExistente?.estados_aplicacion || {}, ofertas_guardadas: perfilExistente?.ofertas_guardadas || [], contactos_gratis_usados: perfilExistente?.contactos_gratis_usados || 0, genero: perfilExistente?.genero || null } });
+  onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, premiumHasta: perfilExistente?.premium_hasta || null, subscriptionStatus: perfilExistente?.subscription_status || null, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion, whatsapp: perfilExistente?.whatsapp, region_destino: perfilExistente?.region_destino, fecha_viaje: perfilExistente?.fecha_viaje, bio_viajero: perfilExistente?.bio_viajero, checklist_llegada: perfilExistente?.checklist_llegada || [], estados_aplicacion: perfilExistente?.estados_aplicacion || {}, ofertas_guardadas: perfilExistente?.ofertas_guardadas || [], contactos_gratis_usados: perfilExistente?.contactos_gratis_usados || 0, contactos_gratis_fecha: perfilExistente?.contactos_gratis_fecha || null, genero: perfilExistente?.genero || null } });
   } else {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: form.email,
@@ -2275,9 +2281,10 @@ const handleSubmit = async () => {
     if (error) { setError("Email o contraseña incorrectos"); return; }
       const u = data.user;
   const { data: perfilLogin } = await supabase.from('Perfiles').select('*').eq('email', u.email).single();
+if (perfilLogin) await chequearExpiracionPremium(perfilLogin);
 console.log('perfil login:', perfilLogin);
 onIniciarLogin && onIniciarLogin();
-onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, premiumHasta: perfilLogin?.premium_hasta || null, subscriptionStatus: perfilLogin?.subscription_status || null, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion, whatsapp: perfilLogin?.whatsapp, region_destino: perfilLogin?.region_destino, fecha_viaje: perfilLogin?.fecha_viaje, bio_viajero: perfilLogin?.bio_viajero, checklist_llegada: perfilLogin?.checklist_llegada || [], estados_aplicacion: perfilLogin?.estados_aplicacion || {}, ofertas_guardadas: perfilLogin?.ofertas_guardadas || [], contactos_gratis_usados: perfilLogin?.contactos_gratis_usados || 0, genero: perfilLogin?.genero || null } });
+onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.split("@")[0], email: u.email, esPremium: perfilLogin?.es_premium || false, premiumHasta: perfilLogin?.premium_hasta || null, subscriptionStatus: perfilLogin?.subscription_status || null, id: u.id, perfil: { nombre: perfilLogin?.nombre, pais: perfilLogin?.pais, puesto: perfilLogin?.puesto, frances: perfilLogin?.frances, disponibilidad: perfilLogin?.disponibilidad, documentacion: perfilLogin?.documentacion, whatsapp: perfilLogin?.whatsapp, region_destino: perfilLogin?.region_destino, fecha_viaje: perfilLogin?.fecha_viaje, bio_viajero: perfilLogin?.bio_viajero, checklist_llegada: perfilLogin?.checklist_llegada || [], estados_aplicacion: perfilLogin?.estados_aplicacion || {}, ofertas_guardadas: perfilLogin?.ofertas_guardadas || [], contactos_gratis_usados: perfilLogin?.contactos_gratis_usados || 0, contactos_gratis_fecha: perfilLogin?.contactos_gratis_fecha || null, genero: perfilLogin?.genero || null } });
   }
 };
   if (modo === "recuperar") {
@@ -2375,7 +2382,7 @@ onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.spli
         <button onClick={handleSubmit} style={S.btnCobalt} onMouseDown={e=>e.currentTarget.style.transform="scale(0.97)"} onMouseUp={e=>e.currentTarget.style.transform="scale(1)"} onTouchStart={e=>e.currentTarget.style.transform="scale(0.97)"} onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"} onMouseEnter={e=>{e.currentTarget.style.opacity="0.9"}} onMouseLeave={e=>{e.currentTarget.style.opacity="1"}}>
           {modo==="registro"?"Crear cuenta gratis →":"Entrar →"}
         </button>
-        {modo==="registro" && <p style={{ textAlign:"center", fontSize:"0.69rem", color:BRAND.muted, marginTop:"0.875rem", lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif" }}>Explorá las ofertas gratis. Para aplicar directamente, activá la membresía desde €5.99/mes.</p>}
+        {modo==="registro" && <p style={{ textAlign:"center", fontSize:"0.69rem", color:BRAND.muted, marginTop:"0.875rem", lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif" }}>Explorá las ofertas gratis. Para aplicar directamente, activá la membresía — €7,99 por 3 meses.</p>}
       </div>
     </div>
   );
@@ -2451,11 +2458,17 @@ export default function App() {
     const semaforo = score >= 85 ? "verde" : score >= 65 ? "amarillo" : "rojo";
 
 
+    const hoyISO = new Date().toISOString().slice(0,10); // límite diario en UTC
     let contactosHeredados = usuario?.perfil?.contactos_gratis_usados || 0;
+    let fechaHeredada = usuario?.perfil?.contactos_gratis_fecha || null;
     if (perfil.whatsapp) {
-      const { data: historial } = await supabase.from('whatsapps_historial').select('contactos_gratis_usados').eq('whatsapp', perfil.whatsapp).single();
-      if (historial && historial.contactos_gratis_usados > contactosHeredados) {
+      // OJO: whatsapps_historial hoy solo guarda el total histórico (modelo viejo de 10 de por vida).
+      // Con el límite diario, solo tiene sentido heredar si el historial es de HOY — si no, se resetea igual.
+      // Falta agregar la columna contactos_gratis_fecha a whatsapps_historial y a lo que la escribe (borrado de cuenta).
+      const { data: historial } = await supabase.from('whatsapps_historial').select('contactos_gratis_usados, contactos_gratis_fecha').eq('whatsapp', perfil.whatsapp).single();
+      if (historial && historial.contactos_gratis_fecha === hoyISO && historial.contactos_gratis_usados > contactosHeredados) {
         contactosHeredados = historial.contactos_gratis_usados;
+        fechaHeredada = historial.contactos_gratis_fecha;
       }
     }
     const { error } = await supabase.from('Perfiles').update({
@@ -2472,6 +2485,7 @@ export default function App() {
       score,
       semaforo,
       contactos_gratis_usados: contactosHeredados,
+      contactos_gratis_fecha: fechaHeredada,
       genero: perfil.genero,
     }).eq('email', usuario.email);
 
@@ -2480,7 +2494,7 @@ export default function App() {
       return;
     }
 
-    setUsuario(u=>({...u, perfil:{...u.perfil, ...perfil, contactos_gratis_usados: contactosHeredados}}));
+    setUsuario(u=>({...u, perfil:{...u.perfil, ...perfil, contactos_gratis_usados: contactosHeredados, contactos_gratis_fecha: fechaHeredada}}));
     setMostrarPerfil(false);
     toast("Perfil actualizado · matching activado");
   }
@@ -2504,13 +2518,14 @@ export default function App() {
       if (session?.user) {
         const u = session.user;
         const { data: perfil } = await supabase.from('Perfiles').select('*').eq('email', u.email).single();
+        if (perfil) await chequearExpiracionPremium(perfil);
         setUsuario({
           nombre: perfil?.nombre || u.user_metadata?.nombre || u.email.split("@")[0],
           email: u.email,
           esPremium: perfil?.es_premium || false,
           premiumHasta: perfil?.premium_hasta || null, subscriptionStatus: perfil?.subscription_status || null,
           id: u.id,
-          perfil: { nombre: perfil?.nombre, pais: perfil?.pais, puesto: perfil?.puesto, frances: perfil?.frances, disponibilidad: perfil?.disponibilidad, documentacion: perfil?.documentacion, whatsapp: perfil?.whatsapp, region_destino: perfil?.region_destino, fecha_viaje: perfil?.fecha_viaje, bio_viajero: perfil?.bio_viajero, checklist_llegada: perfil?.checklist_llegada || [], estados_aplicacion: perfil?.estados_aplicacion || {}, ofertas_guardadas: perfil?.ofertas_guardadas || [], contactos_gratis_usados: perfil?.contactos_gratis_usados || 0, genero: perfil?.genero || null }
+          perfil: { nombre: perfil?.nombre, pais: perfil?.pais, puesto: perfil?.puesto, frances: perfil?.frances, disponibilidad: perfil?.disponibilidad, documentacion: perfil?.documentacion, whatsapp: perfil?.whatsapp, region_destino: perfil?.region_destino, fecha_viaje: perfil?.fecha_viaje, bio_viajero: perfil?.bio_viajero, checklist_llegada: perfil?.checklist_llegada || [], estados_aplicacion: perfil?.estados_aplicacion || {}, ofertas_guardadas: perfil?.ofertas_guardadas || [], contactos_gratis_usados: perfil?.contactos_gratis_usados || 0, contactos_gratis_fecha: perfil?.contactos_gratis_fecha || null, genero: perfil?.genero || null }
         });
       }
       setVerificandoSesion(false);
@@ -2541,9 +2556,11 @@ export default function App() {
   }
 
   async function registrarContactoGratis() {
-    const usados = (usuario?.perfil?.contactos_gratis_usados || 0) + 1;
-    await supabase.from('Perfiles').update({ contactos_gratis_usados: usados }).eq('email', usuario.email);
-    setUsuario(u=>({...u, perfil:{...u.perfil, contactos_gratis_usados: usados}}));
+    const hoyISO = new Date().toISOString().slice(0,10); // límite diario en UTC
+    const usadosHoy = usuario?.perfil?.contactos_gratis_fecha === hoyISO ? (usuario?.perfil?.contactos_gratis_usados || 0) : 0;
+    const usados = usadosHoy + 1;
+    await supabase.from('Perfiles').update({ contactos_gratis_usados: usados, contactos_gratis_fecha: hoyISO }).eq('email', usuario.email);
+    setUsuario(u=>({...u, perfil:{...u.perfil, contactos_gratis_usados: usados, contactos_gratis_fecha: hoyISO}}));
   }
   async function setEstadoAplicacion(ofertaId, estado) {
     const actuales = usuario?.perfil?.estados_aplicacion || {};
