@@ -378,7 +378,6 @@ const PUESTOS_FR = {
   "Anfitrión/a":"Hôte/Hôtesse d'accueil",
   "Encargado/a de desayunos":"Responsable petit-déjeuner",
   "Encargado/a de almacén":"Économe",
-  "Carnicero/a":"Boucher/ère",
 };
 
 function tituloFr(tituloEs, genero) {
@@ -902,6 +901,7 @@ const PASOS_PERFIL_OPCIONES = {
 const CODIGOS_PAIS_PERFIL = [
   {pais:"Argentina", dial:"+54"},{pais:"Chile", dial:"+56"},{pais:"Uruguay", dial:"+598"},
   {pais:"Perú", dial:"+51"},{pais:"Colombia", dial:"+57"},{pais:"Ecuador", dial:"+593"},
+  {pais:"Brasil", dial:"+55"},
   {pais:"México", dial:"+52"},{pais:"Venezuela", dial:"+58"},{pais:"España", dial:"+34"},
   {pais:"Italia", dial:"+39"},{pais:"Alemania", dial:"+49"},{pais:"Francia", dial:"+33"},
   {pais:"Portugal", dial:"+351"},{pais:"Suiza", dial:"+41"},{pais:"Reino Unido", dial:"+44"},
@@ -2383,7 +2383,7 @@ onLogin({ nombre: perfilLogin?.nombre || u.user_metadata?.nombre || u.email.spli
         <button onClick={handleSubmit} style={S.btnCobalt} onMouseDown={e=>e.currentTarget.style.transform="scale(0.97)"} onMouseUp={e=>e.currentTarget.style.transform="scale(1)"} onTouchStart={e=>e.currentTarget.style.transform="scale(0.97)"} onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"} onMouseEnter={e=>{e.currentTarget.style.opacity="0.9"}} onMouseLeave={e=>{e.currentTarget.style.opacity="1"}}>
           {modo==="registro"?"Crear cuenta gratis →":"Entrar →"}
         </button>
-        {modo==="registro" && <p style={{ textAlign:"center", fontSize:"0.69rem", color:BRAND.muted, marginTop:"0.875rem", lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif" }}>Explorá las ofertas gratis. Para aplicar directamente, activá la membresía — €7,99 por 3 meses.</p>}
+        {modo==="registro" && <p style={{ textAlign:"center", fontSize:"0.69rem", color:BRAND.muted, marginTop:"0.875rem", lineHeight:1.5, fontFamily:"'Hanken Grotesk',sans-serif" }}>Postulá hasta 3 veces gratis por día. Con la membresía —€7,99 por 3 meses— desbloqueás postulaciones ilimitadas y contacto directo con el empleador.</p>}
       </div>
     </div>
   );
