@@ -2265,13 +2265,20 @@ const handleSubmit = async () => {
   if (perfilExistente) await chequearExpiracionPremium(perfilExistente);
 
   if (!perfilExistente) {
-    await supabase.from('Perfiles').insert({ 
-      email: form.email, 
-      nombre: form.nombre, 
-      es_premium: false 
+    const { error: errorPerfil } = await supabase.from('Perfiles').insert({
+      email: form.email,
+      nombre: form.nombre,
+      es_premium: false,
+      auth_user_id: data.user.id,
     });
+    // Antes este error se ignoraba en silencio: si el insert fallaba, la cuenta de auth
+    // quedaba creada pero sin fila en Perfiles (usuario "fantasma"), sin ningún aviso.
+    if (errorPerfil) {
+      setError("Tu cuenta se creó pero hubo un problema guardando tu perfil. Volvé a intentar iniciar sesión — si sigue fallando, escribinos por WhatsApp.");
+      return;
+    }
   }
-  
+
   onIniciarLogin && onIniciarLogin();
   onLogin({ nombre: form.nombre, email: form.email, esPremium: perfilExistente?.es_premium || false, premiumHasta: perfilExistente?.premium_hasta || null, subscriptionStatus: perfilExistente?.subscription_status || null, id: data.user.id, perfil: { nombre: perfilExistente?.nombre || form.nombre, pais: perfilExistente?.pais, puesto: perfilExistente?.puesto, frances: perfilExistente?.frances, disponibilidad: perfilExistente?.disponibilidad, documentacion: perfilExistente?.documentacion, whatsapp: perfilExistente?.whatsapp, region_destino: perfilExistente?.region_destino, fecha_viaje: perfilExistente?.fecha_viaje, bio_viajero: perfilExistente?.bio_viajero, checklist_llegada: perfilExistente?.checklist_llegada || [], estados_aplicacion: perfilExistente?.estados_aplicacion || {}, ofertas_guardadas: perfilExistente?.ofertas_guardadas || [], contactos_gratis_usados: perfilExistente?.contactos_gratis_usados || 0, contactos_gratis_fecha: perfilExistente?.contactos_gratis_fecha || null, genero: perfilExistente?.genero || null } });
   } else {
@@ -2472,7 +2479,12 @@ export default function App() {
         fechaHeredada = historial.contactos_gratis_fecha;
       }
     }
-    const { error } = await supabase.from('Perfiles').update({
+    // upsert en vez de update: si por lo que sea no existe fila en Perfiles para este usuario
+    // (cuenta de auth "fantasma", ver bug de Audrey Sánchez del 7 sept), un .update() a una fila
+    // inexistente actualiza 0 filas sin devolver error — el usuario cree que guardó y no se guardó nada.
+    const { error } = await supabase.from('Perfiles').upsert({
+      email: usuario.email,
+      auth_user_id: usuario.id,
       nombre: perfil.nombre,
       pais: perfil.pais,
       puesto: perfil.puesto,
@@ -2488,7 +2500,7 @@ export default function App() {
       contactos_gratis_usados: contactosHeredados,
       contactos_gratis_fecha: fechaHeredada,
       genero: perfil.genero,
-    }).eq('email', usuario.email);
+    }, { onConflict: 'email' });
 
     if (error) {
       alert("Error al guardar: " + error.message);
