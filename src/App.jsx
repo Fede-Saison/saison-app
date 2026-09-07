@@ -653,7 +653,7 @@ function MatchBadge({ match }) {
   );
 }
 
-function ModalOferta({ oferta, onCerrar, onToast, esPremium, nombreUsuario, perfil, contactosUsados, contactosFecha, onContactoRealizado }) {
+function ModalOferta({ oferta, onCerrar, onToast, esPremium, nombreUsuario, perfil, contactosUsados, contactosFecha, onContactoRealizado, onAplicarOferta }) {
   const [muroPago, setMuroPago] = useState(false);
   if (!oferta) return null;
   const match = calcularMatch(oferta, perfil);
@@ -662,7 +662,7 @@ function ModalOferta({ oferta, onCerrar, onToast, esPremium, nombreUsuario, perf
   const contactosUsadosHoy = contactosFecha === hoyISO ? (contactosUsados||0) : 0;
   const contactosRestantes = Math.max(0, LIMITE_GRATIS_DIARIO - contactosUsadosHoy);
   const puedeContactar = esPremium || contactosRestantes > 0;
-const intentarAplicar = () => { if (!puedeContactar) { setMuroPago(true); return; } if (oferta.email_empleador) { const carta = generarCarta(oferta, nombreUsuario, esPremium, perfil); if (oferta.email_empleador.includes('@')) { window.location.href = `mailto:${oferta.email_empleador}?subject=Candidature - ${tituloFr(oferta.titulo, perfil?.genero)}&body=${encodeURIComponent(carta)}`;} else { window.open(oferta.email_empleador.startsWith('http') ? oferta.email_empleador : `https://${oferta.email_empleador}`, '_blank'); } if (!esPremium) onContactoRealizado && onContactoRealizado(); } };
+const intentarAplicar = () => { if (!puedeContactar) { setMuroPago(true); return; } if (oferta.email_empleador) { const carta = generarCarta(oferta, nombreUsuario, esPremium, perfil); if (oferta.email_empleador.includes('@')) { window.location.href = `mailto:${oferta.email_empleador}?subject=Candidature - ${tituloFr(oferta.titulo, perfil?.genero)}&body=${encodeURIComponent(carta)}`;} else { window.open(oferta.email_empleador.startsWith('http') ? oferta.email_empleador : `https://${oferta.email_empleador}`, '_blank'); } if (!esPremium) onContactoRealizado && onContactoRealizado(); onAplicarOferta && onAplicarOferta(oferta.id); } };
   const esCiudad = oferta.tipo==="ciudad" || false;
   return (
     <>
@@ -1130,7 +1130,7 @@ function ModalPerfil({ perfil, onGuardar, onCerrar, forzado }) {
 // ================================================================
 // TAB OFERTAS
 // ================================================================
-function TabOfertas({ usuario, onToast, esPremium, onCompletarPerfil, onToggleGuardar, ofertaExterna, onCerrarExterna, onAbrirGestionCuenta, onContactoRealizado }) {
+function TabOfertas({ usuario, onToast, esPremium, onCompletarPerfil, onToggleGuardar, ofertaExterna, onCerrarExterna, onAbrirGestionCuenta, onContactoRealizado, onAplicarOferta }) {
  const [modo, setModo] = useState("alojamiento");
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [ofertasDB, setOfertasDB] = useState([]);
@@ -1274,7 +1274,7 @@ const mr = regionActiva==="todas"||o.region===(REGION_MAP[regionActiva]||regionA
           </div>
         )}
       </div>
-      <ModalOferta oferta={sel} onCerrar={()=>{ setSel(null); onCerrarExterna && onCerrarExterna(); }} onToast={onToast} esPremium={esPremium} nombreUsuario={usuario?.perfil?.nombre || usuario?.nombre} perfil={perfil} contactosUsados={usuario?.perfil?.contactos_gratis_usados} contactosFecha={usuario?.perfil?.contactos_gratis_fecha} onContactoRealizado={onContactoRealizado} />
+      <ModalOferta oferta={sel} onCerrar={()=>{ setSel(null); onCerrarExterna && onCerrarExterna(); }} onToast={onToast} esPremium={esPremium} nombreUsuario={usuario?.perfil?.nombre || usuario?.nombre} perfil={perfil} contactosUsados={usuario?.perfil?.contactos_gratis_usados} contactosFecha={usuario?.perfil?.contactos_gratis_fecha} onContactoRealizado={onContactoRealizado} onAplicarOferta={onAplicarOferta} />
     </div>
   );
 }
@@ -2575,6 +2575,17 @@ export default function App() {
     await supabase.from('Perfiles').update({ contactos_gratis_usados: usados, contactos_gratis_fecha: hoyISO }).eq('email', usuario.email);
     setUsuario(u=>({...u, perfil:{...u.perfil, contactos_gratis_usados: usados, contactos_gratis_fecha: hoyISO}}));
   }
+  async function registrarPostulacion(ofertaId) {
+    // Al aplicar a una oferta: guardarla en "Guardadas" (si no estaba) y marcarla como
+    // "Postulación enviada" (si todavía no tenía un estado — no pisamos "oferta"/"rechazada"
+    // si el usuario ya venía actualizando el seguimiento a mano).
+    const guardadasActuales = usuario?.perfil?.ofertas_guardadas || [];
+    const nuevasGuardadas = guardadasActuales.includes(ofertaId) ? guardadasActuales : [...guardadasActuales, ofertaId];
+    const estadosActuales = usuario?.perfil?.estados_aplicacion || {};
+    const nuevosEstados = estadosActuales[ofertaId] ? estadosActuales : { ...estadosActuales, [ofertaId]: "enviada" };
+    await supabase.from('Perfiles').update({ ofertas_guardadas: nuevasGuardadas, estados_aplicacion: nuevosEstados }).eq('email', usuario.email);
+    setUsuario(u=>({...u, perfil:{...u.perfil, ofertas_guardadas: nuevasGuardadas, estados_aplicacion: nuevosEstados}}));
+  }
   async function setEstadoAplicacion(ofertaId, estado) {
     const actuales = usuario?.perfil?.estados_aplicacion || {};
     const nuevos = {...actuales, [ofertaId]: estado};
@@ -2632,7 +2643,7 @@ export default function App() {
       ) : (
         <div style={{ minHeight:"100vh", background:BRAND.bone }}>
          <div style={{ display:tab==="ofertas"?"block":"none" }}>
- <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} onToggleGuardar={toggleOfertaGuardada} ofertaExterna={ofertaAbierta} onCerrarExterna={()=>setOfertaAbierta(null)} onAbrirGestionCuenta={()=>setMostrarGestionCuenta(true)} onContactoRealizado={registrarContactoGratis} />
+ <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} onToggleGuardar={toggleOfertaGuardada} ofertaExterna={ofertaAbierta} onCerrarExterna={()=>setOfertaAbierta(null)} onAbrirGestionCuenta={()=>setMostrarGestionCuenta(true)} onContactoRealizado={registrarContactoGratis} onAplicarOferta={registrarPostulacion} />
 </div>
 <div style={{ display:tab==="herramientas"?"block":"none" }}>
   <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} onAbrirOferta={(o)=>{setOfertaAbierta(o); setTab("ofertas");}} onSetEstadoAplicacion={setEstadoAplicacion} onToggleChecklist={toggleChecklistItem} />
