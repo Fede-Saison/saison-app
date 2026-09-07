@@ -1834,35 +1834,66 @@ function OfertasGuardadas({ perfil, esPremium, onUpgrade, onAbrirOferta, onSetEs
     );
   }
 
+  // Agrupadas por estado, no en una lista plana: con varias ofertas del mismo puesto
+  // y la misma región (el caso más común hoy — housekeeping en los Alpes), diferenciarlas
+  // una por una es más difícil que ver de entrada en qué etapa está cada grupo.
+  const GRUPOS_ORDEN = [
+    { estado:"oferta", label:"Oferta recibida", color:BRAND.success },
+    { estado:null, label:"Sin aplicar todavía", color:BRAND.muted },
+    { estado:"enviada", label:"Postulación enviada", color:BRAND.cobalt },
+    { estado:"sin_respuesta", label:"Sin respuesta", color:BRAND.night },
+    { estado:"rechazada", label:"Rechazada", color:BRAND.red },
+  ];
+
   return (
     <Section icon="star" title="Ofertas Guardadas" badge={`${guardadas.length}`}>
       {guardadas.length === 0 ? (
         <p style={{ fontSize:"0.77rem", color:BRAND.muted, lineHeight:1.6, margin:0, fontFamily:"'Inter',sans-serif" }}>Todavía no guardaste ninguna oferta. Tocá la estrella en cualquier oferta de la pestaña principal para guardarla acá.</p>
       ) : (
-        <div style={{ display:"flex", flexDirection:"column", gap:"0.6rem" }}>
-          {guardadas.map(o=>{
-            const estadoActual = estados[o.id];
-            const infoEstado = ESTADOS_APLICACION.find(e=>e.v===estadoActual);
+        <div style={{ display:"flex", flexDirection:"column", gap:"1.1rem" }}>
+          {GRUPOS_ORDEN.map(grupo=>{
+            const ofertasGrupo = guardadas.filter(o=>(estados[o.id]||null)===grupo.estado);
+            if (ofertasGrupo.length===0) return null;
             return (
-            <div key={o.id} style={{ background:"#fff", border:`1.5px solid ${infoEstado?infoEstado.color:BRAND.boneDeep}`, borderRadius:"10px", padding:"0.9rem 1rem" }}>
-              <div onClick={()=>onAbrirOferta && onAbrirOferta(o)} style={{ cursor:"pointer" }}>
-                <p style={{ fontSize:"0.86rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.15rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>{o.titulo}</p>
-                <p style={{ fontSize:"0.71rem", color:BRAND.muted, margin:0, fontFamily:"'Inter',sans-serif" }}>{o.localidad && `${o.localidad} · `}{o.region || "Francia"} · {o.contrato}</p>
-                <p style={{ fontSize:"0.71rem", color:BRAND.cobalt, fontWeight:600, margin:"0.15rem 0 0", fontFamily:"'Inter',sans-serif" }}>{o.salario}</p>
+              <div key={grupo.label}>
+                <div style={{ display:"flex", alignItems:"center", gap:"6px", marginBottom:"0.5rem" }}>
+                  <div style={{ width:"7px", height:"7px", borderRadius:"50%", background:grupo.color, flexShrink:0 }} />
+                  <span style={{ fontSize:"0.68rem", fontWeight:700, letterSpacing:"0.05em", textTransform:"uppercase", color:grupo.color, fontFamily:"'Hanken Grotesk',sans-serif" }}>{grupo.label}</span>
+                  <span style={{ fontSize:"0.68rem", color:BRAND.mutedLight, fontFamily:"'Hanken Grotesk',sans-serif" }}>· {ofertasGrupo.length}</span>
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", gap:"0.6rem" }}>
+                  {ofertasGrupo.map(o=>{
+                    const estadoActual = estados[o.id];
+                    const infoEstado = ESTADOS_APLICACION.find(e=>e.v===estadoActual);
+                    return (
+                    <div key={o.id} style={{ background:"#fff", border:`1.5px solid ${infoEstado?infoEstado.color:BRAND.boneDeep}`, borderRadius:"10px", padding:"0.9rem 1rem" }}>
+                      <div onClick={()=>onAbrirOferta && onAbrirOferta(o)} style={{ cursor:"pointer" }}>
+                        <p style={{ fontSize:"0.86rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.15rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>{o.titulo}</p>
+                        <p style={{ fontSize:"0.71rem", color:BRAND.muted, margin:0, fontFamily:"'Inter',sans-serif" }}>{o.localidad && <strong style={{ color:BRAND.night }}>{o.localidad}</strong>}{o.localidad && " · "}{o.region || "Francia"} · {o.contrato}</p>
+                        <p style={{ fontSize:"0.71rem", color:BRAND.cobalt, fontWeight:600, margin:"0.15rem 0 0", fontFamily:"'Inter',sans-serif" }}>{o.salario}</p>
+                        {o.descripcion && (
+                          <p style={{ fontSize:"0.7rem", color:BRAND.muted, margin:"0.35rem 0 0", lineHeight:1.5, fontFamily:"'Inter',sans-serif" }}>
+                            {o.descripcion.length > 90 ? o.descripcion.slice(0,90)+"…" : o.descripcion}
+                          </p>
+                        )}
+                      </div>
+                      <div style={{ marginTop:"0.65rem", display:"flex", alignItems:"center", gap:"7px" }}>
+                        {infoEstado && <div style={{ width:"7px", height:"7px", borderRadius:"50%", background:infoEstado.color, flexShrink:0 }} />}
+                        <select
+                          value={estadoActual||""}
+                          onChange={e=>onSetEstadoAplicacion && onSetEstadoAplicacion(o.id, e.target.value)}
+                          style={{ flex:1, border:`1.3px solid ${infoEstado?infoEstado.color:BRAND.boneDeep}`, borderRadius:"7px", padding:"0.4rem 0.6rem", fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.7rem", fontWeight:700, letterSpacing:"0.03em", textTransform:"uppercase", color:infoEstado?infoEstado.color:BRAND.muted, background:"#fff", cursor:"pointer", appearance:"none" }}
+                        >
+                          <option value="">Sin aplicar todavía</option>
+                          {ESTADOS_APLICACION.map(e=><option key={e.v} value={e.v}>{e.label}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                  )})}
+                </div>
               </div>
-              <div style={{ marginTop:"0.65rem", display:"flex", alignItems:"center", gap:"7px" }}>
-                {infoEstado && <div style={{ width:"7px", height:"7px", borderRadius:"50%", background:infoEstado.color, flexShrink:0 }} />}
-                <select
-                  value={estadoActual||""}
-                  onChange={e=>onSetEstadoAplicacion && onSetEstadoAplicacion(o.id, e.target.value)}
-                  style={{ flex:1, border:`1.3px solid ${infoEstado?infoEstado.color:BRAND.boneDeep}`, borderRadius:"7px", padding:"0.4rem 0.6rem", fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.7rem", fontWeight:700, letterSpacing:"0.03em", textTransform:"uppercase", color:infoEstado?infoEstado.color:BRAND.muted, background:"#fff", cursor:"pointer", appearance:"none" }}
-                >
-                  <option value="">Sin aplicar todavía</option>
-                  {ESTADOS_APLICACION.map(e=><option key={e.v} value={e.v}>{e.label}</option>)}
-                </select>
-              </div>
-            </div>
-          )})}
+            );
+          })}
         </div>
       )}
     </Section>
