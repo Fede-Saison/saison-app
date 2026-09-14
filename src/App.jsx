@@ -480,13 +480,13 @@ function GestionCuenta({ usuario, onCerrar, onCerrarSesion, onToast }) {
 
             <p style={{ fontSize:"0.66rem", fontWeight:700, color:BRAND.muted, textTransform:"uppercase", letterSpacing:"0.06em", margin:"0 0 0.5rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>Legal</p>
             <div style={{ background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"12px", overflow:"hidden", marginBottom:"1.5rem" }}>
-              <div onClick={()=>window.open("https://saisonfr.com/terminos","_blank")} style={{ display:"flex", alignItems:"center", gap:"0.75rem", padding:"0.9rem 1rem", borderBottom:`1px solid ${BRAND.boneDeep}`, cursor:"pointer" }}>
+              <div onClick={()=>window.open("https://www.saisonfr.com/terminos.html","_blank")} style={{ display:"flex", alignItems:"center", gap:"0.75rem", padding:"0.9rem 1rem", borderBottom:`1px solid ${BRAND.boneDeep}`, cursor:"pointer" }}>
                 <div style={{ width:"34px", height:"34px", borderRadius:"8px", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                   <Icon name="filetext" size={15} color={BRAND.night} strokeWidth={1.8} />
                 </div>
                 <p style={{ fontSize:"0.83rem", fontWeight:700, color:BRAND.night, margin:0, flex:1, fontFamily:"'Hanken Grotesk',sans-serif" }}>Términos y condiciones</p>
               </div>
-              <div onClick={()=>window.open("https://saisonfr.com/privacidad","_blank")} style={{ display:"flex", alignItems:"center", gap:"0.75rem", padding:"0.9rem 1rem", cursor:"pointer" }}>
+              <div onClick={()=>window.open("https://www.saisonfr.com/privacidad.html","_blank")} style={{ display:"flex", alignItems:"center", gap:"0.75rem", padding:"0.9rem 1rem", cursor:"pointer" }}>
                 <div style={{ width:"34px", height:"34px", borderRadius:"8px", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                   <Icon name="shield" size={15} color={BRAND.night} strokeWidth={1.8} />
                 </div>
