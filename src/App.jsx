@@ -378,6 +378,7 @@ const PUESTOS_FR = {
   "Anfitrión/a":"Hôte/Hôtesse d'accueil",
   "Encargado/a de desayunos":"Responsable petit-déjeuner",
   "Encargado/a de almacén":"Économe",
+  "Instructor/a de fitness":"Coach fitness",
 };
 
 function tituloFr(tituloEs, genero) {
