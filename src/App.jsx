@@ -51,6 +51,14 @@ async function iniciarCheckout(plan) {
   window.location.href = data.url;
 }
 
+// Registro liviano de eventos para saber qué punto de entrada a Premium funciona.
+// Best-effort: si la tabla no existe todavía o falla el insert, no rompe nada.
+function registrarEvento(nombre, meta = {}) {
+  try {
+    supabase.from("eventos_app").insert({ nombre, meta }).then(() => {}, () => {});
+  } catch (e) { /* no-op */ }
+}
+
 // ================================================================
 // NIVELES DE FRANCÉS POR PUESTO (estándar Saison)
 // ================================================================
@@ -243,6 +251,8 @@ const Icon = ({ name, size=18, color="currentColor", strokeWidth=1.7 }) => {
     utensils:<><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></>,
     beddouble:<><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"/><path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/><path d="M12 4v6"/><path d="M2 18h20"/></>,
     x:<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>,
+    chevrondown:<><polyline points="6 9 12 15 18 9"/></>,
+    chevronup:<><polyline points="18 15 12 9 6 15"/></>,
   };
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">{paths[name]}</svg>;
 };
@@ -379,6 +389,7 @@ const PUESTOS_FR = {
   "Encargado/a de desayunos":"Responsable petit-déjeuner",
   "Encargado/a de almacén":"Économe",
   "Instructor/a de fitness":"Coach fitness",
+  "Niñero/a":"Baby-sitter",
 };
 
 function tituloFr(tituloEs, genero) {
@@ -585,7 +596,8 @@ function GestionCuenta({ usuario, onCerrar, onCerrarSesion, onToast }) {
   );
 }
 
-function MuroPago({ onCerrar }) {
+function MuroPago({ onCerrar, origen = "cupo_agotado" }) {
+  useEffect(() => { registrarEvento("muro_pago_visto", { origen }); }, []);
   return (
     <div onClick={onCerrar} style={{ position:"fixed", inset:0, background:"rgba(11,20,38,0.85)", backdropFilter:"blur(12px)", zIndex:1100, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
       <div onClick={e=>e.stopPropagation()} style={{ position:"relative", background:`linear-gradient(180deg, ${BRAND.night} 0%, #0D1930 100%)`, borderRadius:"1.5rem 1.5rem 0 0", width:"100%", maxWidth:"480px", padding:"1.75rem 1.75rem 3rem", animation:"slideUp 0.38s cubic-bezier(0.34,1.56,0.64,1)", border:`1px solid ${BRAND.nightSoft}`, borderBottom:"none", boxShadow:"0 -20px 60px rgba(10,58,242,0.15)" }}>
@@ -675,7 +687,8 @@ const intentarAplicar = () => { if (!puedeContactar) { setMuroPago(true); return
           </button>
           <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"1rem", marginBottom:"1.25rem", paddingRight:"2.2rem" }}>
             <div style={{ flex:1 }}>
-              <h2 style={{ fontSize:"1.25rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.25rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em", lineHeight:1.2 }}>{oferta.titulo}</h2>
+              <h2 style={{ fontSize:"1.25rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.15rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em", lineHeight:1.2 }}>{oferta.titulo}</h2>
+              <p style={{ fontSize:"0.68rem", color:BRAND.mutedLight, margin:"0 0 0.3rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{tituloFr(oferta.titulo, perfil?.genero)}</p>
               <p style={{ fontSize:"0.84rem", color:BRAND.muted, margin:0, fontFamily:"'Hanken Grotesk',sans-serif" }}>{oferta.tipo_establecimiento}{oferta.tipo_establecimiento && oferta.localidad ? " · " : ""}{oferta.localidad}</p>
             </div>
             <span style={{ background:esCiudad?BRAND.boneDeep:BRAND.night, color:esCiudad?BRAND.muted:BRAND.bone, fontSize:"0.62rem", fontWeight:700, padding:"0.28rem 0.75rem", borderRadius:"2rem", whiteSpace:"nowrap", flexShrink:0, letterSpacing:"0.06em", textTransform:"uppercase", fontFamily:"'Hanken Grotesk',sans-serif" }}>
@@ -723,6 +736,18 @@ const intentarAplicar = () => { if (!puedeContactar) { setMuroPago(true); return
             ))}
           </div>
           <p style={{ fontSize:"0.88rem", color:"#2D3A50", lineHeight:1.75, margin:"0 0 1.75rem", fontFamily:"'Hanken Grotesk',sans-serif" }}>{oferta.descripcion}</p>
+
+          {!esPremium && oferta.email_empleador && (
+            <div style={{ marginBottom:"1.25rem", border:"1.5px dashed rgba(10,58,242,0.35)", borderRadius:"0.875rem", padding:"1rem", textAlign:"center", background:"rgba(10,58,242,0.04)" }}>
+              <div style={{ width:"34px", height:"34px", borderRadius:"50%", background:BRAND.night, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 0.6rem" }}>
+                <Icon name="lock" size={15} color={BRAND.bone} />
+              </div>
+              <p style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.8rem", fontWeight:700, filter:"blur(3.5px)", userSelect:"none", color:BRAND.night, margin:"0 0 0.5rem" }}>{oferta.email_empleador.replace(/^[^@]+/, m => m.slice(0,1)+"●●●●●●●●")}</p>
+              <button onClick={()=>setMuroPago(true)} style={{ background:"none", border:"none", cursor:"pointer", padding:0, fontSize:"0.8rem", fontWeight:700, color:BRAND.cobalt, fontFamily:"'Hanken Grotesk',sans-serif" }}>Desbloqueá con Premium →</button>
+              <p style={{ fontSize:"0.65rem", color:BRAND.muted, margin:"0.25rem 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>Contactá directo al empleador</p>
+            </div>
+          )}
+
           <div style={{ display:"flex", flexDirection:"column", gap:"0.65rem" }}>
             <button onClick={intentarAplicar} style={S.btnCobalt} onMouseDown={e=>e.currentTarget.style.transform="scale(0.97)"} onMouseUp={e=>e.currentTarget.style.transform="scale(1)"} onTouchStart={e=>e.currentTarget.style.transform="scale(0.97)"} onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"} onMouseEnter={e=>{e.currentTarget.style.opacity="0.9"}} onMouseLeave={e=>{e.currentTarget.style.opacity="1"}}>
               <span style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.5rem" }}>
@@ -739,7 +764,7 @@ const intentarAplicar = () => { if (!puedeContactar) { setMuroPago(true); return
           </div>
         </div>
       </div>
-      {muroPago && <MuroPago onCerrar={()=>setMuroPago(false)} />}
+      {muroPago && <MuroPago onCerrar={()=>setMuroPago(false)} origen={contactosRestantes===0 ? "cupo_agotado" : "contacto_bloqueado"} />}
     </>
   );
 }
@@ -1252,12 +1277,24 @@ const mr = regionActiva==="todas"||o.region===(REGION_MAP[regionActiva]||regionA
         </div>
       )}
 
-      {!esPremium && (
-        <div style={{ margin:"0.875rem 1.25rem 0", background:BRAND.warnBg, border:`1px solid ${BRAND.warnBorder}`, borderRadius:"0.875rem", padding:"0.6rem 0.9rem", display:"flex", alignItems:"center", gap:"0.45rem" }}>
-          <Icon name="lock" size={13} color={BRAND.warn} />
-          <span style={{ fontSize:"0.73rem", color:BRAND.warn, fontWeight:600, flex:1, fontFamily:"'Hanken Grotesk',sans-serif" }}>Podés ver las ofertas — activá membresía para aplicar directamente</span>
-        </div>
-      )}
+      {!esPremium && (() => {
+        const LIMITE_GRATIS_DIARIO = 3;
+        const hoyISO = new Date().toISOString().slice(0,10);
+        const contactosUsadosHoy = perfil?.contactos_gratis_fecha === hoyISO ? (perfil?.contactos_gratis_usados||0) : 0;
+        const contactosRestantes = Math.max(0, LIMITE_GRATIS_DIARIO - contactosUsadosHoy);
+        return (
+          <div style={{ margin:"0.875rem 1.25rem 0", background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"0.875rem", padding:"0.6rem 0.9rem", display:"flex", alignItems:"center", gap:"0.5rem" }}>
+            <div style={{ display:"flex", gap:"0.25rem" }}>
+              {[0,1,2].map(i=>(
+                <div key={i} style={{ width:"7px", height:"7px", borderRadius:"50%", background: i < (LIMITE_GRATIS_DIARIO - contactosRestantes) ? BRAND.cobalt : BRAND.boneDeep }} />
+              ))}
+            </div>
+            <span style={{ fontSize:"0.73rem", color: contactosRestantes>0?BRAND.night:BRAND.warn, fontWeight:600, flex:1, fontFamily:"'Hanken Grotesk',sans-serif" }}>
+              {contactosRestantes>0 ? <>Te quedan <b style={{color:BRAND.cobalt}}>{contactosRestantes} contacto{contactosRestantes>1?"s":""}</b> gratis hoy</> : "Ya usaste tus 3 contactos gratis de hoy"}
+            </span>
+          </div>
+        );
+      })()}
       <div style={{ padding:"0.875rem 1.25rem 0.4rem" }}>
         <div style={{ position:"relative" }}>
           <span style={{ position:"absolute", left:"0.85rem", top:"50%", transform:"translateY(-50%)", pointerEvents:"none" }}><Icon name="search" size={14} color={BRAND.muted} /></span>
@@ -1805,7 +1842,7 @@ const ESTADOS_APLICACION = [
   { v:"rechazada", label:"Rechazada", color:BRAND.red },
 ];
 
-function OfertasGuardadas({ perfil, esPremium, onUpgrade, onAbrirOferta, onSetEstadoAplicacion }) {
+function OfertasGuardadas({ perfil, esPremium, onUpgrade, onAbrirOferta, onSetEstadoAplicacion, onEliminarGuardada }) {
   const idsGuardados = perfil?.ofertas_guardadas || [];
   const estados = perfil?.estados_aplicacion || {};
   const [ofertasDB, setOfertasDB] = useState([]);
@@ -1839,62 +1876,109 @@ function OfertasGuardadas({ perfil, esPremium, onUpgrade, onAbrirOferta, onSetEs
   // y la misma región (el caso más común hoy — housekeeping en los Alpes), diferenciarlas
   // una por una es más difícil que ver de entrada en qué etapa está cada grupo.
   const GRUPOS_ORDEN = [
-    { estado:"oferta", label:"Oferta recibida", color:BRAND.success },
-    { estado:null, label:"Sin aplicar todavía", color:BRAND.muted },
-    { estado:"enviada", label:"Postulación enviada", color:BRAND.cobalt },
-    { estado:"sin_respuesta", label:"Sin respuesta", color:BRAND.night },
-    { estado:"rechazada", label:"Rechazada", color:BRAND.red },
+    { estado:"oferta", label:"Oferta recibida", color:BRAND.success, abiertoPorDefecto:true },
+    { estado:null, label:"Sin aplicar todavía", color:BRAND.muted, abiertoPorDefecto:true },
+    { estado:"enviada", label:"Postulación enviada", color:BRAND.cobalt, abiertoPorDefecto:true },
+    { estado:"sin_respuesta", label:"Sin respuesta", color:BRAND.night, abiertoPorDefecto:false },
+    { estado:"rechazada", label:"Rechazada", color:BRAND.red, abiertoPorDefecto:false },
   ];
+
+  const [gruposCerrados, setGruposCerrados] = useState(() => {
+    const init = {};
+    GRUPOS_ORDEN.forEach(g => { if (!g.abiertoPorDefecto) init[g.label] = true; });
+    return init;
+  });
+  const toggleGrupo = label => setGruposCerrados(g => ({ ...g, [label]: !g[label] }));
+
+  const [expandidaId, setExpandidaId] = useState(null);
+  const [confirmarBorrado, setConfirmarBorrado] = useState(null); // oferta a confirmar, o null
+
+  const confirmarYEliminar = (oferta) => {
+    const tieneSeguimiento = !!estados[oferta.id];
+    if (tieneSeguimiento) { setConfirmarBorrado(oferta); return; }
+    onEliminarGuardada && onEliminarGuardada(oferta.id);
+  };
 
   return (
     <Section icon="star" title="Ofertas Guardadas" badge={`${guardadas.length}`}>
       {guardadas.length === 0 ? (
         <p style={{ fontSize:"0.77rem", color:BRAND.muted, lineHeight:1.6, margin:0, fontFamily:"'Inter',sans-serif" }}>Todavía no guardaste ninguna oferta. Tocá la estrella en cualquier oferta de la pestaña principal para guardarla acá.</p>
       ) : (
-        <div style={{ display:"flex", flexDirection:"column", gap:"1.1rem" }}>
+        <div style={{ display:"flex", flexDirection:"column", gap:"0.9rem" }}>
           {GRUPOS_ORDEN.map(grupo=>{
             const ofertasGrupo = guardadas.filter(o=>(estados[o.id]||null)===grupo.estado);
             if (ofertasGrupo.length===0) return null;
+            const cerrado = !!gruposCerrados[grupo.label];
             return (
               <div key={grupo.label}>
-                <div style={{ display:"flex", alignItems:"center", gap:"6px", marginBottom:"0.5rem" }}>
+                <div onClick={()=>toggleGrupo(grupo.label)} style={{ display:"flex", alignItems:"center", gap:"6px", marginBottom: cerrado?0:"0.5rem", cursor:"pointer", padding:"0.15rem 0" }}>
                   <div style={{ width:"7px", height:"7px", borderRadius:"50%", background:grupo.color, flexShrink:0 }} />
                   <span style={{ fontSize:"0.68rem", fontWeight:700, letterSpacing:"0.05em", textTransform:"uppercase", color:grupo.color, fontFamily:"'Hanken Grotesk',sans-serif" }}>{grupo.label}</span>
                   <span style={{ fontSize:"0.68rem", color:BRAND.mutedLight, fontFamily:"'Hanken Grotesk',sans-serif" }}>· {ofertasGrupo.length}</span>
+                  <span style={{ flex:1 }} />
+                  <Icon name={cerrado?"chevrondown":"chevronup"} size={13} color={BRAND.mutedLight} />
                 </div>
-                <div style={{ display:"flex", flexDirection:"column", gap:"0.6rem" }}>
+                {!cerrado && (
+                <div style={{ display:"flex", flexDirection:"column", gap:"0.45rem" }}>
                   {ofertasGrupo.map(o=>{
                     const estadoActual = estados[o.id];
                     const infoEstado = ESTADOS_APLICACION.find(e=>e.v===estadoActual);
+                    const expandida = expandidaId === o.id;
                     return (
-                    <div key={o.id} style={{ background:"#fff", border:`1.5px solid ${infoEstado?infoEstado.color:BRAND.boneDeep}`, borderRadius:"10px", padding:"0.9rem 1rem" }}>
-                      <div onClick={()=>onAbrirOferta && onAbrirOferta(o)} style={{ cursor:"pointer" }}>
-                        <p style={{ fontSize:"0.86rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.15rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>{o.titulo}</p>
-                        <p style={{ fontSize:"0.71rem", color:BRAND.muted, margin:0, fontFamily:"'Inter',sans-serif" }}>{o.localidad && <strong style={{ color:BRAND.night }}>{o.localidad}</strong>}{o.localidad && " · "}{o.region || "Francia"} · {o.contrato}</p>
-                        <p style={{ fontSize:"0.71rem", color:BRAND.cobalt, fontWeight:600, margin:"0.15rem 0 0", fontFamily:"'Inter',sans-serif" }}>{o.salario}</p>
-                        {o.descripcion && (
-                          <p style={{ fontSize:"0.7rem", color:BRAND.muted, margin:"0.35rem 0 0", lineHeight:1.5, fontFamily:"'Inter',sans-serif" }}>
-                            {o.descripcion.length > 90 ? o.descripcion.slice(0,90)+"…" : o.descripcion}
-                          </p>
-                        )}
-                      </div>
-                      <div style={{ marginTop:"0.65rem", display:"flex", alignItems:"center", gap:"7px" }}>
+                    <div key={o.id} style={{ background:"#fff", border:`1.3px solid ${infoEstado?infoEstado.color:BRAND.boneDeep}`, borderRadius:"10px", overflow:"hidden" }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:"0.55rem", padding:"0.65rem 0.75rem", cursor:"pointer" }} onClick={()=>setExpandidaId(expandida?null:o.id)}>
                         {infoEstado && <div style={{ width:"7px", height:"7px", borderRadius:"50%", background:infoEstado.color, flexShrink:0 }} />}
-                        <select
-                          value={estadoActual||""}
-                          onChange={e=>onSetEstadoAplicacion && onSetEstadoAplicacion(o.id, e.target.value)}
-                          style={{ flex:1, border:`1.3px solid ${infoEstado?infoEstado.color:BRAND.boneDeep}`, borderRadius:"7px", padding:"0.4rem 0.6rem", fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.7rem", fontWeight:700, letterSpacing:"0.03em", textTransform:"uppercase", color:infoEstado?infoEstado.color:BRAND.muted, background:"#fff", cursor:"pointer", appearance:"none" }}
-                        >
-                          <option value="">Sin aplicar todavía</option>
-                          {ESTADOS_APLICACION.map(e=><option key={e.v} value={e.v}>{e.label}</option>)}
-                        </select>
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <p style={{ fontSize:"0.8rem", fontWeight:700, color:BRAND.night, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{o.titulo}</p>
+                          <p style={{ fontSize:"0.66rem", color:BRAND.muted, margin:0, fontFamily:"'Inter',sans-serif", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{o.localidad && <strong style={{ color:BRAND.night }}>{o.localidad}</strong>}{o.localidad && " · "}{o.empleador || o.region || "Francia"}</p>
+                        </div>
+                        <button onClick={e=>{e.stopPropagation(); confirmarYEliminar(o);}} style={{ background:"none", border:"none", cursor:"pointer", padding:"0.3rem", flexShrink:0, opacity:0.5 }}>
+                          <Icon name="x" size={13} color={BRAND.muted} />
+                        </button>
+                        <Icon name={expandida?"chevronup":"chevrondown"} size={13} color={BRAND.mutedLight} />
                       </div>
+                      {expandida && (
+                        <div style={{ padding:"0 0.75rem 0.75rem" }}>
+                          <p style={{ fontSize:"0.71rem", color:BRAND.muted, margin:"0 0 0.15rem", fontFamily:"'Inter',sans-serif" }}>{o.region || "Francia"} · {o.contrato}</p>
+                          <p style={{ fontSize:"0.71rem", color:BRAND.cobalt, fontWeight:600, margin:"0 0 0.4rem", fontFamily:"'Inter',sans-serif" }}>{o.salario}</p>
+                          {o.descripcion && (
+                            <p style={{ fontSize:"0.7rem", color:BRAND.muted, margin:"0 0 0.6rem", lineHeight:1.5, fontFamily:"'Inter',sans-serif" }}>
+                              {o.descripcion.length > 140 ? o.descripcion.slice(0,140)+"…" : o.descripcion}
+                            </p>
+                          )}
+                          <div style={{ display:"flex", alignItems:"center", gap:"7px" }} onClick={e=>e.stopPropagation()}>
+                            <select
+                              value={estadoActual||""}
+                              onChange={e=>onSetEstadoAplicacion && onSetEstadoAplicacion(o.id, e.target.value)}
+                              style={{ flex:1, border:`1.3px solid ${infoEstado?infoEstado.color:BRAND.boneDeep}`, borderRadius:"7px", padding:"0.4rem 0.6rem", fontFamily:"'Hanken Grotesk',sans-serif", fontSize:"0.7rem", fontWeight:700, letterSpacing:"0.03em", textTransform:"uppercase", color:infoEstado?infoEstado.color:BRAND.muted, background:"#fff", cursor:"pointer", appearance:"none" }}
+                            >
+                              <option value="">Sin aplicar todavía</option>
+                              {ESTADOS_APLICACION.map(e=><option key={e.v} value={e.v}>{e.label}</option>)}
+                            </select>
+                            <button onClick={()=>onAbrirOferta && onAbrirOferta(o)} style={{ background:"none", border:`1.3px solid ${BRAND.boneDeep}`, borderRadius:"7px", padding:"0.4rem 0.7rem", fontSize:"0.68rem", fontWeight:700, color:BRAND.night, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", whiteSpace:"nowrap" }}>Ver oferta</button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )})}
                 </div>
+                )}
               </div>
             );
           })}
+        </div>
+      )}
+
+      {confirmarBorrado && (
+        <div onClick={()=>setConfirmarBorrado(null)} style={{ position:"fixed", inset:0, background:"rgba(11,20,38,0.6)", zIndex:900, display:"flex", alignItems:"center", justifyContent:"center", padding:"1.5rem" }}>
+          <div onClick={e=>e.stopPropagation()} style={{ background:"#fff", borderRadius:"1rem", padding:"1.25rem", maxWidth:"340px", width:"100%" }}>
+            <p style={{ fontSize:"0.88rem", fontWeight:700, color:BRAND.night, margin:"0 0 0.4rem", fontFamily:"'Bricolage Grotesque',sans-serif" }}>¿Eliminar esta oferta guardada?</p>
+            <p style={{ fontSize:"0.76rem", color:BRAND.muted, margin:"0 0 1rem", lineHeight:1.5, fontFamily:"'Inter',sans-serif" }}>Vas a perder el seguimiento de tu postulación a "{confirmarBorrado.titulo}" ({ESTADOS_APLICACION.find(e=>e.v===estados[confirmarBorrado.id])?.label || "en curso"}).</p>
+            <div style={{ display:"flex", gap:"0.6rem" }}>
+              <button onClick={()=>setConfirmarBorrado(null)} style={{ flex:1, background:BRAND.boneDeep, border:"none", borderRadius:"0.6rem", padding:"0.7rem", fontSize:"0.78rem", fontWeight:700, color:BRAND.night, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif" }}>Cancelar</button>
+              <button onClick={()=>{ onEliminarGuardada && onEliminarGuardada(confirmarBorrado.id); setConfirmarBorrado(null); }} style={{ flex:1, background:BRAND.red, border:"none", borderRadius:"0.6rem", padding:"0.7rem", fontSize:"0.78rem", fontWeight:700, color:"#fff", cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif" }}>Eliminar</button>
+            </div>
+          </div>
         </div>
       )}
     </Section>
@@ -2127,27 +2211,58 @@ function RecursosDescargables() {
 }
 
 
-function TabHerramientas({ onToast, esPremium, usuario, onUpgrade, onAbrirOferta, onSetEstadoAplicacion, onToggleChecklist }) {
-  const [seccion, setSeccion] = useState("calculadora");
+function TabHerramientas({ onToast, esPremium, usuario, onUpgrade, onAbrirOferta, onSetEstadoAplicacion, onToggleChecklist, onEliminarGuardada }) {
+  const [seccion, setSeccion] = useState(null);
   const sec = SECCIONES.find(s=>s.id===seccion);
-  const bloqueada = !sec?.libre && !esPremium;
+  const bloqueada = seccion && !sec?.libre && !esPremium;
+
+  const abrirSeccion = (s) => {
+    registrarEvento("recurso_abierto", { id: s.id, libre: s.libre });
+    setSeccion(s.id);
+  };
+
+  if (!seccion) {
+    return (
+      <div style={{ background:BRAND.bone, minHeight:"100vh" }}>
+        <div style={{ background:BRAND.night, padding:"1rem 1.4rem 1.25rem" }}>
+          <h2 style={{ fontSize:"1.1rem", fontWeight:700, color:BRAND.bone, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em" }}>Recursos</h2>
+          <p style={{ fontSize:"0.76rem", color:BRAND.mutedLight, margin:"0.3rem 0 0", fontFamily:"'Hanken Grotesk',sans-serif" }}>Todo lo que necesitás, en un solo lugar</p>
+        </div>
+        <div style={{ padding:"1.1rem 1.1rem 7rem" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:"0.6rem" }}>
+            {SECCIONES.map(s=>{
+              const bloq = !s.libre && !esPremium;
+              return (
+                <button key={s.id} onClick={()=>abrirSeccion(s)} style={{ position:"relative", display:"flex", flexDirection:"column", alignItems:"center", gap:"0.45rem", background:"#fff", border:`1px solid ${BRAND.boneDeep}`, borderRadius:"14px", padding:"0.9rem 0.5rem", cursor:"pointer", textAlign:"center" }}>
+                  {bloq && <span style={{ position:"absolute", top:"7px", right:"7px" }}><Icon name="lock" size={12} color={BRAND.mutedLight} /></span>}
+                  <div style={{ width:"34px", height:"34px", borderRadius:"10px", background:BRAND.boneDeep, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <Icon name={s.icon} size={16} color={BRAND.night} strokeWidth={1.8} />
+                  </div>
+                  <span style={{ fontSize:"0.66rem", fontWeight:700, color:BRAND.night, lineHeight:1.25, fontFamily:"'Hanken Grotesk',sans-serif" }}>{s.label}</span>
+                </button>
+              );
+            })}
+            {!esPremium && (
+              <button onClick={()=>{ registrarEvento("muro_pago_visto", { origen:"recursos_grid" }); onUpgrade && onUpgrade(); }} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:"0.45rem", background:BRAND.night, border:`1px solid ${BRAND.night}`, borderRadius:"14px", padding:"0.9rem 0.5rem", cursor:"pointer", textAlign:"center" }}>
+                <div style={{ width:"34px", height:"34px", borderRadius:"10px", background:"rgba(245,243,236,0.12)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <Icon name="crown" size={16} color="#FFD873" strokeWidth={1.8} />
+                </div>
+                <span style={{ fontSize:"0.66rem", fontWeight:700, color:BRAND.bone, lineHeight:1.25, fontFamily:"'Hanken Grotesk',sans-serif" }}>Hazte Premium</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ background:BRAND.bone, minHeight:"100vh" }}>
-      <div style={{ background:BRAND.night, padding:"1rem 1.4rem 0" }}>
-        <h2 style={{ fontSize:"1.1rem", fontWeight:700, color:BRAND.bone, margin:"0 0 0.875rem", fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em" }}>Recursos</h2>
-        <div style={{ display:"flex", gap:"0.35rem", overflowX:"auto", paddingBottom:"0.875rem", scrollbarWidth:"none" }}>
-          {SECCIONES.map(s=>{
-            const activa = seccion===s.id;
-            const bloq = !s.libre && !esPremium;
-            return (
-              <button key={s.id} onClick={()=>setSeccion(s.id)} style={{ display:"flex", alignItems:"center", gap:"0.3rem", background:activa?BRAND.bone:"transparent", color:activa?BRAND.night:BRAND.mutedLight, border:`1px solid ${activa?BRAND.bone:"rgba(255,255,255,0.12)"}`, borderRadius:"2rem", padding:"0.35rem 0.7rem 0.35rem 0.6rem", fontSize:"0.71rem", fontWeight:600, cursor:"pointer", fontFamily:"'Hanken Grotesk',sans-serif", whiteSpace:"nowrap", flexShrink:0, transition:"all 0.15s", opacity:bloq?0.6:1 }}>
-                <Icon name={s.icon} size={11} color={activa?BRAND.cobalt:BRAND.mutedLight} strokeWidth={2} />
-                {s.label}
-                {bloq && <Icon name="lock" size={9} color={activa?BRAND.cobalt:"rgba(255,255,255,0.4)"} strokeWidth={2.5} />}
-              </button>
-            );
-          })}
-        </div>
+      <div style={{ background:BRAND.night, padding:"1rem 1.4rem 0.875rem", display:"flex", alignItems:"center", gap:"0.6rem" }}>
+        <button onClick={()=>setSeccion(null)} style={{ background:"rgba(255,255,255,0.08)", border:"none", borderRadius:"50%", width:"30px", height:"30px", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+          <span style={{ display:"flex", transform:"rotate(90deg)" }}><Icon name="chevrondown" size={14} color={BRAND.bone} strokeWidth={2.2} /></span>
+        </button>
+        <h2 style={{ fontSize:"1.05rem", fontWeight:700, color:BRAND.bone, margin:0, fontFamily:"'Bricolage Grotesque',sans-serif", letterSpacing:"-0.02em" }}>{sec?.label || "Recursos"}</h2>
       </div>
       <div style={{ padding:"1rem 1.25rem 7rem" }}>
         {bloqueada ? (
@@ -2166,7 +2281,7 @@ function TabHerramientas({ onToast, esPremium, usuario, onUpgrade, onAbrirOferta
             {seccion==="puestos" && <GuiaPuestos />}
             {seccion==="frances" && <FrasesSup />}
             {seccion==="partir" && <AntesDepartir />}
-            {seccion==="guardadas" && <OfertasGuardadas perfil={usuario?.perfil} esPremium={esPremium} onUpgrade={onUpgrade} onAbrirOferta={onAbrirOferta} onSetEstadoAplicacion={onSetEstadoAplicacion} />}
+            {seccion==="guardadas" && <OfertasGuardadas perfil={usuario?.perfil} esPremium={esPremium} onUpgrade={onUpgrade} onAbrirOferta={onAbrirOferta} onSetEstadoAplicacion={onSetEstadoAplicacion} onEliminarGuardada={onEliminarGuardada} />}
             {seccion==="contrato" && <ChecklistContrato />}
             {seccion==="cierre" && <DocumentosCierre />}
             {seccion==="arribo" && <Checklist onToast={onToast} perfil={usuario?.perfil} onToggleChecklist={onToggleChecklist} />}
@@ -2600,6 +2715,14 @@ export default function App() {
     setUsuario(u=>({...u, perfil:{...u.perfil, ofertas_guardadas: nuevaLista}}));
   }
 
+  async function eliminarOfertaGuardada(ofertaId) {
+    const actuales = usuario?.perfil?.ofertas_guardadas || [];
+    const nuevaLista = actuales.filter(id=>id!==ofertaId);
+    const estadosActuales = usuario?.perfil?.estados_aplicacion || {};
+    const { [ofertaId]:_, ...nuevosEstados } = estadosActuales;
+    await supabase.from('Perfiles').update({ ofertas_guardadas: nuevaLista, estados_aplicacion: nuevosEstados }).eq('email', usuario.email);
+    setUsuario(u=>({...u, perfil:{...u.perfil, ofertas_guardadas: nuevaLista, estados_aplicacion: nuevosEstados}}));
+  }
   async function registrarContactoGratis() {
     const hoyISO = new Date().toISOString().slice(0,10); // límite diario en UTC
     const usadosHoy = usuario?.perfil?.contactos_gratis_fecha === hoyISO ? (usuario?.perfil?.contactos_gratis_usados || 0) : 0;
@@ -2678,7 +2801,7 @@ export default function App() {
  <TabOfertas usuario={usuario} onToast={toast} esPremium={esPremium} onCompletarPerfil={()=>setMostrarPerfil(true)} onToggleGuardar={toggleOfertaGuardada} ofertaExterna={ofertaAbierta} onCerrarExterna={()=>setOfertaAbierta(null)} onAbrirGestionCuenta={()=>setMostrarGestionCuenta(true)} onContactoRealizado={registrarContactoGratis} onAplicarOferta={registrarPostulacion} />
 </div>
 <div style={{ display:tab==="herramientas"?"block":"none" }}>
-  <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} onAbrirOferta={(o)=>{setOfertaAbierta(o); setTab("ofertas");}} onSetEstadoAplicacion={setEstadoAplicacion} onToggleChecklist={toggleChecklistItem} />
+  <TabHerramientas onToast={toast} esPremium={esPremium} usuario={usuario} onUpgrade={()=>setMostrarMuroPago(true)} onAbrirOferta={(o)=>{setOfertaAbierta(o); setTab("ofertas");}} onSetEstadoAplicacion={setEstadoAplicacion} onToggleChecklist={toggleChecklistItem} onEliminarGuardada={eliminarOfertaGuardada} />
 </div>
 <div style={{ display:tab==="viajeros"?"block":"none" }}>
   <TabViajeros esPremium={esPremium} onUpgrade={()=>setMostrarMuroPago(true)} usuario={usuario} onEnviarSolicitud={enviarSolicitud} onResponderSolicitud={responderSolicitud} onCambioSolicitudes={refrescarSolicitudes} onToast={toast} />
