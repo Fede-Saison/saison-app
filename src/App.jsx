@@ -388,8 +388,13 @@ const PUESTOS_FR = {
   "Anfitrión/a":"Hôte/Hôtesse d'accueil",
   "Encargado/a de desayunos":"Responsable petit-déjeuner",
   "Encargado/a de almacén":"Économe",
-  "Instructor/a de fitness":"Coach fitness",
   "Niñero/a":"Baby-sitter",
+  "Segundo/a de cocina":"Second(e) de cuisine",
+  "Encargado/a de sala":"Responsable de salle",
+  "Empleado/a polivalente":"Employé(e) polyvalent(e)",
+  "Instructor/a de fitness":"Coach fitness / Animateur(trice) sportif(ve)",
+  "Agente de limpieza":"Agent(e) de nettoyage / d'entretien",
+  "Asistente de playa":"Assistant(e) plage / piscine",
 };
 
 function tituloFr(tituloEs, genero) {
