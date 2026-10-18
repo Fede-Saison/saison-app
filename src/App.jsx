@@ -403,6 +403,31 @@ function tituloFr(tituloEs, genero) {
   if (typeof entry === "string") return entry;
   return genero === "Femenino" ? entry.f : entry.m;
 }
+function abrirCorreoPostulacion({ para, asunto, cuerpo, emailUsuario }) {
+  const a = encodeURIComponent(asunto);
+  const b = encodeURIComponent(cuerpo);
+  const p = encodeURIComponent(para);
+  const esMovil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const dominio = (emailUsuario || "").split("@")[1]?.toLowerCase() || "";
+
+  if (!esMovil) {
+    if (/^(gmail|googlemail)\./.test(dominio)) {
+      window.open(
+        `https://mail.google.com/mail/?view=cm&fs=1&authuser=${encodeURIComponent(emailUsuario)}&to=${p}&su=${a}&body=${b}`,
+        "_blank", "noopener"
+      );
+      return;
+    }
+    if (/^(outlook|hotmail|live|msn)\./.test(dominio)) {
+      window.open(
+        `https://outlook.live.com/mail/0/deeplink/compose?to=${p}&subject=${a}&body=${b}`,
+        "_blank", "noopener"
+      );
+      return;
+    }
+  }
+  window.location.href = `mailto:${para}?subject=${a}&body=${b}`;
+}
 
 function generarCarta(oferta, nombre, esPremium, perfil) {
   const genero = perfil?.genero;
@@ -673,6 +698,7 @@ function MatchBadge({ match }) {
 
 function ModalOferta({ oferta, onCerrar, onToast, esPremium, nombreUsuario, perfil, contactosUsados, contactosFecha, onContactoRealizado, onAplicarOferta }) {
   const [muroPago, setMuroPago] = useState(false);
+  const [aplicoAhora, setAplicoAhora] = useState(false);
   if (!oferta) return null;
   const match = calcularMatch(oferta, perfil);
   const LIMITE_GRATIS_DIARIO = 3;
@@ -680,7 +706,7 @@ function ModalOferta({ oferta, onCerrar, onToast, esPremium, nombreUsuario, perf
   const contactosUsadosHoy = contactosFecha === hoyISO ? (contactosUsados||0) : 0;
   const contactosRestantes = Math.max(0, LIMITE_GRATIS_DIARIO - contactosUsadosHoy);
   const puedeContactar = esPremium || contactosRestantes > 0;
-const intentarAplicar = () => { if (!puedeContactar) { setMuroPago(true); return; } if (oferta.email_empleador) { const carta = generarCarta(oferta, nombreUsuario, esPremium, perfil); if (oferta.email_empleador.includes('@')) { window.location.href = `mailto:${oferta.email_empleador}?subject=Candidature - ${tituloFr(oferta.titulo, perfil?.genero)}&body=${encodeURIComponent(carta)}`;} else { window.open(oferta.email_empleador.startsWith('http') ? oferta.email_empleador : `https://${oferta.email_empleador}`, '_blank'); } if (!esPremium) onContactoRealizado && onContactoRealizado(); onAplicarOferta && onAplicarOferta(oferta.id); } };
+const intentarAplicar = () => { if (!puedeContactar) { setMuroPago(true); return; } if (oferta.email_empleador) { const carta = generarCarta(oferta, nombreUsuario, esPremium, perfil); if (oferta.email_empleador.includes('@')) { abrirCorreoPostulacion({ para: oferta.email_empleador, asunto: `Candidature - ${tituloFr(oferta.titulo, perfil?.genero)}`, cuerpo: carta, emailUsuario: perfil?.email }); setAplicoAhora(true); } else { window.open(oferta.email_empleador.startsWith('http') ? oferta.email_empleador : `https://${oferta.email_empleador}`, '_blank'); } if (!esPremium) onContactoRealizado && onContactoRealizado(); onAplicarOferta && onAplicarOferta(oferta.id); } };
   const esCiudad = oferta.tipo==="ciudad" || false;
   return (
     <>
@@ -760,6 +786,17 @@ const intentarAplicar = () => { if (!puedeContactar) { setMuroPago(true); return
                 <Icon name="mail" size={15} color="#fff" /> Aplicar con carta lista
               </span>
             </button>
+                        {aplicoAhora && esPremium && (
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(`Para: ${oferta.email_empleador}\nAsunto: Candidature - ${tituloFr(oferta.titulo, perfil?.genero)}\n\n${generarCarta(oferta, nombreUsuario, esPremium, perfil)}`);
+                  onToast("Email y carta copiados");
+                }}
+                style={{ background:"none", border:"none", cursor:"pointer", padding:0, fontSize:"0.72rem", color:BRAND.muted, textDecoration:"underline", fontFamily:"'Hanken Grotesk',sans-serif" }}
+              >
+                ¿No se abrió tu correo? Copiar email y carta
+              </button>
+            )}
             {!esPremium && (
               <p style={{ fontSize:"0.68rem", color:contactosRestantes>0?BRAND.muted:BRAND.warn, textAlign:"center", margin:"-0.1rem 0 0", fontWeight:600, fontFamily:"'Hanken Grotesk',sans-serif" }}>
                 {contactosRestantes>0 ? `Te quedan ${contactosRestantes} contactos gratis hoy` : "Ya usaste tus 3 contactos gratis de hoy · desde €7,99"}
