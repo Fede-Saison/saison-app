@@ -273,11 +273,13 @@ const REGIONES_ALOJAMIENTO = [
 ];
 const REGIONES_CIUDAD = [
   { id:"todas", label:"Todas", icon:"globe" },
+  { id:"alpes", label:"Alpes / Saboya", icon:"mountain" },
+  { id:"atlantica", label:"Costa Atlántica", icon:"waves" },
+  { id:"pirineos", label:"Pirineos", icon:"mountain" },
   { id:"paris", label:"París", icon:"eiffel" },
-  { id:"lyon", label:"Lyon", icon:"city" },
-  { id:"burdeos", label:"Burdeos", icon:"grapes" },
-  { id:"toulouse", label:"Toulouse", icon:"building" },
-  { id:"montpellier", label:"Montpellier", icon:"sun" },
+  { id:"corcega", label:"Córcega", icon:"island" },
+  { id:"costa-azul", label:"Costa Azul", icon:"waves" },
+  { id:"pais-vasco", label:"País Vasco", icon:"wind" },
   { id:"otras", label:"Otras", icon:"leaf" },
 ];
 
@@ -1239,7 +1241,9 @@ if (!error && data) setOfertasDB(data);
   'pais-vasco': 'País Vasco',
   'provenza': 'Provenza',
   'borgona': 'Borgoña / Ródano',
-  'pirineos': 'Pirineos'
+  'pirineos': 'Pirineos',
+  'paris': 'París',
+  'otras': 'Otras'
 };
 const mr = regionActiva==="todas"||o.region===(REGION_MAP[regionActiva]||regionActiva);
   const ma = ofertasDB.length > 0 ? (esAloj ? o.alojamiento===true : o.alojamiento===false) : true;
