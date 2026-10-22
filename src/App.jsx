@@ -969,12 +969,23 @@ const PASOS_PERFIL_OPCIONES = {
 };
 
 const CODIGOS_PAIS_PERFIL = [
+  // Hispanoamérica (tu público principal)
   {pais:"Argentina", dial:"+54"},{pais:"Chile", dial:"+56"},{pais:"Uruguay", dial:"+598"},
   {pais:"Perú", dial:"+51"},{pais:"Colombia", dial:"+57"},{pais:"Ecuador", dial:"+593"},
-  {pais:"Brasil", dial:"+55"},
-  {pais:"México", dial:"+52"},{pais:"Venezuela", dial:"+58"},{pais:"España", dial:"+34"},
-  {pais:"Italia", dial:"+39"},{pais:"Alemania", dial:"+49"},{pais:"Francia", dial:"+33"},
-  {pais:"Portugal", dial:"+351"},{pais:"Suiza", dial:"+41"},{pais:"Reino Unido", dial:"+44"},
+  {pais:"México", dial:"+52"},{pais:"Venezuela", dial:"+58"},{pais:"Bolivia", dial:"+591"},
+  {pais:"Paraguay", dial:"+595"},{pais:"Costa Rica", dial:"+506"},{pais:"Panamá", dial:"+507"},
+  {pais:"Guatemala", dial:"+502"},{pais:"El Salvador", dial:"+503"},{pais:"Honduras", dial:"+504"},
+  {pais:"Nicaragua", dial:"+505"},{pais:"Cuba", dial:"+53"},{pais:"República Dominicana", dial:"+1809"},
+  {pais:"Puerto Rico", dial:"+1787"},
+  // Brasil y Europa
+  {pais:"Brasil", dial:"+55"},{pais:"España", dial:"+34"},{pais:"Francia", dial:"+33"},
+  {pais:"Italia", dial:"+39"},{pais:"Portugal", dial:"+351"},{pais:"Alemania", dial:"+49"},
+  {pais:"Suiza", dial:"+41"},{pais:"Reino Unido", dial:"+44"},{pais:"Bélgica", dial:"+32"},
+  {pais:"Países Bajos", dial:"+31"},{pais:"Irlanda", dial:"+353"},{pais:"Luxemburgo", dial:"+352"},
+  {pais:"Austria", dial:"+43"},{pais:"Andorra", dial:"+376"},{pais:"Mónaco", dial:"+377"},
+  // Resto
+  {pais:"Estados Unidos / Canadá", dial:"+1"},{pais:"Australia", dial:"+61"},
+  {pais:"Nueva Zelanda", dial:"+64"},{pais:"Japón", dial:"+81"},{pais:"Corea del Sur", dial:"+82"},
 ];
 
 const PASOS_PERFIL_TOTAL = 9;
